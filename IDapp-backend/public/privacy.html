@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - IDA - Indian Drivers Association</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0F0F1A;
+            color: #E0E0E0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        /* Header */
+        header {
+            background-color: #1A1A2E;
+            padding: 1.5rem 0;
+            border-bottom: 2px solid #FF6B00;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .back-btn {
+            background-color: #FF6B00;
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background-color: #E55A00;
+        }
+
+        .header-title {
+            flex: 1;
+        }
+
+        .header-title h1 {
+            font-size: 28px;
+            color: #FF6B00;
+            font-weight: 700;
+        }
+
+        .header-title p {
+            font-size: 12px;
+            color: #999;
+            margin-top: 0.25rem;
+        }
+
+        /* Main Content */
+        main {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem;
+        }
+
+        .intro {
+            background-color: #1A1A2E;
+            padding: 2rem;
+            border-left: 4px solid #FF6B00;
+            margin-bottom: 2rem;
+            border-radius: 6px;
+        }
+
+        .intro h2 {
+            color: #FF6B00;
+            margin-bottom: 1rem;
+            font-size: 20px;
+        }
+
+        .intro p {
+            font-size: 15px;
+            line-height: 1.7;
+            color: #B0B0B0;
+        }
+
+        /* Section Styles */
+        section {
+            margin-bottom: 2.5rem;
+        }
+
+        h2 {
+            color: #FF6B00;
+            font-size: 24px;
+            margin-bottom: 1rem;
+            margin-top: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #333;
+        }
+
+        h3 {
+            color: #E0E0E0;
+            font-size: 18px;
+            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+        }
+
+        p, li {
+            color: #B0B0B0;
+            margin-bottom: 1rem;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        ul, ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.6rem;
+        }
+
+        strong {
+            color: #FF6B00;
+        }
+
+        /* Highlight boxes */
+        .highlight {
+            background-color: rgba(255, 107, 0, 0.1);
+            border-left: 4px solid #FF6B00;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .highlight p {
+            margin: 0;
+        }
+
+        /* Data table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background-color: #1A1A2E;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .data-table th {
+            background-color: #FF6B00;
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .data-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #333;
+            color: #B0B0B0;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:hover {
+            background-color: rgba(255, 107, 0, 0.05);
+        }
+
+        /* Footer */
+        footer {
+            background-color: #1A1A2E;
+            padding: 2rem;
+            text-align: center;
+            border-top: 2px solid #FF6B00;
+            margin-top: 3rem;
+        }
+
+        footer p {
+            color: #666;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        footer a {
+            color: #FF6B00;
+            text-decoration: none;
+            margin: 0 0.5rem;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            h3 {
+                font-size: 16px;
+            }
+
+            p, li {
+                font-size: 14px;
+            }
+
+            main {
+                padding: 2rem 1rem;
+            }
+
+            .header-title h1 {
+                font-size: 24px;
+            }
+
+            .data-table {
+                font-size: 13px;
+            }
+
+            .data-table th, .data-table td {
+                padding: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <a href="/" class="back-btn">← Back</a>
+            <div class="header-title">
+                <h1>Privacy Policy</h1>
+                <p>Last updated: March 2026</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <div class="intro">
+            <h2>Your Privacy Matters to Us</h2>
+            <p>IDA - Indian Drivers Association, operated by Indian Drivers Association, is committed to protecting your personal data and privacy. This Privacy Policy explains how we collect, use, share, and protect your information when you use our ride-hailing platform in Karnataka, India.</p>
+        </div>
+
+        <!-- Data Collection -->
+        <section>
+            <h2>1. Data We Collect</h2>
+            <p>We collect various types of information to provide and improve our services:</p>
+
+            <h3>Personal Information</h3>
+            <ul>
+                <li><strong>Name and Contact Details:</strong> Full name, phone number, email address</li>
+                <li><strong>Identity Verification:</strong> Government ID, driving license (for drivers)</li>
+                <li><strong>Payment Information:</strong> Bank details, UPI IDs, payment method preferences</li>
+                <li><strong>Location Data:</strong> Real-time GPS coordinates, pickup and drop-off locations</li>
+                <li><strong>Ride History:</strong> Journey details, duration, distance, fare paid, driver and passenger ratings</li>
+                <li><strong>Profile Information:</strong> Photograph, vehicle details (for drivers)</li>
+            </ul>
+
+            <h3>Automatically Collected Data</h3>
+            <ul>
+                <li><strong>Device Information:</strong> Phone model, OS version, app version, device ID</li>
+                <li><strong>Usage Analytics:</strong> Features used, pages visited, time spent, interaction patterns</li>
+                <li><strong>Network Information:</strong> IP address, WiFi/mobile network data</li>
+                <li><strong>Cookies and Tracking:</strong> Session identifiers, preference data</li>
+            </ul>
+
+            <h3>Information from Third Parties</h3>
+            <ul>
+                <li>Background check reports (from verification providers)</li>
+                <li>KYC verification documents (from government verification services)</li>
+                <li>Payment processor information</li>
+                <li>Driver and rider ratings shared between connected users</li>
+            </ul>
+        </section>
+
+        <!-- How We Use Data -->
+        <section>
+            <h2>2. How We Use Your Data</h2>
+            <p>IDA - Indian Drivers Association uses collected data for the following purposes:</p>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Purpose</th>
+                        <th>Data Used</th>
+                        <th>Legal Basis</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Service Delivery & Matching</td>
+                        <td>Location, profile, preferences</td>
+                        <td>Performance of contract</td>
+                    </tr>
+                    <tr>
+                        <td>Billing & Payment Processing</td>
+                        <td>Payment details, ride history</td>
+                        <td>Performance of contract</td>
+                    </tr>
+                    <tr>
+                        <td>Safety & Fraud Prevention</td>
+                        <td>Location, transaction history, device info</td>
+                        <td>Legal obligation & legitimate interest</td>
+                    </tr>
+                    <tr>
+                        <td>Platform Analytics & Improvement</td>
+                        <td>Usage patterns, feedback, ratings</td>
+                        <td>Legitimate interest</td>
+                    </tr>
+                    <tr>
+                        <td>Customer Support</td>
+                        <td>All personal information</td>
+                        <td>Performance of contract</td>
+                    </tr>
+                    <tr>
+                        <td>Marketing & Communications</td>
+                        <td>Contact info, preferences, usage</td>
+                        <td>Consent & legitimate interest</td>
+                    </tr>
+                    <tr>
+                        <td>Emergency Services</td>
+                        <td>Location, emergency contacts</td>
+                        <td>Legal obligation & vital interest</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Data Sharing -->
+        <section>
+            <h2>3. Data Sharing & Disclosure</h2>
+            <p>We may share your personal data with the following parties:</p>
+
+            <h3>With Drivers (During Rides)</h3>
+            <ul>
+                <li>Your name, pickup/drop-off location, and destination</li>
+                <li>Contact number for ride coordination</li>
+                <li>Rating and ride history (aggregate)</li>
+                <li>Special requirements (accessibility needs, luggage, etc.)</li>
+            </ul>
+
+            <h3>With Payment Processors</h3>
+            <ul>
+                <li><strong>Razorpay:</strong> Payment details, transaction history (PCI-DSS compliant)</li>
+                <li><strong>UPI Providers:</strong> Transaction authorization and confirmation</li>
+            </ul>
+
+            <h3>With Third-Party Service Providers</h3>
+            <ul>
+                <li><strong>Surepass:</strong> Government ID verification and KYC validation</li>
+                <li><strong>SMS/Email Providers:</strong> Notification delivery</li>
+                <li><strong>Analytics Services:</strong> Aggregated, anonymized usage data</li>
+                <li><strong>Cloud Hosting Providers:</strong> Data storage and backup</li>
+            </ul>
+
+            <h3>Legal Disclosures</h3>
+            <ul>
+                <li><strong>Emergency Services:</strong> Location and contact info in emergencies (SOS activation)</li>
+                <li><strong>Law Enforcement:</strong> Information required by court orders or legal processes</li>
+                <li><strong>Government Authorities:</strong> As mandated by Indian law (MeitY, Traffic Police, etc.)</li>
+            </ul>
+
+            <div class="highlight">
+                <p><strong>Important:</strong> We do NOT sell your personal data to third parties for marketing purposes without your explicit consent.</p>
+            </div>
+        </section>
+
+        <!-- Location Data -->
+        <section>
+            <h2>4. Location Data Handling</h2>
+            <h3>Real-Time Location During Rides</h3>
+            <p>While you are on a ride:</p>
+            <ul>
+                <li>Your precise GPS location is tracked in real-time</li>
+                <li>Location is shared with the assigned driver for navigation</li>
+                <li>Location is available to your emergency contacts if you activate SOS</li>
+                <li>Location data is transmitted via encrypted HTTPS connections</li>
+            </ul>
+
+            <h3>Location Data Storage</h3>
+            <ul>
+                <li>Historical location data is stored for <strong>180 days</strong> for safety and dispute resolution</li>
+                <li>Locations are anonymized after retention period</li>
+                <li>You can request location history deletion by contacting privacy@idapp.in</li>
+            </ul>
+
+            <h3>Location Permissions</h3>
+            <p>IDA - Indian Drivers Association requires location permissions to:</p>
+            <ul>
+                <li>Identify nearby drivers and show accurate ETA</li>
+                <li>Provide navigation to pickup location</li>
+                <li>Track ride progress and enable emergency features</li>
+            </ul>
+            <p>You can disable location services in your phone settings, but this will prevent full use of ride-hailing features.</p>
+        </section>
+
+        <!-- KYC Document Handling -->
+        <section>
+            <h2>5. KYC & Document Security</h2>
+            <h3>Driver KYC Process</h3>
+            <p>All drivers must submit the following documents for verification:</p>
+            <ul>
+                <li>Government-issued ID (Aadhaar, PAN, Passport)</li>
+                <li>Driving License with validity confirmation</li>
+                <li>Vehicle Registration Certificate (RC)</li>
+                <li>Insurance Certificate</li>
+                <li>Photograph for identity verification</li>
+            </ul>
+
+            <h3>Document Encryption & Storage</h3>
+            <div class="highlight">
+                <p>All KYC documents are encrypted using AES-256 encryption and stored on secure, access-controlled servers.</p>
+            </div>
+            <ul>
+                <li>Documents are encrypted at rest and in transit</li>
+                <li>Access is limited to authorized personnel only</li>
+                <li>Audit logs track all document access</li>
+                <li>Documents are securely deleted upon account closure (after 3 years for compliance)</li>
+            </ul>
+
+            <h3>Government Verification (Surepass)</h3>
+            <p>IDA - Indian Drivers Association partners with Surepass for government-level KYC verification:</p>
+            <ul>
+                <li>Aadhaar and driving license validation occurs via government APIs</li>
+                <li>Personal data is shared with Surepass only for verification purposes</li>
+                <li>Surepass operates under NISM and government data protection guidelines</li>
+                <li>Verification results are cached securely for 12 months</li>
+            </ul>
+        </section>
+
+        <!-- User Rights -->
+        <section>
+            <h2>6. Your Data Rights</h2>
+            <p>Under Indian data protection laws, you have the following rights:</p>
+
+            <h3>Right to Access</h3>
+            <p>You can request a copy of all personal data we hold about you. Submit requests to privacy@idapp.in with your phone number and request will be fulfilled within 30 days.</p>
+
+            <h3>Right to Correction</h3>
+            <p>You can update or correct inaccurate information through your account settings. For complex corrections, contact support@idapp.in.</p>
+
+            <h3>Right to Deletion (Right to be Forgotten)</h3>
+            <p>You can request deletion of your account and associated data, subject to:</p>
+            <ul>
+                <li>Completion of all active rides and settlements</li>
+                <li>Resolution of pending payment disputes</li>
+                <li>Retention of necessary records for tax/legal compliance (7 years minimum)</li>
+            </ul>
+            <p>Deletion requests can be submitted to privacy@idapp.in and will be processed within 45 days.</p>
+
+            <h3>Right to Withdraw Consent</h3>
+            <p>You can withdraw consent for marketing communications at any time by clicking "Unsubscribe" in emails or contacting privacy@idapp.in.</p>
+
+            <h3>Right to Lodge a Complaint</h3>
+            <p>If you believe your data rights have been violated, you may file a complaint with the Indian government's data protection authorities.</p>
+        </section>
+
+        <!-- Data Retention -->
+        <section>
+            <h2>7. Data Retention</h2>
+            <p>IDA - Indian Drivers Association retains personal data for the following periods:</p>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Data Type</th>
+                        <th>Retention Period</th>
+                        <th>Reason</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Account & Profile Data</td>
+                        <td>Duration of account + 1 year</td>
+                        <td>Account recovery, dispute resolution</td>
+                    </tr>
+                    <tr>
+                        <td>Ride History & Location</td>
+                        <td>180 days</td>
+                        <td>Safety, dispute resolution, analytics</td>
+                    </tr>
+                    <tr>
+                        <td>Payment Records</td>
+                        <td>7 years</td>
+                        <td>Tax, legal compliance, audit trail</td>
+                    </tr>
+                    <tr>
+                        <td>KYC Documents</td>
+                        <td>3 years after account closure</td>
+                        <td>Legal compliance, regulatory requirements</td>
+                    </tr>
+                    <tr>
+                        <td>Support Chat Logs</td>
+                        <td>2 years</td>
+                        <td>Service quality, dispute resolution</td>
+                    </tr>
+                    <tr>
+                        <td>Cookies & Tracking IDs</td>
+                        <td>13 months</td>
+                        <td>User preference, analytics</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p>After retention periods expire, data is securely deleted or anonymized.</p>
+        </section>
+
+        <!-- Security Measures -->
+        <section>
+            <h2>8. Security Measures</h2>
+            <p>IDA - Indian Drivers Association implements comprehensive security practices to protect your data:</p>
+
+            <h3>Technical Security</h3>
+            <ul>
+                <li><strong>Encryption:</strong> HTTPS/TLS 1.3 for all data transmission; AES-256 for stored data</li>
+                <li><strong>Authentication:</strong> Multi-factor authentication available for accounts</li>
+                <li><strong>Network Security:</strong> Firewalls, DDoS protection, regular penetration testing</li>
+                <li><strong>Database Security:</strong> Encryption, access controls, backup redundancy</li>
+            </ul>
+
+            <h3>Operational Security</h3>
+            <ul>
+                <li>Regular security audits and vulnerability assessments</li>
+                <li>Employee data protection training and background checks</li>
+                <li>Access controls limited to authorized personnel only</li>
+                <li>Incident response plan for data breaches</li>
+            </ul>
+
+            <h3>Data Breach Notification</h3>
+            <p>In case of a data breach affecting your information, we will notify you within 72 hours with details about the breach and steps to protect your data.</p>
+
+            <div class="highlight">
+                <p><strong>Note:</strong> While we implement industry-standard security, no system is 100% secure. Your cooperation in maintaining account security is essential.</p>
+            </div>
+        </section>
+
+        <!-- Children's Privacy -->
+        <section>
+            <h2>9. Children's Privacy</h2>
+            <p>IDA - Indian Drivers Association is <strong>not intended for users under 18 years old</strong>. We do not knowingly collect data from children:</p>
+            <ul>
+                <li>IDA - Indian Drivers Association requires users to be at least 18 years old to create an account</li>
+                <li>Parents/guardians cannot create accounts on behalf of minors</li>
+                <li>If we discover a minor has created an account, we will disable it immediately</li>
+                <li>We comply with the Children's Online Privacy Protection considerations under Indian law</li>
+            </ul>
+            <p>If you believe a minor has created an IDA - Indian Drivers Association account, please contact us immediately at privacy@idapp.in.</p>
+        </section>
+
+        <!-- Policy Changes -->
+        <section>
+            <h2>10. Changes to This Privacy Policy</h2>
+            <p>IDA - Indian Drivers Association may update this Privacy Policy periodically to reflect changes in our practices, technology, legal requirements, or other factors. We will:</p>
+            <ul>
+                <li>Notify you of significant changes via email or in-app notification</li>
+                <li>Provide at least 30 days' notice before changes take effect</li>
+                <li>Update the "Last updated" date at the top of this policy</li>
+                <li>Maintain previous versions of the policy upon request</li>
+            </ul>
+            <p>Continued use of IDA - Indian Drivers Association after policy changes indicates your acceptance of the updated terms.</p>
+        </section>
+
+        <!-- International Transfers -->
+        <section>
+            <h2>11. Data Transfers</h2>
+            <p>IDA - Indian Drivers Association operates primarily in India. Your data is primarily stored and processed within India on secure servers. In some cases, data may be transferred to:</p>
+            <ul>
+                <li>Cloud service providers with facilities outside India</li>
+                <li>International payment processors (Razorpay operates globally)</li>
+                <li>Third-party service providers with international operations</li>
+            </ul>
+            <p>All international transfers comply with data protection agreements and security standards equivalent to Indian regulations.</p>
+        </section>
+
+        <!-- Contact -->
+        <section>
+            <h2>12. Contact Us</h2>
+            <p>For privacy-related inquiries, data access requests, or concerns about your personal data, please contact:</p>
+            <ul>
+                <li><strong>Email:</strong> privacy@idapp.in</li>
+                <li><strong>Support Email:</strong> support@idapp.in</li>
+                <li><strong>Organization:</strong> Indian Drivers Association</li>
+                <li><strong>Jurisdiction:</strong> Karnataka, India</li>
+            </ul>
+            <p>We aim to respond to privacy inquiries within 10 business days.</p>
+        </section>
+
+        <div class="highlight" style="margin-top: 3rem;">
+            <p style="margin: 0;">By using IDA - Indian Drivers Association, you acknowledge that you have read and understood this Privacy Policy and consent to the collection and processing of your personal data as described herein.</p>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>IDA - Indian Drivers Association - Indian Drivers Association © 2026</p>
+        <p style="margin-top: 0.5rem;"><a href="/privacy.html">Privacy Policy</a> | <a href="/terms.html">Terms of Service</a> | <a href="/">Home</a></p>
+    </footer>
+</body>
+</html>

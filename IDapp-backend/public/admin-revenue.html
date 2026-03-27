@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IDA - Indian Drivers Association Admin - Revenue Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0F0F1A 0%, #1a1a2e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #0F0F1A 0%, #1a1a2e 100%);
+            z-index: 1000;
+        }
+
+        .login-box {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 107, 0, 0.2);
+            padding: 40px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-box h1 {
+            color: #FF6B00;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #b0b0b0;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 107, 0, 0.3);
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #FF6B00;
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 10px rgba(255, 107, 0, 0.2);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #FF6B00 0%, #ff8f00 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 107, 0, 0.4);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .error-msg {
+            color: #ff6b6b;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .dashboard {
+            display: none;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 107, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 32px;
+            color: #FF6B00;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #a0a0a0;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #4CAF50;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: rgba(255, 107, 0, 0.2);
+            color: #FF6B00;
+            border: 1px solid #FF6B00;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            background: rgba(255, 107, 0, 0.3);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 107, 0, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            animation: slideUp 0.6s ease-out;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            border-color: rgba(255, 107, 0, 0.3);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .metric-label {
+            color: #a0a0a0;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #FF6B00;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1200px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 107, 0, 0.1);
+            border-radius: 12px;
+            padding: 25px;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        .card h2 {
+            color: #FF6B00;
+            font-size: 18px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-container {
+            height: 300px;
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .bar {
+            flex: 1;
+            background: linear-gradient(180deg, #FF6B00 0%, #ff8f00 100%);
+            border-radius: 8px 8px 0 0;
+            position: relative;
+            transition: all 0.3s ease;
+            min-height: 10px;
+        }
+
+        .bar:hover {
+            opacity: 0.8;
+            filter: drop-shadow(0 0 10px rgba(255, 107, 0, 0.5));
+        }
+
+        .bar-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            color: #a0a0a0;
+            white-space: nowrap;
+        }
+
+        .chart-legend {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 107, 0, 0.1);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #a0a0a0;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            background: #FF6B00;
+            border-radius: 2px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .filter-group label {
+            color: #a0a0a0;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 107, 0, 0.2);
+            border-radius: 6px;
+            color: #e0e0e0;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: #FF6B00;
+            box-shadow: 0 0 8px rgba(255, 107, 0, 0.2);
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead {
+            background: rgba(255, 107, 0, 0.1);
+        }
+
+        th {
+            padding: 12px;
+            text-align: left;
+            color: #FF6B00;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255, 107, 0, 0.2);
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(255, 107, 0, 0.1);
+            color: #d0d0d0;
+        }
+
+        tr:hover {
+            background: rgba(255, 107, 0, 0.05);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-completed {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+
+        .status-pending {
+            background: rgba(255, 193, 7, 0.2);
+            color: #FFC107;
+        }
+
+        .status-cancelled {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+
+        .sos-item {
+            background: rgba(244, 67, 54, 0.1);
+            border-left: 3px solid #f44336;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+        }
+
+        .sos-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .sos-item-title {
+            color: #f44336;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .sos-item-time {
+            color: #a0a0a0;
+            font-size: 12px;
+        }
+
+        .sos-item-details {
+            color: #d0d0d0;
+            font-size: 13px;
+        }
+
+        .loading {
+            text-align: center;
+            color: #a0a0a0;
+            padding: 20px;
+        }
+
+        .loader {
+            border: 2px solid rgba(255, 107, 0, 0.2);
+            border-top: 2px solid #FF6B00;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #FF6B00;
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            gap: 12px;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #a0a0a0;
+            padding: 30px;
+            font-size: 14px;
+        }
+
+        .refresh-info {
+            font-size: 12px;
+            color: #a0a0a0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Container -->
+    <div class="login-container" id="loginContainer">
+        <div class="login-box">
+            <h1>IDA - Indian Drivers Association Admin</h1>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="login-btn">Login</button>
+                <div class="error-msg" id="errorMsg"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard Container -->
+    <div class="dashboard" id="dashboard">
+        <a href="admin.html" class="back-link">← Back to KYC Panel</a>
+
+        <div class="header">
+            <h1>Revenue Dashboard</h1>
+            <div class="header-actions">
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span>Auto-refresh: 30s</span>
+                </div>
+                <button class="btn" id="logoutBtn">Logout</button>
+            </div>
+        </div>
+
+        <div class="metrics-grid" id="metricsGrid">
+            <div class="metric-card">
+                <div class="metric-label">Today's Revenue</div>
+                <div class="metric-value" data-target="todayRevenue">₹0</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Total Revenue (30 Days)</div>
+                <div class="metric-value" data-target="totalRevenue">₹0</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Platform Earnings</div>
+                <div class="metric-value" data-target="platformEarnings">₹0</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Active Rides</div>
+                <div class="metric-value" data-target="activeRides">0</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Total Users</div>
+                <div class="metric-value" data-target="totalUsers">0</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Online Drivers</div>
+                <div class="metric-value" data-target="onlineDrivers">0</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Pending KYC</div>
+                <div class="metric-value" data-target="pendingKYC">0</div>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div class="card">
+                <h2>Revenue Trend (Last 30 Days)</h2>
+                <div class="chart-legend">
+                    <div class="legend-item">
+                        <div class="legend-dot"></div>
+                        <span>Daily Revenue</span>
+                    </div>
+                </div>
+                <div class="chart-container" id="chartContainer">
+                    <div class="loading">
+                        <div class="loader"></div>
+                        Loading chart...
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Quick Stats</h2>
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div>
+                        <div class="metric-label" style="margin-bottom: 5px;">Booking Fees (30d)</div>
+                        <div style="font-size: 20px; color: #FF6B00; font-weight: 600;" data-target="totalBookingFees">₹0</div>
+                    </div>
+                    <div>
+                        <div class="metric-label" style="margin-bottom: 5px;">Cancellation Fees (30d)</div>
+                        <div style="font-size: 20px; color: #FF6B00; font-weight: 600;" data-target="totalCancellationFees">₹0</div>
+                    </div>
+                    <div>
+                        <div class="metric-label" style="margin-bottom: 5px;">Total Rides (30d)</div>
+                        <div style="font-size: 20px; color: #FF6B00; font-weight: 600;" data-target="totalRides">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Ride History</h2>
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="statusFilter">Status</label>
+                    <select id="statusFilter">
+                        <option value="">All</option>
+                        <option value="completed">Completed</option>
+                        <option value="pending">Pending</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="dateFilter">Date</label>
+                    <input type="date" id="dateFilter">
+                </div>
+                <button class="btn" id="filterBtn">Apply Filters</button>
+            </div>
+            <div class="table-container">
+                <table id="ridesTable">
+                    <thead>
+                        <tr>
+                            <th>Ride ID</th>
+                            <th>Rider</th>
+                            <th>Driver</th>
+                            <th>Pickup</th>
+                            <th>Dropoff</th>
+                            <th>Revenue</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ridesTableBody">
+                        <tr>
+                            <td colspan="7" class="loading"><div class="loader"></div>Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>SOS Alerts</h2>
+            <div id="sosContainer">
+                <div class="no-data">No active SOS alerts</div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px; color: #a0a0a0; font-size: 12px;">
+            <span class="refresh-info">Last updated: <span id="lastUpdate">-</span> | Auto-refreshing every 30 seconds</span>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let authToken = null;
+        let currentPage = 1;
+
+        // Auth
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (username === 'idapp_admin' && password === 'IDA - Indian Drivers Association@Admin2026') {
+                authToken = btoa(username + ':' + password);
+                showDashboard();
+                loadDashboardData();
+                setInterval(loadDashboardData, 30000); // Auto-refresh every 30 seconds
+            } else {
+                document.getElementById('errorMsg').textContent = 'Invalid credentials';
+                document.getElementById('errorMsg').style.display = 'block';
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            authToken = null;
+            document.getElementById('loginContainer').style.display = 'flex';
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('loginForm').reset();
+            document.getElementById('errorMsg').style.display = 'none';
+        });
+
+        // UI Functions
+        function showDashboard() {
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+        }
+
+        // API Calls
+        async function apiCall(endpoint, options = {}) {
+            const headers = {
+                'Authorization': 'Basic ' + authToken,
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: options.method || 'GET',
+                    headers,
+                    body: options.body ? JSON.stringify(options.body) : undefined
+                });
+
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.error('API Error:', error);
+                return null;
+            }
+        }
+
+        async function loadDashboardData() {
+            const data = await apiCall('/api/admin/revenue');
+            if (!data || !data.success) return;
+
+            updateMetrics(data);
+            updateChart(data.revenue.chart);
+            loadRideHistory();
+            loadSOS();
+            updateLastUpdate();
+        }
+
+        function updateMetrics(data) {
+            const revenue = data.revenue;
+            const stats = data.stats;
+
+            animateValue(document.querySelector('[data-target="todayRevenue"]'), revenue.today.revenue, '₹');
+            animateValue(document.querySelector('[data-target="totalRevenue"]'), revenue.last30Days.totalRevenue, '₹');
+            animateValue(document.querySelector('[data-target="platformEarnings"]'), revenue.last30Days.platformEarnings, '₹');
+            animateValue(document.querySelector('[data-target="activeRides"]'), stats.activeRides);
+            animateValue(document.querySelector('[data-target="totalUsers"]'), stats.totalUsers);
+            animateValue(document.querySelector('[data-target="onlineDrivers"]'), stats.onlineDrivers);
+            animateValue(document.querySelector('[data-target="pendingKYC"]'), stats.pendingKYC);
+            animateValue(document.querySelector('[data-target="totalBookingFees"]'), revenue.last30Days.totalBookingFees, '₹');
+            animateValue(document.querySelector('[data-target="totalCancellationFees"]'), revenue.last30Days.totalCancellationFees, '₹');
+            animateValue(document.querySelector('[data-target="totalRides"]'), revenue.last30Days.totalRides);
+        }
+
+        function animateValue(element, targetValue, prefix = '') {
+            if (!element) return;
+
+            const currentValue = parseInt(element.textContent.replace(/[^\d]/g, '')) || 0;
+            const increment = Math.ceil((targetValue - currentValue) / 20);
+            let current = currentValue;
+
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= targetValue) {
+                    current = targetValue;
+                    clearInterval(timer);
+                }
+
+                const formatted = current.toLocaleString('en-IN');
+                element.textContent = prefix ? prefix + formatted : formatted;
+            }, 20);
+        }
+
+        function updateChart(chartData) {
+            const container = document.getElementById('chartContainer');
+
+            if (!chartData || chartData.length === 0) {
+                container.innerHTML = '<div class="no-data">No data available</div>';
+                return;
+            }
+
+            const maxRevenue = Math.max(...chartData.map(d => d.revenue || 0));
+            const chartHtml = chartData.slice(-30).map(item => {
+                const height = maxRevenue > 0 ? (item.revenue / maxRevenue) * 100 : 0;
+                const date = new Date(item.date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+                return `
+                    <div class="bar" style="height: ${height}%; min-height: 10px;" title="₹${item.revenue.toLocaleString('en-IN')}">
+                        <div class="bar-label">${date}</div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = chartHtml;
+        }
+
+        async function loadRideHistory() {
+            const status = document.getElementById('statusFilter').value;
+            const date = document.getElementById('dateFilter').value;
+
+            let url = '/api/admin/rides?page=1&limit=20';
+            if (status) url += '&status=' + status;
+            if (date) url += '&date=' + date;
+
+            const data = await apiCall(url);
+            const tbody = document.getElementById('ridesTableBody');
+
+            if (!data || !data.success || !data.rides || data.rides.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="no-data">No rides found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.rides.map(ride => `
+                <tr>
+                    <td>${ride.rideId || '-'}</td>
+                    <td>${ride.riderName || '-'}</td>
+                    <td>${ride.driverName || '-'}</td>
+                    <td>${ride.pickup || '-'}</td>
+                    <td>${ride.dropoff || '-'}</td>
+                    <td>₹${(ride.revenue || 0).toLocaleString('en-IN')}</td>
+                    <td><span class="status-badge status-${ride.status || 'pending'}">${ride.status || 'Pending'}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        async function loadSOS() {
+            const data = await apiCall('/api/admin/sos');
+            const container = document.getElementById('sosContainer');
+
+            if (!data || !data.success || !data.alerts || data.alerts.length === 0) {
+                container.innerHTML = '<div class="no-data">No active SOS alerts</div>';
+                return;
+            }
+
+            container.innerHTML = data.alerts.map(alert => {
+                const time = new Date(alert.timestamp).toLocaleTimeString('en-IN');
+                return `
+                    <div class="sos-item">
+                        <div class="sos-item-header">
+                            <div class="sos-item-title">⚠️ SOS Alert from ${alert.riderName || 'Unknown'}</div>
+                            <div class="sos-item-time">${time}</div>
+                        </div>
+                        <div class="sos-item-details">
+                            Ride ID: ${alert.rideId || '-'} | Location: ${alert.location || '-'} | Status: ${alert.status || 'Active'}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateLastUpdate() {
+            const now = new Date().toLocaleTimeString('en-IN');
+            document.getElementById('lastUpdate').textContent = now;
+        }
+
+        // Filter button
+        document.getElementById('filterBtn').addEventListener('click', loadRideHistory);
+
+        // Date input - set default to today
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('dateFilter').value = today;
+    </script>
+</body>
+</html>

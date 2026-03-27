@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IDapp - App Configuration Questionnaire</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root { --primary: #FF6B00; --dark: #1A1A2E; --success: #22C55E; --bg: #F8F9FB; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px; }
+
+  .container { max-width: 480px; width: 100%; }
+
+  /* Progress bar */
+  .progress-wrap { background: #E5E7EB; border-radius: 20px; height: 8px; margin-bottom: 20px; overflow: hidden; }
+  .progress-fill { background: linear-gradient(90deg, var(--primary), #FF9A3C); height: 100%; border-radius: 20px; transition: width 0.5s cubic-bezier(0.4,0,0.2,1); width: 0%; }
+  .progress-text { font-size: 13px; color: #6B7280; margin-bottom: 8px; text-align: right; font-weight: 600; }
+
+  /* Question card */
+  .q-card { background: white; border-radius: 20px; padding: 28px 24px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); animation: slideIn 0.4s cubic-bezier(0.4,0,0.2,1); }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+  .q-number { font-size: 13px; color: var(--primary); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .q-title { font-size: 20px; font-weight: 800; color: var(--dark); margin-bottom: 4px; line-height: 1.3; }
+  .q-desc { font-size: 13px; color: #6B7280; margin-bottom: 20px; }
+
+  /* Options */
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .opt-btn { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: #F3F4F6; border: 2px solid transparent; border-radius: 14px; cursor: pointer; font-size: 15px; font-weight: 600; color: var(--dark); transition: all 0.2s; text-align: left; }
+  .opt-btn:hover { border-color: var(--primary); background: #FFF7ED; transform: scale(1.02); }
+  .opt-btn:active { transform: scale(0.98); }
+  .opt-btn .opt-letter { width: 32px; height: 32px; border-radius: 10px; background: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; color: var(--primary); border: 2px solid #E5E7EB; flex-shrink: 0; }
+  .opt-btn:hover .opt-letter { border-color: var(--primary); background: var(--primary); color: white; }
+  .opt-btn .opt-text { flex: 1; }
+
+  /* Selected state */
+  .opt-btn.selected { border-color: var(--success); background: #F0FFF4; }
+  .opt-btn.selected .opt-letter { background: var(--success); border-color: var(--success); color: white; }
+
+  /* Results */
+  .results-card { background: white; border-radius: 20px; padding: 28px 24px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); animation: slideIn 0.4s; }
+  .results-title { font-size: 24px; font-weight: 800; color: var(--dark); margin-bottom: 4px; }
+  .results-sub { font-size: 14px; color: #6B7280; margin-bottom: 20px; }
+  .result-item { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid #F3F4F6; font-size: 13px; }
+  .result-item:last-child { border: none; }
+  .result-q { color: #6B7280; min-width: 40%; }
+  .result-a { font-weight: 700; color: var(--dark); }
+  .copy-btn { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 14px; font-size: 16px; font-weight: 800; cursor: pointer; margin-top: 20px; transition: opacity 0.2s; }
+  .copy-btn:hover { opacity: 0.9; }
+  .copy-btn:active { transform: scale(0.98); }
+
+  /* Header logo */
+  .header { text-align: center; margin-bottom: 20px; }
+  .header h1 { font-size: 22px; color: var(--dark); }
+  .header h1 span { color: var(--primary); }
+  .header p { font-size: 13px; color: #6B7280; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>🚗 <span>IDapp</span> Setup</h1>
+    <p>Tap your choice for each question</p>
+  </div>
+
+  <div class="progress-text" id="progressText">Question 1 of 35</div>
+  <div class="progress-wrap"><div class="progress-fill" id="progressFill"></div></div>
+
+  <div id="questionArea"></div>
+</div>
+
+<script>
+const questions = [
+  // WALLET & MONEY
+  { id: 'min_topup', category: 'WALLET & MONEY', title: 'Minimum wallet top-up amount?', desc: 'Smallest amount a customer can add to wallet', options: [
+    { letter: 'A', text: '₹50' }, { letter: 'B', text: '₹100' }, { letter: 'C', text: '₹200' }, { letter: 'D', text: '₹500' }
+  ]},
+  { id: 'max_wallet', category: 'WALLET & MONEY', title: 'Maximum wallet balance?', desc: 'Most a customer can hold in their wallet', options: [
+    { letter: 'A', text: '₹5,000' }, { letter: 'B', text: '₹10,000' }, { letter: 'C', text: '₹20,000' }, { letter: 'D', text: 'No limit' }
+  ]},
+  { id: 'booking_fee', category: 'WALLET & MONEY', title: 'Booking fee per ride?', desc: 'Amount deducted from wallet per booking', options: [
+    { letter: 'A', text: '₹30 flat' }, { letter: 'B', text: '₹50 flat (current)' }, { letter: 'C', text: '₹50 + 10% of fare' }, { letter: 'D', text: '15% of total fare (no flat fee)' }
+  ]},
+  { id: 'fee_when', category: 'WALLET & MONEY', title: 'When should the fee deduct?', desc: 'At what point in the ride does the money leave', options: [
+    { letter: 'A', text: 'When ride is BOOKED' }, { letter: 'B', text: 'When driver STARTS ride' }, { letter: 'C', text: 'When ride COMPLETES' }, { letter: 'D', text: '₹50 when booked, rest on complete' }
+  ]},
+  { id: 'low_balance', category: 'WALLET & MONEY', title: 'If wallet balance is too low?', desc: 'What happens when customer cant cover the fee', options: [
+    { letter: 'A', text: 'Block booking — must top up first' }, { letter: 'B', text: 'Allow, pay remaining via UPI/card' }, { letter: 'C', text: 'Allow, remaining becomes due balance' }
+  ]},
+  { id: 'refund_policy', category: 'WALLET & MONEY', title: 'Refund policy on cancellation?', desc: 'What does the customer get back', options: [
+    { letter: 'A', text: 'Full refund before driver arrives, none after' }, { letter: 'B', text: 'Full before assigned, 50% after assigned' }, { letter: 'C', text: 'Full before arrival, ₹30 cancel fee after' }, { letter: 'D', text: 'No refunds ever' }
+  ]},
+  { id: 'refund_method', category: 'WALLET & MONEY', title: 'Refund goes where?', desc: 'How does the customer receive their refund', options: [
+    { letter: 'A', text: 'Back to wallet instantly' }, { letter: 'B', text: 'Back to original payment (5-7 days)' }, { letter: 'C', text: 'Customer chooses wallet or bank' }
+  ]},
+  { id: 'commission', category: 'WALLET & MONEY', title: 'Your commission from each ride?', desc: 'Percentage you keep from every ride fare', options: [
+    { letter: 'A', text: '10%' }, { letter: 'B', text: '15%' }, { letter: 'C', text: '20%' }, { letter: 'D', text: '25% (like Uber)' }
+  ]},
+  { id: 'driver_wallet', category: 'WALLET & MONEY', title: 'Driver earnings go to?', desc: 'How do drivers receive their money', options: [
+    { letter: 'A', text: 'Driver wallet (they withdraw later)' }, { letter: 'B', text: 'Direct to bank after each ride' }, { letter: 'C', text: 'Weekly automatic bank transfer' }, { letter: 'D', text: 'Daily automatic bank transfer' }
+  ]},
+
+  // DRIVER MATCHING
+  { id: 'search_radius', category: 'DRIVER MATCHING', title: 'Search radius for nearest driver?', desc: 'How far to look for available drivers', options: [
+    { letter: 'A', text: '2 km' }, { letter: 'B', text: '3 km' }, { letter: 'C', text: '5 km' }, { letter: 'D', text: 'Start 2km, expand to 5km if none found' }
+  ]},
+  { id: 'accept_time', category: 'DRIVER MATCHING', title: 'Time for driver to accept ride?', desc: 'How many seconds before it goes to next driver', options: [
+    { letter: 'A', text: '15 seconds' }, { letter: 'B', text: '20 seconds' }, { letter: 'C', text: '30 seconds' }, { letter: 'D', text: '45 seconds' }
+  ]},
+  { id: 'driver_see_fare', category: 'DRIVER MATCHING', title: 'Should driver see fare BEFORE accepting?', desc: 'Show estimated earnings before they accept', options: [
+    { letter: 'A', text: 'Yes, show full fare' }, { letter: 'B', text: 'Show only estimate range' }, { letter: 'C', text: 'No, show after accepting' }
+  ]},
+  { id: 'driver_see_dest', category: 'DRIVER MATCHING', title: 'Should driver see destination BEFORE accepting?', desc: 'Some drivers reject long/short rides', options: [
+    { letter: 'A', text: 'Yes, show full destination' }, { letter: 'B', text: 'Show only distance & direction' }, { letter: 'C', text: 'No, show after accepting' }
+  ]},
+  { id: 'no_driver', category: 'DRIVER MATCHING', title: 'If no driver accepts the ride?', desc: 'After trying all nearby drivers', options: [
+    { letter: 'A', text: 'Cancel and refund' }, { letter: 'B', text: 'Keep searching for 5 more minutes' }, { letter: 'C', text: 'Suggest trying a different vehicle type' }, { letter: 'D', text: 'Auto-increase fare by 10% to attract drivers' }
+  ]},
+
+  // RIDE FLOW
+  { id: 'ride_otp', category: 'RIDE FLOW', title: 'Ride start OTP (like Uber)?', desc: 'Customer gets OTP, driver enters to start ride', options: [
+    { letter: 'A', text: 'Yes, 4-digit OTP every ride' }, { letter: 'B', text: 'Only for night rides (11PM-5AM)' }, { letter: 'C', text: 'No OTP needed' }
+  ]},
+  { id: 'surge', category: 'RIDE FLOW', title: 'Surge pricing during peak/rain?', desc: 'Price multiplier when demand is high', options: [
+    { letter: 'A', text: 'No surge — fixed prices always' }, { letter: 'B', text: '1.2x to 1.5x' }, { letter: 'C', text: '1.5x to 2x' }, { letter: 'D', text: 'Up to 3x (like Uber)' }
+  ]},
+  { id: 'tolls', category: 'RIDE FLOW', title: 'Toll charges?', desc: 'Who pays for toll roads', options: [
+    { letter: 'A', text: 'Added to customer fare automatically' }, { letter: 'B', text: 'Driver pays from their earnings' }, { letter: 'C', text: 'Split 50/50' }
+  ]},
+  { id: 'waiting', category: 'RIDE FLOW', title: 'Waiting charges?', desc: 'If customer makes driver wait after arrival', options: [
+    { letter: 'A', text: '₹1/min after 3 min free wait' }, { letter: 'B', text: '₹2/min after 5 min free wait' }, { letter: 'C', text: '₹3/min after 3 min free wait' }, { letter: 'D', text: 'No waiting charges' }
+  ]},
+  { id: 'night_charge', category: 'RIDE FLOW', title: 'Night charges (11PM - 5AM)?', desc: 'Extra cost for late night rides', options: [
+    { letter: 'A', text: 'No extra charge' }, { letter: 'B', text: '+10% night surcharge' }, { letter: 'C', text: '+20% night surcharge' }, { letter: 'D', text: '+25% night surcharge' }
+  ]},
+  { id: 'cancel_fee', category: 'RIDE FLOW', title: 'Cancellation fee after driver assigned?', desc: 'If customer cancels after a driver is on the way', options: [
+    { letter: 'A', text: '₹0 — free cancellation' }, { letter: 'B', text: '₹25' }, { letter: 'C', text: '₹50' }, { letter: 'D', text: '₹50 + driver gets compensation' }
+  ]},
+
+  // MAP & ANIMATIONS
+  { id: 'car_rotate', category: 'MAP & VEHICLE', title: 'Car icon rotation on map?', desc: 'Should vehicle face the direction of travel', options: [
+    { letter: 'A', text: 'Yes, smooth rotation (like Uber)' }, { letter: 'B', text: 'Just show a dot, no rotation' }
+  ]},
+  { id: 'car_animate', category: 'MAP & VEHICLE', title: 'Vehicle movement animation?', desc: 'How cars move on the map', options: [
+    { letter: 'A', text: 'Smooth sliding along roads (like Uber)' }, { letter: 'B', text: 'Jump between GPS points' }
+  ]},
+  { id: 'nearby_cars', category: 'MAP & VEHICLE', title: 'Show nearby drivers on home map?', desc: 'Before booking, show available cars moving around', options: [
+    { letter: 'A', text: 'Yes, show moving cars (like Uber)' }, { letter: 'B', text: 'Show static car icons' }, { letter: 'C', text: 'No, show only after booking' }
+  ]},
+  { id: 'vehicle_icons', category: 'MAP & VEHICLE', title: 'Different icons per vehicle type?', desc: 'Bike icon for bike, auto icon for auto, etc.', options: [
+    { letter: 'A', text: 'Yes, different icon for each type' }, { letter: 'B', text: 'Same car icon for all' }
+  ]},
+  { id: 'route_line', category: 'MAP & VEHICLE', title: 'Route line animation?', desc: 'The line showing the ride path', options: [
+    { letter: 'A', text: 'Animated moving dashed line' }, { letter: 'B', text: 'Static colored line' }, { letter: 'C', text: 'Gradient line (blue to green)' }
+  ]},
+
+  // UI & EXPERIENCE
+  { id: 'dark_mode', category: 'UI & EXPERIENCE', title: 'Dark mode option?', desc: 'Let users switch to dark theme', options: [
+    { letter: 'A', text: 'Yes, toggle in settings' }, { letter: 'B', text: 'Auto (follow phone setting)' }, { letter: 'C', text: 'No, light mode only' }
+  ]},
+  { id: 'language', category: 'UI & EXPERIENCE', title: 'App language(s)?', desc: 'What languages should the app support', options: [
+    { letter: 'A', text: 'English only' }, { letter: 'B', text: 'English + Kannada' }, { letter: 'C', text: 'English + Kannada + Hindi' }, { letter: 'D', text: 'English + Hindi only' }
+  ]},
+  { id: 'sounds', category: 'UI & EXPERIENCE', title: 'Sound effects?', desc: 'Audio feedback for events', options: [
+    { letter: 'A', text: 'Yes — booking, arrived, completed sounds' }, { letter: 'B', text: 'Only notification sounds' }, { letter: 'C', text: 'No sounds' }
+  ]},
+  { id: 'splash_anim', category: 'UI & EXPERIENCE', title: 'Splash screen animation?', desc: 'How the app opens', options: [
+    { letter: 'A', text: 'Logo zoom in + fade' }, { letter: 'B', text: 'Logo bounce + pulse' }, { letter: 'C', text: 'Car driving animation + logo' }, { letter: 'D', text: 'Simple fade in' }
+  ]},
+  { id: 'ride_details', category: 'UI & EXPERIENCE', title: 'Ride details UI style?', desc: 'How ride info is shown during booking', options: [
+    { letter: 'A', text: 'Bottom sheet sliding up (like Uber)' }, { letter: 'B', text: 'Full screen page' }, { letter: 'C', text: 'Floating card on map' }
+  ]},
+  { id: 'ride_complete', category: 'UI & EXPERIENCE', title: 'Ride completion celebration?', desc: 'Animation when ride finishes', options: [
+    { letter: 'A', text: 'Confetti + thank you animation' }, { letter: 'B', text: 'Simple checkmark animation' }, { letter: 'C', text: 'Star rating popup with animation' }, { letter: 'D', text: 'All of the above!' }
+  ]},
+
+  // EXTRA FEATURES
+  { id: 'rating', category: 'EXTRA FEATURES', title: 'Rating system?', desc: 'How customers rate drivers', options: [
+    { letter: 'A', text: '5 stars only' }, { letter: 'B', text: '5 stars + written review' }, { letter: 'C', text: '5 stars + predefined tags (clean car, polite, etc.)' }, { letter: 'D', text: 'Stars + tags + written review' }
+  ]},
+  { id: 'fav_driver', category: 'EXTRA FEATURES', title: 'Favourite drivers?', desc: 'Can customer save preferred drivers', options: [
+    { letter: 'A', text: 'Yes, and can request them specifically' }, { letter: 'B', text: 'Yes, but no priority matching' }, { letter: 'C', text: 'No favourite system' }
+  ]},
+  { id: 'sos', category: 'EXTRA FEATURES', title: 'Emergency SOS action?', desc: 'What happens when SOS is pressed', options: [
+    { letter: 'A', text: 'Call police (112)' }, { letter: 'B', text: 'SMS to emergency contacts' }, { letter: 'C', text: 'Both call + SMS + share live location' }, { letter: 'D', text: 'All above + alert your admin panel' }
+  ]},
+  { id: 'chat', category: 'EXTRA FEATURES', title: 'In-app chat during ride?', desc: 'Text messaging between driver and customer', options: [
+    { letter: 'A', text: 'Yes, full chat' }, { letter: 'B', text: 'Only quick preset messages (On my way, etc.)' }, { letter: 'C', text: 'No chat, phone call only' }
+  ]},
+  { id: 'receipt', category: 'EXTRA FEATURES', title: 'Ride receipt?', desc: 'Proof of ride after completion', options: [
+    { letter: 'A', text: 'In-app receipt only' }, { letter: 'B', text: 'In-app + email receipt' }, { letter: 'C', text: 'In-app + SMS receipt' }, { letter: 'D', text: 'In-app + email + SMS' }
+  ]}
+];
+
+let current = 0;
+const answers = {};
+
+function renderQuestion() {
+  const q = questions[current];
+  const total = questions.length;
+
+  document.getElementById('progressText').textContent = `Question ${current + 1} of ${total}`;
+  document.getElementById('progressFill').style.width = ((current / total) * 100) + '%';
+
+  const area = document.getElementById('questionArea');
+  area.innerHTML = `
+    <div class="q-card">
+      <div class="q-number">${q.category}</div>
+      <div class="q-title">${q.title}</div>
+      <div class="q-desc">${q.desc}</div>
+      <div class="options">
+        ${q.options.map(opt => `
+          <button class="opt-btn" onclick="selectAnswer('${q.id}', '${opt.letter}', '${opt.text.replace(/'/g, "\\'")}')">
+            <span class="opt-letter">${opt.letter}</span>
+            <span class="opt-text">${opt.text}</span>
+          </button>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function selectAnswer(id, letter, text) {
+  answers[id] = { letter, text };
+
+  // Highlight selected
+  const btns = document.querySelectorAll('.opt-btn');
+  btns.forEach(b => b.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+
+  // Move to next after short delay
+  setTimeout(() => {
+    current++;
+    if (current < questions.length) {
+      renderQuestion();
+    } else {
+      showResults();
+    }
+  }, 400);
+}
+
+function showResults() {
+  document.getElementById('progressFill').style.width = '100%';
+  document.getElementById('progressText').textContent = 'All done! 🎉';
+
+  let summary = '';
+  questions.forEach(q => {
+    const a = answers[q.id];
+    if (a) {
+      summary += `<div class="result-item"><span class="result-q">${q.title}</span><span class="result-a">${a.letter}) ${a.text}</span></div>`;
+    }
+  });
+
+  // Build copy text
+  let copyText = '=== IDapp Configuration Answers ===\n\n';
+  questions.forEach(q => {
+    const a = answers[q.id];
+    if (a) copyText += `${q.title} → ${a.letter}) ${a.text}\n`;
+  });
+
+  document.getElementById('questionArea').innerHTML = `
+    <div class="results-card">
+      <div style="text-align:center;font-size:48px;margin-bottom:12px;">🎉</div>
+      <div class="results-title" style="text-align:center;">All Done!</div>
+      <div class="results-sub" style="text-align:center;">Here are your choices. Copy and paste this to Claude!</div>
+      <div style="max-height: 400px; overflow-y: auto; margin-top: 16px;">
+        ${summary}
+      </div>
+      <button class="copy-btn" onclick="copyResults()">📋 Copy All Answers</button>
+      <p id="copyMsg" style="text-align:center;color:var(--success);font-size:13px;margin-top:8px;display:none;">Copied! Now paste it back in the chat ✅</p>
+    </div>
+  `;
+
+  // Store for copy
+  window._copyText = copyText;
+}
+
+function copyResults() {
+  navigator.clipboard.writeText(window._copyText).then(() => {
+    document.getElementById('copyMsg').style.display = 'block';
+  }).catch(() => {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = window._copyText;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    document.getElementById('copyMsg').style.display = 'block';
+  });
+}
+
+// Start
+renderQuestion();
+</script>
+</body>
+</html>

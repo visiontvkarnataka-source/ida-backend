@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IDA - Indian Drivers Association Admin - KYC Verification Panel</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root { --primary: #FF6B00; --dark: #1A1A2E; --success: #22C55E; --danger: #EF4444; --warning: #F59E0B; --bg: #F3F4F6; --card: #FFFFFF; --text: #1F2937; --text-light: #6B7280; --radius: 12px; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* Login Screen */
+  .login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+  .login-card { background: var(--card); border-radius: var(--radius); padding: 40px; max-width: 400px; width: 100%; box-shadow: 0 4px 24px rgba(0,0,0,0.1); text-align: center; }
+  .login-card h1 { color: var(--primary); font-size: 24px; margin-bottom: 8px; }
+  .login-card p { color: var(--text-light); margin-bottom: 24px; font-size: 14px; }
+  .login-card input { width: 100%; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 8px; font-size: 14px; margin-bottom: 12px; outline: none; transition: border 0.2s; }
+  .login-card input:focus { border-color: var(--primary); }
+  .login-card button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+  .login-card button:hover { opacity: 0.9; }
+  .login-error { color: var(--danger); font-size: 13px; margin-top: 8px; display: none; }
+
+  /* Dashboard */
+  .dashboard { display: none; }
+  .dashboard.active { display: block; }
+
+  /* Header */
+  .header { background: var(--dark); color: white; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+  .header h1 { font-size: 18px; display: flex; align-items: center; gap: 8px; }
+  .header h1 span { color: var(--primary); }
+  .header-actions { display: flex; gap: 12px; align-items: center; }
+  .logout-btn { padding: 8px 16px; background: rgba(255,255,255,0.1); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; }
+  .logout-btn:hover { background: rgba(255,255,255,0.2); }
+
+  /* Stats Bar */
+  .stats-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; padding: 20px 24px; }
+  .stat-card { background: var(--card); border-radius: var(--radius); padding: 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+  .stat-number { font-size: 32px; font-weight: 800; color: var(--primary); }
+  .stat-label { font-size: 13px; color: var(--text-light); margin-top: 4px; }
+  .stat-card.pending .stat-number { color: var(--warning); }
+  .stat-card.approved .stat-number { color: var(--success); }
+  .stat-card.rejected .stat-number { color: var(--danger); }
+
+  /* Filter Bar */
+  .filter-bar { padding: 0 24px; margin-bottom: 16px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .filter-btn { padding: 8px 20px; border: 2px solid #E5E7EB; background: white; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .filter-btn.active { border-color: var(--primary); background: var(--primary); color: white; }
+  .filter-btn:hover:not(.active) { border-color: var(--primary); color: var(--primary); }
+
+  /* Application List */
+  .app-list { padding: 0 24px 24px; }
+  .app-card { background: var(--card); border-radius: var(--radius); padding: 20px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; border-left: 4px solid transparent; }
+  .app-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+  .app-card.pending_review { border-left-color: var(--warning); }
+  .app-card.approved { border-left-color: var(--success); }
+  .app-card.rejected { border-left-color: var(--danger); }
+  .app-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .app-user-id { font-weight: 700; font-size: 15px; }
+  .app-status { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+  .app-status.pending_review { background: #FEF3C7; color: #92400E; }
+  .app-status.approved { background: #D1FAE5; color: #065F46; }
+  .app-status.rejected { background: #FEE2E2; color: #991B1B; }
+  .app-status.incomplete { background: #E5E7EB; color: #374151; }
+  .app-docs-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+  .app-doc-badge { padding: 3px 8px; background: var(--bg); border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .app-doc-badge.uploaded { background: #DBEAFE; color: #1E40AF; }
+  .app-doc-badge.pending_review { background: #FEF3C7; color: #92400E; }
+  .app-doc-badge.verified { background: #D1FAE5; color: #065F46; }
+  .app-doc-badge.rejected { background: #FEE2E2; color: #991B1B; }
+  .app-date { font-size: 12px; color: var(--text-light); }
+
+  /* Detail Modal */
+  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
+  .modal-overlay.active { display: flex; }
+  .modal { background: var(--card); border-radius: var(--radius); max-width: 700px; width: 100%; max-height: 90vh; overflow-y: auto; }
+  .modal-header { padding: 20px 24px; border-bottom: 1px solid #E5E7EB; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--card); z-index: 10; border-radius: var(--radius) var(--radius) 0 0; }
+  .modal-header h2 { font-size: 18px; }
+  .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-light); padding: 4px; }
+  .modal-body { padding: 24px; }
+  .modal-section { margin-bottom: 20px; }
+  .modal-section h3 { font-size: 14px; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+
+  /* Document Review */
+  .doc-review-item { display: flex; align-items: center; justify-content: space-between; padding: 14px; background: var(--bg); border-radius: 8px; margin-bottom: 8px; }
+  .doc-review-left { display: flex; align-items: center; gap: 12px; }
+  .doc-review-icon { font-size: 24px; }
+  .doc-review-name { font-weight: 600; font-size: 14px; }
+  .doc-review-file { font-size: 12px; color: var(--text-light); }
+  .doc-review-actions { display: flex; gap: 8px; }
+  .doc-view-btn { padding: 6px 12px; background: var(--dark); color: white; border: none; border-radius: 6px; font-size: 12px; cursor: pointer; }
+  .doc-view-btn:hover { opacity: 0.9; }
+
+  /* Action Buttons */
+  .modal-actions { display: flex; gap: 12px; padding: 20px 24px; border-top: 1px solid #E5E7EB; }
+  .action-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+  .action-btn.approve { background: var(--success); color: white; }
+  .action-btn.reject { background: var(--danger); color: white; }
+  .action-btn:hover { opacity: 0.85; }
+  .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Rejection Reason */
+  .reject-reason-box { display: none; margin-top: 12px; }
+  .reject-reason-box.active { display: block; }
+  .reject-reason-box textarea { width: 100%; padding: 12px; border: 2px solid #E5E7EB; border-radius: 8px; font-size: 14px; resize: vertical; min-height: 80px; outline: none; font-family: inherit; }
+  .reject-reason-box textarea:focus { border-color: var(--danger); }
+  .reject-confirm-btn { margin-top: 8px; padding: 10px 20px; background: var(--danger); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; }
+
+  /* Empty State */
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--text-light); }
+  .empty-state-icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-state-text { font-size: 16px; }
+
+  /* Toast */
+  .admin-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--dark); color: white; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; z-index: 1000; display: none; animation: slideUp 0.3s ease; }
+  @keyframes slideUp { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+  /* Document Preview Modal */
+  .doc-preview-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 300; display: none; align-items: center; justify-content: center; }
+  .doc-preview-overlay.active { display: flex; }
+  .doc-preview-content { max-width: 90vw; max-height: 90vh; background: white; border-radius: 8px; padding: 8px; }
+  .doc-preview-content img { max-width: 100%; max-height: 85vh; object-fit: contain; }
+  .doc-preview-close { position: fixed; top: 16px; right: 20px; background: white; border: none; border-radius: 50%; width: 36px; height: 36px; font-size: 20px; cursor: pointer; z-index: 301; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <h1>IDA - Indian Drivers Association Admin</h1>
+    <p>KYC Verification Panel</p>
+    <input type="text" id="adminUser" placeholder="Admin Username" autocomplete="username">
+    <input type="password" id="adminPass" placeholder="Admin Password" autocomplete="current-password">
+    <button onclick="adminLogin()">Sign In</button>
+    <div class="login-error" id="loginError">Invalid credentials</div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard" id="dashboard">
+  <!-- Header -->
+  <div class="header">
+    <h1>🛡️ <span>IDA - Indian Drivers Association</span> Admin Panel</h1>
+    <div class="header-actions">
+      <span id="liveIndicator" style="font-size: 12px; color: #22C55E;">● Live</span>
+      <button class="logout-btn" onclick="adminLogout()">Logout</button>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-number" id="statTotal">0</div>
+      <div class="stat-label">Total Applications</div>
+    </div>
+    <div class="stat-card pending">
+      <div class="stat-number" id="statPending">0</div>
+      <div class="stat-label">Pending Review</div>
+    </div>
+    <div class="stat-card approved">
+      <div class="stat-number" id="statApproved">0</div>
+      <div class="stat-label">Approved</div>
+    </div>
+    <div class="stat-card rejected">
+      <div class="stat-number" id="statRejected">0</div>
+      <div class="stat-label">Rejected</div>
+    </div>
+  </div>
+
+  <!-- Filter -->
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="filterApps('all')">All</button>
+    <button class="filter-btn" onclick="filterApps('pending_review')">Pending</button>
+    <button class="filter-btn" onclick="filterApps('approved')">Approved</button>
+    <button class="filter-btn" onclick="filterApps('rejected')">Rejected</button>
+  </div>
+
+  <!-- Application List -->
+  <div class="app-list" id="appList">
+    <div class="empty-state">
+      <div class="empty-state-icon">📋</div>
+      <div class="empty-state-text">No KYC applications yet</div>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modalTitle">Driver KYC Review</h2>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-actions" id="modalActions"></div>
+  </div>
+</div>
+
+<!-- DOCUMENT PREVIEW -->
+<div class="doc-preview-overlay" id="docPreview" onclick="closeDocPreview()">
+  <button class="doc-preview-close" onclick="closeDocPreview()">&times;</button>
+  <div class="doc-preview-content" id="docPreviewContent" onclick="event.stopPropagation()"></div>
+</div>
+
+<!-- TOAST -->
+<div class="admin-toast" id="adminToast"></div>
+
+<script>
+  const API_BASE = window.location.origin;
+  let adminToken = '';
+  let allApplications = [];
+  let currentFilter = 'all';
+  let refreshInterval = null;
+
+  // ---- Admin Auth ----
+  function adminLogin() {
+    const user = document.getElementById('adminUser').value.trim();
+    const pass = document.getElementById('adminPass').value;
+    if (!user || !pass) { showLoginError('Please enter credentials'); return; }
+
+    adminToken = btoa(user + ':' + pass);
+
+    // Test credentials with a list call
+    fetch(API_BASE + '/api/admin/kyc/list?status=all', {
+      headers: { 'X-Admin-Auth': adminToken }
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('dashboard').classList.add('active');
+        loadApplications();
+        // Auto-refresh every 15 seconds
+        refreshInterval = setInterval(loadApplications, 15000);
+        // Setup socket for live updates
+        setupAdminSocket();
+      } else {
+        showLoginError(data.error || 'Login failed');
+        adminToken = '';
+      }
+    })
+    .catch(() => {
+      showLoginError('Cannot connect to server');
+      adminToken = '';
+    });
+  }
+
+  function adminLogout() {
+    adminToken = '';
+    if (refreshInterval) clearInterval(refreshInterval);
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('dashboard').classList.remove('active');
+  }
+
+  function showLoginError(msg) {
+    const el = document.getElementById('loginError');
+    el.textContent = msg;
+    el.style.display = 'block';
+    setTimeout(() => el.style.display = 'none', 3000);
+  }
+
+  // ---- Load Applications ----
+  async function loadApplications() {
+    try {
+      const res = await fetch(API_BASE + '/api/admin/kyc/list?status=all', {
+        headers: { 'X-Admin-Auth': adminToken }
+      });
+      const data = await res.json();
+      if (data.success) {
+        allApplications = data.applications;
+        updateStats();
+        renderApplications();
+      }
+    } catch(e) {
+      console.log('Load error:', e);
+    }
+  }
+
+  function updateStats() {
+    const total = allApplications.length;
+    const pending = allApplications.filter(a => a.status === 'pending_review').length;
+    const approved = allApplications.filter(a => a.status === 'approved').length;
+    const rejected = allApplications.filter(a => a.status === 'rejected').length;
+
+    document.getElementById('statTotal').textContent = total;
+    document.getElementById('statPending').textContent = pending;
+    document.getElementById('statApproved').textContent = approved;
+    document.getElementById('statRejected').textContent = rejected;
+  }
+
+  function renderApplications() {
+    const list = document.getElementById('appList');
+    const filtered = currentFilter === 'all' ? allApplications : allApplications.filter(a => a.status === currentFilter);
+
+    if (filtered.length === 0) {
+      list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">No applications found</div></div>';
+      return;
+    }
+
+    const docIcons = { aadhaar: '🆔', pan: '💳', license: '🪪', rc: '📋', insurance: '🛡️', photo: '📸' };
+
+    list.innerHTML = filtered.map(app => `
+      <div class="app-card ${app.status}" onclick="viewApplication('${app.userId}')">
+        <div class="app-card-header">
+          <div class="app-user-id">👤 ${app.userId}</div>
+          <span class="app-status ${app.status}">${formatStatus(app.status)}</span>
+        </div>
+        <div class="app-docs-row">
+          ${Object.entries(app.documents || {}).map(([type, doc]) =>
+            `<span class="app-doc-badge ${doc.status}">${docIcons[type] || '📄'} ${type}</span>`
+          ).join('')}
+        </div>
+        <div class="app-date">
+          ${app.submittedAt ? 'Submitted: ' + new Date(app.submittedAt).toLocaleString() : 'Created: ' + new Date(app.createdAt).toLocaleString()}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function formatStatus(s) {
+    const map = { pending_review: 'Pending Review', approved: 'Approved', rejected: 'Rejected', incomplete: 'Incomplete' };
+    return map[s] || s;
+  }
+
+  function filterApps(status) {
+    currentFilter = status;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    renderApplications();
+  }
+
+  // ---- View Application Detail ----
+  async function viewApplication(userId) {
+    try {
+      const res = await fetch(API_BASE + '/api/admin/kyc/' + userId, {
+        headers: { 'X-Admin-Auth': adminToken }
+      });
+      const data = await res.json();
+      if (!data.success) { showAdminToast('Error loading application'); return; }
+
+      const app = data.application;
+      const docIcons = { aadhaar: '🆔 Aadhaar Card', pan: '💳 PAN Card', license: '🪪 Driving License', rc: '📋 Vehicle RC', insurance: '🛡️ Vehicle Insurance', photo: '📸 Profile Photo' };
+
+      document.getElementById('modalTitle').textContent = 'KYC Review: ' + userId;
+
+      let bodyHTML = `
+        <div class="modal-section">
+          <h3>Application Status</h3>
+          <span class="app-status ${app.status}" style="font-size: 14px; padding: 6px 16px;">${formatStatus(app.status)}</span>
+          ${app.submittedAt ? `<span style="margin-left: 12px; font-size: 13px; color: var(--text-light);">Submitted ${new Date(app.submittedAt).toLocaleString()}</span>` : ''}
+          ${app.rejectionReason ? `<p style="margin-top: 10px; color: var(--danger); font-size: 13px;">Reason: ${app.rejectionReason}</p>` : ''}
+        </div>
+        <div class="modal-section">
+          <h3>Uploaded Documents</h3>
+      `;
+
+      Object.entries(app.documents || {}).forEach(([type, doc]) => {
+        const vr = doc.verificationResult;
+        let verifyBadge = '';
+        if (vr && vr.verified) {
+          verifyBadge = '<div style="margin-top:6px;padding:6px 10px;background:#D1FAE5;border-radius:6px;font-size:11px;color:#065F46;">' +
+            '✅ <strong>GOVT VERIFIED</strong> via ' + (vr.method || 'surepass') +
+            (vr.details?.name ? ' — Name: ' + vr.details.name : '') +
+            (vr.details?.ownerName ? ' — Owner: ' + vr.details.ownerName : '') +
+            (vr.details?.validTo ? ' | Valid till: ' + vr.details.validTo : '') +
+            (vr.details?.makerModel ? ' | Vehicle: ' + vr.details.makerModel : '') +
+            (vr.details?.expired ? ' <span style="color:#991B1B;">⚠️ EXPIRED</span>' : '') +
+            (vr.details?.insuranceExpired ? ' <span style="color:#991B1B;">⚠️ INSURANCE EXPIRED</span>' : '') +
+            '</div>';
+        } else if (vr && !vr.verified) {
+          verifyBadge = '<div style="margin-top:6px;padding:6px 10px;background:#FEE2E2;border-radius:6px;font-size:11px;color:#991B1B;">' +
+            '❌ <strong>NOT VERIFIED</strong> — ' + (vr.error || 'Failed') + '</div>';
+        } else if (doc.docNumber) {
+          verifyBadge = '<div style="margin-top:6px;padding:6px 10px;background:#FEF3C7;border-radius:6px;font-size:11px;color:#92400E;">' +
+            '⏳ Number provided: ' + doc.docNumber + ' (not yet verified)</div>';
+        }
+
+        bodyHTML += `
+          <div class="doc-review-item" style="flex-wrap:wrap;">
+            <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+              <div class="doc-review-left">
+                <div class="doc-review-icon">${docIcons[type]?.split(' ')[0] || '📄'}</div>
+                <div>
+                  <div class="doc-review-name">${docIcons[type]?.substring(2) || type}</div>
+                  <div class="doc-review-file">${doc.fileName || 'No file'} &bull; <span class="app-doc-badge ${doc.status}">${formatStatus(doc.status)}</span>${doc.docNumber ? ' &bull; #' + doc.docNumber : ''}</div>
+                </div>
+              </div>
+              <div class="doc-review-actions">
+                ${doc.viewUrl ? `<button class="doc-view-btn" onclick="viewDocument('${doc.viewUrl}', '${doc.fileName || type}')">View Doc</button>` : '<span style="color:var(--text-light);font-size:12px;">No file</span>'}
+              </div>
+            </div>
+            ${verifyBadge}
+          </div>
+        `;
+      });
+
+      bodyHTML += '</div>';
+
+      // Rejection reason textarea
+      bodyHTML += `
+        <div class="reject-reason-box" id="rejectReasonBox">
+          <h3 style="font-size: 14px; color: var(--danger); margin-bottom: 8px;">Rejection Reason</h3>
+          <textarea id="rejectReason" placeholder="Explain why the documents are being rejected (this will be shown to the driver)..."></textarea>
+          <button class="reject-confirm-btn" onclick="confirmReject('${userId}')">Confirm Rejection</button>
+        </div>
+      `;
+
+      document.getElementById('modalBody').innerHTML = bodyHTML;
+
+      // Action buttons
+      let actionsHTML = '';
+      if (app.status === 'pending_review') {
+        actionsHTML = `
+          <button class="action-btn approve" onclick="approveKYC('${userId}')">✅ Approve Driver</button>
+          <button class="action-btn reject" onclick="showRejectBox()">❌ Reject</button>
+        `;
+      } else if (app.status === 'rejected') {
+        actionsHTML = `
+          <button class="action-btn approve" onclick="approveKYC('${userId}')">✅ Approve (Override)</button>
+        `;
+      } else if (app.status === 'approved') {
+        actionsHTML = `<button class="action-btn reject" onclick="showRejectBox()">🔄 Revoke Approval</button>`;
+      }
+      document.getElementById('modalActions').innerHTML = actionsHTML;
+
+      document.getElementById('detailModal').classList.add('active');
+    } catch(e) {
+      showAdminToast('Error: ' + e.message);
+    }
+  }
+
+  function closeModal() {
+    document.getElementById('detailModal').classList.remove('active');
+  }
+
+  function showRejectBox() {
+    document.getElementById('rejectReasonBox').classList.add('active');
+  }
+
+  // ---- Approve KYC ----
+  async function approveKYC(userId) {
+    try {
+      const res = await fetch(API_BASE + '/api/admin/kyc/' + userId + '/approve', {
+        method: 'POST',
+        headers: { 'X-Admin-Auth': adminToken, 'Content-Type': 'application/json' }
+      });
+      const data = await res.json();
+      if (data.success) {
+        showAdminToast('Driver approved successfully!');
+        closeModal();
+        loadApplications();
+      } else {
+        showAdminToast('Error: ' + data.error);
+      }
+    } catch(e) {
+      showAdminToast('Error: ' + e.message);
+    }
+  }
+
+  // ---- Reject KYC ----
+  async function confirmReject(userId) {
+    const reason = document.getElementById('rejectReason').value.trim();
+    if (!reason) { showAdminToast('Please enter a rejection reason'); return; }
+
+    try {
+      const res = await fetch(API_BASE + '/api/admin/kyc/' + userId + '/reject', {
+        method: 'POST',
+        headers: { 'X-Admin-Auth': adminToken, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showAdminToast('KYC rejected');
+        closeModal();
+        loadApplications();
+      } else {
+        showAdminToast('Error: ' + data.error);
+      }
+    } catch(e) {
+      showAdminToast('Error: ' + e.message);
+    }
+  }
+
+  // ---- View Document ----
+  function viewDocument(url, fileName) {
+    const fullUrl = API_BASE + url + '?auth=' + adminToken;
+    // Check if image or PDF
+    const ext = (fileName || '').split('.').pop().toLowerCase();
+    const previewEl = document.getElementById('docPreviewContent');
+
+    if (['jpg', 'jpeg', 'png', 'webp'].includes(ext)) {
+      // For images, we need to fetch with auth header
+      fetch(API_BASE + url, { headers: { 'X-Admin-Auth': adminToken } })
+        .then(r => r.blob())
+        .then(blob => {
+          const objUrl = URL.createObjectURL(blob);
+          previewEl.innerHTML = `<img src="${objUrl}" alt="${fileName}">`;
+          document.getElementById('docPreview').classList.add('active');
+        })
+        .catch(() => showAdminToast('Could not load document'));
+    } else if (ext === 'pdf') {
+      fetch(API_BASE + url, { headers: { 'X-Admin-Auth': adminToken } })
+        .then(r => r.blob())
+        .then(blob => {
+          const objUrl = URL.createObjectURL(blob);
+          previewEl.innerHTML = `<iframe src="${objUrl}" style="width:80vw;height:85vh;border:none;"></iframe>`;
+          document.getElementById('docPreview').classList.add('active');
+        })
+        .catch(() => showAdminToast('Could not load document'));
+    } else {
+      showAdminToast('Cannot preview this file type');
+    }
+  }
+
+  function closeDocPreview() {
+    document.getElementById('docPreview').classList.remove('active');
+    document.getElementById('docPreviewContent').innerHTML = '';
+  }
+
+  // ---- Socket for live updates ----
+  function setupAdminSocket() {
+    try {
+      if (typeof io === 'undefined') return;
+      const socket = io(API_BASE);
+      socket.on('kyc:new_submission', (data) => {
+        showAdminToast('New KYC submission from ' + data.userId);
+        loadApplications();
+      });
+    } catch(e) {}
+  }
+
+  // ---- Toast ----
+  function showAdminToast(msg) {
+    const t = document.getElementById('adminToast');
+    t.textContent = msg;
+    t.style.display = 'block';
+    setTimeout(() => t.style.display = 'none', 3000);
+  }
+
+  // Enter key to login
+  document.getElementById('adminPass').addEventListener('keyup', (e) => { if (e.key === 'Enter') adminLogin(); });
+</script>
+<script src="/socket.io/socket.io.js" defer></script>
+</body>
+</html>

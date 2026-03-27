@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IDA - Indian Drivers Association Admin - Live Map</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0F0F1A; color: white; overflow: hidden; }
+#map { width: 100vw; height: 100vh; }
+.control-panel {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 350px;
+}
+.search-bar {
+  display: flex;
+  gap: 8px;
+}
+.search-bar input {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: none;
+  background: rgba(30,30,50,0.95);
+  backdrop-filter: blur(20px);
+  color: white;
+  font-size: 14px;
+  outline: none;
+}
+.search-bar input::placeholder { color: rgba(255,255,255,0.4); }
+.filter-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.chip {
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: rgba(30,30,50,0.9);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: white;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.chip.active { background: #FF6B00; border-color: #FF6B00; }
+.chip:hover { border-color: #FF6B00; }
+.stats-bar {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 1000;
+  display: flex;
+  gap: 12px;
+}
+.stat-card {
+  background: rgba(30,30,50,0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 12px;
+  padding: 12px 18px;
+  text-align: center;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.stat-card .value { font-size: 24px; font-weight: 800; color: #FF6B00; }
+.stat-card .label { font-size: 10px; opacity: 0.6; text-transform: uppercase; letter-spacing: 1px; }
+.fullscreen-btn {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  z-index: 1000;
+  padding: 12px 24px;
+  background: rgba(30,30,50,0.95);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 12px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 14px;
+}
+.fullscreen-btn:hover { background: #FF6B00; }
+.alert-panel {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  z-index: 1000;
+  max-width: 350px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.alert-item {
+  background: rgba(255,0,0,0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,0,0,0.3);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin: 4px 0;
+  font-size: 12px;
+}
+.alert-item.speed { background: rgba(255,107,0,0.15); border-color: rgba(255,107,0,0.3); }
+.legend {
+  position: fixed;
+  bottom: 70px;
+  right: 16px;
+  z-index: 1000;
+  background: rgba(30,30,50,0.95);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 11px;
+}
+.legend div { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+
+<div class="control-panel">
+  <div class="search-bar">
+    <input type="text" id="mapSearch" placeholder="🔍 Search driver, customer, ride ID..." oninput="debounceSearch()" />
+  </div>
+  <div class="filter-chips">
+    <div class="chip active" onclick="toggleFilter(this,'all')">All</div>
+    <div class="chip" onclick="toggleFilter(this,'auto')">🛺 Auto</div>
+    <div class="chip" onclick="toggleFilter(this,'mini')">🚗 Mini</div>
+    <div class="chip" onclick="toggleFilter(this,'sedan')">🚙 Sedan</div>
+    <div class="chip" onclick="toggleFilter(this,'suv')">🚐 SUV</div>
+    <div class="chip" onclick="toggleFilter(this,'truck')">🚛 Truck</div>
+    <div class="chip" onclick="toggleFilter(this,'bus')">🚌 Bus</div>
+    <div class="chip" onclick="toggleFilter(this,'towing')">🚨 Towing</div>
+  </div>
+</div>
+
+<div class="stats-bar">
+  <div class="stat-card">
+    <div class="value" id="statDrivers">0</div>
+    <div class="label">Online Drivers</div>
+  </div>
+  <div class="stat-card">
+    <div class="value" id="statRides">0</div>
+    <div class="label">Active Rides</div>
+  </div>
+  <div class="stat-card">
+    <div class="value" id="statDeviations">0</div>
+    <div class="label">⚠️ Deviations</div>
+  </div>
+  <div class="stat-card">
+    <div class="value" id="statSpeed">0</div>
+    <div class="label">🚨 Speed Alerts</div>
+  </div>
+</div>
+
+<div class="legend">
+  <div><div class="legend-dot" style="background:#00C853;"></div> Online Driver</div>
+  <div><div class="legend-dot" style="background:#2196F3;"></div> Active Ride</div>
+  <div><div class="legend-dot" style="background:#FF0000;"></div> Route Deviation</div>
+  <div><div class="legend-dot" style="background:#FF6B00;"></div> Speed Alert</div>
+</div>
+
+<div class="alert-panel" id="alertPanel"></div>
+
+<button class="fullscreen-btn" onclick="toggleFullscreen()">📺 TV Mode (Fullscreen)</button>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDAmVPxaRK56FrK9LeuFAhyc5iu2ZFGc2M"></script>
+<script>
+const SERVER_URL = window.location.origin;
+let map;
+let markers = [];
+let currentFilter = 'all';
+let searchQuery = '';
+let searchTimeout = null;
+
+function initMap() {
+  map = new google.maps.Map(document.getElementById('map'), {
+    center: { lat: 12.9716, lng: 77.5946 },
+    zoom: 12,
+    styles: [
+      { elementType: 'geometry', stylers: [{ color: '#1d2c4d' }] },
+      { elementType: 'labels.text.fill', stylers: [{ color: '#8ec3b9' }] },
+      { elementType: 'labels.text.stroke', stylers: [{ color: '#1a3646' }] },
+      { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#304a7d' }] },
+      { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#255d7a' }] },
+      { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#17263c' }] }
+    ],
+    disableDefaultUI: true,
+    zoomControl: true
+  });
+
+  loadLiveData();
+  setInterval(loadLiveData, 5000); // Refresh every 5 seconds
+}
+
+function clearMarkers() {
+  markers.forEach(m => m.setMap(null));
+  markers = [];
+}
+
+function loadLiveData() {
+  const params = new URLSearchParams();
+  if (searchQuery) params.set('search', searchQuery);
+  if (currentFilter !== 'all') params.set('vehicleType', currentFilter);
+
+  fetch(SERVER_URL + '/api/admin/live-map?' + params.toString())
+    .then(r => r.json())
+    .then(data => {
+      if (!data.success) return;
+      const { drivers, rides, deviations, speedIssues } = data.liveData;
+
+      // Update stats
+      document.getElementById('statDrivers').textContent = data.stats.onlineDrivers;
+      document.getElementById('statRides').textContent = data.stats.activeRides;
+      document.getElementById('statDeviations').textContent = data.stats.deviationAlerts;
+      document.getElementById('statSpeed').textContent = data.stats.speedAlerts;
+
+      clearMarkers();
+
+      // Driver markers (green)
+      drivers.forEach(d => {
+        if (!d.lat || !d.lng) return;
+        const marker = new google.maps.Marker({
+          position: { lat: d.lat, lng: d.lng },
+          map: map,
+          title: d.name + ' (' + d.vehicleType + ')',
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 8,
+            fillColor: '#00C853',
+            fillOpacity: 0.9,
+            strokeColor: 'white',
+            strokeWeight: 2
+          }
+        });
+
+        const infoWindow = new google.maps.InfoWindow({
+          content: '<div style="color:#333;padding:4px;"><strong>' + d.name + '</strong><br>Vehicle: ' + d.vehicleType + '<br>Status: ' + d.status + '<br>ID: ' + d.id + '</div>'
+        });
+        marker.addListener('click', () => infoWindow.open(map, marker));
+        markers.push(marker);
+      });
+
+      // Ride markers (blue pickup, red drop)
+      rides.forEach(r => {
+        if (r.pickupLat && r.pickupLng) {
+          const pickupMarker = new google.maps.Marker({
+            position: { lat: r.pickupLat, lng: r.pickupLng },
+            map: map,
+            title: 'Pickup: ' + r.riderName,
+            icon: { path: google.maps.SymbolPath.CIRCLE, scale: 6, fillColor: '#2196F3', fillOpacity: 0.9, strokeColor: 'white', strokeWeight: 2 }
+          });
+          markers.push(pickupMarker);
+        }
+        if (r.dropLat && r.dropLng) {
+          const dropMarker = new google.maps.Marker({
+            position: { lat: r.dropLat, lng: r.dropLng },
+            map: map,
+            title: 'Drop: ' + r.riderName,
+            icon: { path: google.maps.SymbolPath.CIRCLE, scale: 6, fillColor: '#FF5252', fillOpacity: 0.9, strokeColor: 'white', strokeWeight: 2 }
+          });
+          markers.push(dropMarker);
+        }
+      });
+
+      // Deviation markers (red pulse)
+      deviations.forEach(d => {
+        if (!d.currentLat || !d.currentLng) return;
+        const marker = new google.maps.Marker({
+          position: { lat: d.currentLat, lng: d.currentLng },
+          map: map,
+          title: '⚠️ Route Deviation - Ride: ' + d.rideId,
+          icon: { path: google.maps.SymbolPath.CIRCLE, scale: 12, fillColor: '#FF0000', fillOpacity: 0.6, strokeColor: '#FF0000', strokeWeight: 3 },
+          animation: google.maps.Animation.BOUNCE
+        });
+        markers.push(marker);
+      });
+
+      // Update alert panel
+      const alertPanel = document.getElementById('alertPanel');
+      let alertsHtml = '';
+      deviations.forEach(d => {
+        alertsHtml += '<div class="alert-item">⚠️ Route deviation on Ride ' + d.rideId + ' (' + d.severity + ') - ' + Math.round(d.deviationKm * 1000) + 'm off route</div>';
+      });
+      speedIssues.forEach(s => {
+        alertsHtml += '<div class="alert-item speed">🚨 Speed ' + s.speedKmh + ' km/h - Driver ' + (s.driverId || '').substring(0, 8) + '</div>';
+      });
+      alertPanel.innerHTML = alertsHtml;
+    })
+    .catch(e => console.log('Live map error:', e));
+}
+
+function toggleFilter(el, filter) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  currentFilter = filter;
+  loadLiveData();
+}
+
+function debounceSearch() {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    searchQuery = document.getElementById('mapSearch').value;
+    loadLiveData();
+  }, 300);
+}
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(e => {});
+  } else {
+    document.exitFullscreen();
+  }
+}
+
+window.onload = initMap;
+</script>
+</body>
+</html>
