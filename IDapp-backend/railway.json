@@ -5,7 +5,7 @@
     "buildCommand": "npm install"
   },
   "deploy": {
-    "startCommand": "sed -i 's/translateY(-100px);/translateY(-100px);opacity:0;/' public/index.html && sed -i 's/#toast.show {/#toast.show {opacity:1;/' public/index.html && node server.js",
+    "startCommand": "sed -i 's/translateY(-100px);/translateY(-100px);opacity:0;/' public/index.html && sed -i 's/#toast.show {/#toast.show {opacity:1;/' public/index.html && sed -i 's|<div class=\"splash-title\">IDA</div>|<img src=\"Modern%20Indian%20Drivers%20Association%20logo.png\" style=\"width:120px;height:120px;border-radius:20px;margin-bottom:16px;object-fit:contain;\"><div class=\"splash-title\">IDA</div>|' public/index.html && sed -i 's|class=\"header-logo\">|class=\"header-logo\"><img src=\"Modern%20Indian%20Drivers%20Association%20logo.png\" style=\"width:32px;height:32px;border-radius:6px;object-fit:contain;\">|' public/index.html && node server.js",
     "healthcheckPath": "/api/health",
     "healthcheckTimeout": 30,
     "restartPolicyType": "ON_FAILURE",
