@@ -5,7 +5,7 @@
     "buildCommand": "npm install"
   },
   "deploy": {
-    "startCommand": "node server.js",
+    "startCommand": "sed -i 's/translateY(-100px);/translateY(-100px);opacity:0;/' public/index.html && sed -i 's/#toast.show {/#toast.show {opacity:1;/' public/index.html && node server.js",
     "healthcheckPath": "/api/health",
     "healthcheckTimeout": 30,
     "restartPolicyType": "ON_FAILURE",
