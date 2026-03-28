@@ -5,7 +5,7 @@
     "buildCommand": "npm install"
   },
   "deploy": {
-    "startCommand": "sed -i 's/translateY(-100px);/translateY(-100px);opacity:0;/' public/index.html && sed -i 's/#toast.show {/#toast.show {opacity:1;/' public/index.html && sed -i 's|/ida-logo.png|Modern%20Indian%20Drivers%20Association%20logo.png|g' public/index.html && sed -i 's|class=\"header-logo\"><div|class=\"header-logo\"><img src=\"Modern%20Indian%20Drivers%20Association%20logo.png\" style=\"width:32px;height:32px;border-radius:6px;object-fit:contain;margin-right:8px;\"><div|' public/index.html && node server.js",
+    "startCommand": "sed -i 's/translateY(-100px);/translateY(-100px);opacity:0;/' public/index.html && sed -i 's/#toast.show {/#toast.show {opacity:1;/' public/index.html && sed -i 's|/ida-logo.png|Modern%20Indian%20Drivers%20Association%20logo.png|g' public/index.html && sed -i 's|class=\"header-logo\"><div|class=\"header-logo\"><img src=\"Modern%20Indian%20Drivers%20Association%20logo.png\" style=\"width:32px;height:32px;border-radius:6px;object-fit:contain;margin-right:8px;\"><div|' public/index.html && sed -i 's|</body>|<script src=\"session.js\"></script></body>|' public/index.html && node server.js",
     "healthcheckPath": "/api/health",
     "healthcheckTimeout": 30,
     "restartPolicyType": "ON_FAILURE",
