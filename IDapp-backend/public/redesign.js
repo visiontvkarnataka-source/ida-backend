@@ -47,7 +47,7 @@
    */
   function calculatePlatformFee(amount) {
     const fee = amount * (CONFIG.platformFeePercent / 100);
-    return Math.ceil(fee); // Round up to nearest paisa
+    return Math.ceil(fee); // Round up to nearest paise
   }
 
   /**
@@ -554,7 +554,7 @@
     }
   }
 
-  // ============================================================================
+  // ===================================================================
   // 3. Particle Background Effect
   // ============================================================================
 
@@ -1127,7 +1127,7 @@
     }
   }
 
-  // ============================================================================
+  // =========================================================================
   // 7. Counter Animation for Wallet Balance
   // ============================================================================
 
@@ -1629,9 +1629,12 @@
     }
 
     handleSOSVisibility() {
+      const loggedIn = this.isLoggedIn();
+
+      // Hide SOS button on pre-login screens
       const sosBtn = document.querySelector('.sos-btn, .sos-button, [class*="sos"]');
       if (sosBtn) {
-        if (this.isLoggedIn()) {
+        if (loggedIn) {
           sosBtn.style.display = '';
           sosBtn.style.visibility = 'visible';
         } else {
@@ -1639,6 +1642,34 @@
           sosBtn.style.visibility = 'hidden';
         }
       }
+
+      // Hide bottom nav bar on pre-login screens
+      const nav = document.querySelector('nav');
+      if (nav) {
+        if (loggedIn) {
+          nav.style.display = '';
+          nav.style.visibility = '';
+        } else {
+          nav.style.display = 'none';
+          nav.style.visibility = 'hidden';
+        }
+      }
+
+      // Hide bottom-sheets on pre-login screens
+      const bottomSheets = document.querySelectorAll('.bottom-sheet');
+      bottomSheets.forEach(bs => {
+        if (!loggedIn) {
+          bs.style.display = 'none';
+        }
+      });
+
+      // Ensure only the active screen is visible (prevent bleed-through)
+      const screens = document.querySelectorAll('.screen');
+      screens.forEach(s => {
+        if (!s.classList.contains('active')) {
+          s.style.display = 'none';
+        }
+      });
     }
 
     ensureLogos() {
