@@ -283,7 +283,7 @@
             border-bottom: 1px solid rgba(255,255,255,0.08);
           ">
             <span style="color: #9ca3af;">Recharge Amount</span>
-            <span style="font-weight: 500; color: #e5e7eb;">₹${amount}</span>
+            <span style="font-weight: 500; color: #e5e7eb;">â¹${amount}</span>
           </div>
           <div style="
             display: flex;
@@ -293,7 +293,7 @@
             border-bottom: 1px solid rgba(255,255,255,0.08);
           ">
             <span style="color: #9ca3af;">Platform Fee (${CONFIG.platformFeePercent}%)</span>
-            <span style="font-weight: 500; color: #f59e0b;">₹${fee}</span>
+            <span style="font-weight: 500; color: #f59e0b;">â¹${fee}</span>
           </div>
           <div style="
             display: flex;
@@ -301,7 +301,7 @@
             padding-top: 4px;
           ">
             <span style="color: #d1d5db; font-weight: 600;">Total Payable</span>
-            <span style="font-weight: 700; color: #3b82f6; font-size: 16px;">₹${total}</span>
+            <span style="font-weight: 700; color: #3b82f6; font-size: 16px;">â¹${total}</span>
           </div>
         </div>
       `;
@@ -370,7 +370,7 @@
 
       document.querySelectorAll('button').forEach(btn => {
         const text = btn.textContent?.trim();
-        if (this.presetAmounts.some(amount => text === `₹${amount}` || text === amount.toString())) {
+        if (this.presetAmounts.some(amount => text === `â¹${amount}` || text === amount.toString())) {
           buttons.push(btn);
         }
       });
@@ -479,7 +479,7 @@
       const presetButtons = this.findPresetAmountButtons();
       presetButtons.forEach(btn => {
         btn.addEventListener('click', (e) => {
-          const text = btn.textContent?.trim().replace('₹', '');
+          const text = btn.textContent?.trim().replace('â¹', '');
           const amount = parseInt(text, 10);
 
           if (!isNaN(amount)) {
@@ -1136,12 +1136,12 @@
         const progress = Math.min(elapsed / duration, 1);
 
         const currentValue = Math.floor(startValue + difference * progress);
-        element.textContent = `₹${currentValue}`;
+        element.textContent = `â¹${currentValue}`;
 
         if (progress < 1) {
           animationFrame(animate);
         } else {
-          element.textContent = `₹${toValue}`;
+          element.textContent = `â¹${toValue}`;
         }
       };
 
@@ -1156,13 +1156,22 @@
         '[class*="wallet" i] [class*="balance" i]',
         '[id*="wallet" i] [class*="balance" i]',
         '[class*="balance" i]',
-        'span:contains("₹")',
       ];
 
       for (const selector of selectors) {
-        const element = document.querySelector(selector);
-        if (element && /₹\d+/.test(element.textContent)) {
-          return element;
+        try {
+          const element = document.querySelector(selector);
+          if (element && /â¹\d+/.test(element.textContent)) {
+            return element;
+          }
+        } catch(e) { /* skip invalid selectors */ }
+      }
+
+      // Fallback: manually find spans containing â¹
+      const spans = document.querySelectorAll('span');
+      for (const span of spans) {
+        if (/â¹\d+/.test(span.textContent)) {
+          return span;
         }
       }
 
@@ -1173,7 +1182,7 @@
      * Extract numeric value from balance text
      */
     extractBalance(text) {
-      const match = text.match(/₹(\d+)/);
+      const match = text.match(/â¹(\d+)/);
       return match ? parseInt(match[1], 10) : 0;
     }
 
@@ -1235,10 +1244,10 @@
   class BottomNavEnhancer {
     constructor() {
       this.navItems = [
-        { icon: '🏠', label: 'Home', id: 'nav-home' },
-        { icon: '🚗', label: 'Rides', id: 'nav-rides' },
-        { icon: '💰', label: 'Earnings', id: 'nav-earnings' },
-        { icon: '👤', label: 'Profile', id: 'nav-profile' },
+        { icon: 'ð ', label: 'Home', id: 'nav-home' },
+        { icon: 'ð', label: 'Rides', id: 'nav-rides' },
+        { icon: 'ð°', label: 'Earnings', id: 'nav-earnings' },
+        { icon: 'ð¤', label: 'Profile', id: 'nav-profile' },
       ];
 
       this.hiddenItems = ['qr-pay', 'voice', 'qr'];
@@ -1306,21 +1315,21 @@
         const text = (item.textContent || '').toLowerCase();
 
         if (text.includes('earn') || text.includes('dashboard') || text.includes('history')) {
-          item.innerHTML = '💰 Earnings';
+          item.innerHTML = 'ð° Earnings';
           item.style.display = '';
           item.style.visibility = '';
         }
 
         if (text.includes('home')) {
-          item.innerHTML = '🏠 Home';
+          item.innerHTML = 'ð  Home';
         }
 
         if (text.includes('ride')) {
-          item.innerHTML = '🚗 Rides';
+          item.innerHTML = 'ð Rides';
         }
 
         if (text.includes('profile') || text.includes('account')) {
-          item.innerHTML = '👤 Profile';
+          item.innerHTML = 'ð¤ Profile';
         }
       });
     }
@@ -1558,6 +1567,80 @@
   }
 
   // ============================================================================
+  // Logo Enhancer - Ensures IDA logo appears everywhere
+  // ============================================================================
+
+  class LogoEnhancer {
+    constructor() {
+      this.logoUrl = 'Modern%20Indian%20Drivers%20Association%20logo.png';
+      this.observer = null;
+    }
+
+    init() {
+      this.ensureLogos();
+      this.handleSOSVisibility();
+      // Re-check when DOM changes (screen transitions)
+      this.observer = new MutationObserver(() => {
+        this.ensureLogos();
+        this.handleSOSVisibility();
+      });
+      this.observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+    }
+
+    isLoggedIn() {
+      // Check if we're past the login/role/KYC screens and into the main app
+      const activeScreen = document.querySelector('.screen.active');
+      if (!activeScreen) return false;
+      const screenText = (activeScreen.textContent || '').toLowerCase();
+      // Pre-login screens: splash, role selection, phone/OTP, KYC
+      const preLoginKeywords = ['get started', 'how will you use', 'enter your phone', 'enter otp', 'verification (kyc)', 'driver verification'];
+      return !preLoginKeywords.some(kw => screenText.includes(kw));
+    }
+
+    handleSOSVisibility() {
+      const sosBtn = document.querySelector('.sos-btn, .sos-button, [class*="sos"]');
+      if (sosBtn) {
+        if (this.isLoggedIn()) {
+          sosBtn.style.display = '';
+          sosBtn.style.visibility = 'visible';
+        } else {
+          sosBtn.style.display = 'none';
+          sosBtn.style.visibility = 'hidden';
+        }
+      }
+    }
+
+    ensureLogos() {
+      // Header logo
+      const headerLogo = document.querySelector('.header-logo');
+      if (headerLogo && !headerLogo.querySelector('img')) {
+        const img = document.createElement('img');
+        img.src = this.logoUrl;
+        img.style.cssText = 'width:32px;height:32px;border-radius:6px;object-fit:contain;margin-right:8px;';
+        headerLogo.prepend(img);
+      }
+
+      // Login / OTP screens - add logo at top if not present
+      const activeScreen = document.querySelector('.screen.active');
+      if (activeScreen && !activeScreen.querySelector('.ida-screen-logo')) {
+        const screenText = activeScreen.textContent || '';
+        // Add logo to screens that should have it (login, phone, OTP, role selection)
+        if (/phone|otp|login|verify|mobile|how will you use/i.test(screenText) || activeScreen.querySelector('input[type="tel"]')) {
+          const logoDiv = document.createElement('div');
+          logoDiv.className = 'ida-screen-logo';
+          logoDiv.style.cssText = 'text-align:center;padding:24px 0 16px;';
+          logoDiv.innerHTML = '<img src="' + this.logoUrl + '" style="width:80px;height:80px;border-radius:16px;object-fit:contain;box-shadow:0 8px 32px rgba(59,130,246,0.3);">';
+          activeScreen.prepend(logoDiv);
+        }
+      }
+    }
+
+    destroy() {
+      if (this.observer) this.observer.disconnect();
+    }
+  }
+
+  // ============================================================================
   // Master Initializer
   // ============================================================================
 
@@ -1582,61 +1665,31 @@
      * Initialize enhancement modules
      */
     initialize() {
-      try {
-        // 1. Promo code remover
-        const promoRemover = new PromoCodeRemover();
-        promoRemover.init();
-        this.modules.push(promoRemover);
+      const moduleList = [
+        ['PromoCodeRemover', PromoCodeRemover],
+        ['WalletFeeCalculator', WalletFeeCalculator],
+        ['ParticleBackground', ParticleBackground],
+        ['PageTransitionAnimator', PageTransitionAnimator],
+        ['ScrollCardAnimator', ScrollCardAnimator],
+        ['ButtonRippleEffect', ButtonRippleEffect],
+        ['WalletBalanceCounter', WalletBalanceCounter],
+        ['BottomNavEnhancer', BottomNavEnhancer],
+        ['SmoothScrollEnhancer', SmoothScrollEnhancer],
+        ['LoginGradientAnimation', LoginGradientAnimation],
+        ['LogoEnhancer', LogoEnhancer],
+      ];
 
-        // 2. Wallet fee calculator
-        const walletFeeCalc = new WalletFeeCalculator();
-        walletFeeCalc.init();
-        this.modules.push(walletFeeCalc);
-
-        // 3. Particle background
-        const particles = new ParticleBackground();
-        particles.init();
-        this.modules.push(particles);
-
-        // 4. Page transition animator
-        const pageTransition = new PageTransitionAnimator();
-        pageTransition.init();
-        this.modules.push(pageTransition);
-
-        // 5. Scroll card animator
-        const scrollCards = new ScrollCardAnimator();
-        scrollCards.init();
-        this.modules.push(scrollCards);
-
-        // 6. Button ripple effect
-        const ripple = new ButtonRippleEffect();
-        ripple.init();
-        this.modules.push(ripple);
-
-        // 7. Wallet balance counter
-        const balanceCounter = new WalletBalanceCounter();
-        balanceCounter.init();
-        this.modules.push(balanceCounter);
-
-        // 8. Bottom nav enhancer
-        const navEnhancer = new BottomNavEnhancer();
-        navEnhancer.init();
-        this.modules.push(navEnhancer);
-
-        // 9. Smooth scroll enhancer
-        const smoothScroll = new SmoothScrollEnhancer();
-        smoothScroll.init();
-        this.modules.push(smoothScroll);
-
-        // 10. Login gradient animation
-        const loginGradient = new LoginGradientAnimation();
-        loginGradient.init();
-        this.modules.push(loginGradient);
-
-        console.log('IDA App Enhancement initialized successfully');
-      } catch (error) {
-        console.error('Error initializing IDA App Enhancement:', error);
+      for (const [name, ModuleClass] of moduleList) {
+        try {
+          const instance = new ModuleClass();
+          instance.init();
+          this.modules.push(instance);
+        } catch (error) {
+          console.warn(`IDA module ${name} failed to init:`, error.message);
+        }
       }
+
+      console.log(`IDA App Enhancement initialized: ${this.modules.length}/${moduleList.length} modules`);
     }
 
     /**
