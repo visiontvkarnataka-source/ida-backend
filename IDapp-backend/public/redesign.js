@@ -94,6 +94,17 @@
     }
   }
 
+  /**
+   * Debounce helper to prevent MutationObserver infinite loops
+   */
+  function debounce(fn, delay = 200) {
+    let timer;
+    return function(...args) {
+      clearTimeout(timer);
+      timer = setTimeout(() => fn.apply(this, args), delay);
+    };
+  }
+
   // ============================================================================
   // 1. Promo Code UI Removal
   // ============================================================================
@@ -221,8 +232,6 @@
       this.observer.observe(document.body, {
         childList: true,
         subtree: true,
-        attributes: true,
-        attributeFilter: ['class', 'id', 'style', 'placeholder'],
       });
     }
 
@@ -556,10 +565,10 @@
       this.ctx = null;
       this.particles = [];
       this.animationId = null;
-      this.particleCount = 50;
-      this.connectionDistance = 150;
+      this.particleCount = 20;
+      this.connectionDistance = 100;
       this.particleRadius = 2;
-      this.particleVelocity = 0.5;
+      this.particleVelocity = 0.3;
     }
 
     /**
@@ -820,18 +829,23 @@
      * Observe page changes
      */
     observePageChanges() {
+      const debouncedDetect = debounce(() => this.detectPageChanges(), 300);
       this.observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-          if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-            this.detectPageChanges();
-          }
-        });
+        // Only react to class changes on .screen elements (not our own animation classes)
+        const relevant = mutations.some(m =>
+          m.type === 'attributes' &&
+          m.target.classList &&
+          m.target.classList.contains('screen') &&
+          !m.target.classList.contains('ida-page-enter') &&
+          !m.target.classList.contains('ida-page-exit')
+        );
+        if (relevant) debouncedDetect();
       });
 
       this.observer.observe(document.body, {
         subtree: true,
         attributes: true,
-        attributeFilter: ['style', 'class'],
+        attributeFilter: ['class'],
       });
     }
 
@@ -1359,18 +1373,23 @@
       this.enhanceEarningsItem();
       this.addNavHandlers();
 
-      // Observe for dynamic navigation changes
-      const observer = new MutationObserver(() => {
+      // Observe for dynamic navigation changes â debounced to prevent loops
+      // since enhanceEarningsItem modifies innerHTML which triggers childList
+      let isUpdating = false;
+      const debouncedUpdate = debounce(() => {
+        if (isUpdating) return;
+        isUpdating = true;
         this.hideNavItems();
         this.enhanceEarningsItem();
-      });
+        isUpdating = false;
+      }, 500);
 
       const nav = this.findBottomNav();
       if (nav) {
+        const observer = new MutationObserver(() => debouncedUpdate());
         observer.observe(nav, {
           childList: true,
           subtree: true,
-          attributes: true,
         });
       }
     }
@@ -1447,12 +1466,10 @@
      * Observe for new interactive elements
      */
     observeNewElements() {
+      const debouncedFeedback = debounce(() => this.addTouchFeedback(), 500);
       const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-          if (mutation.type === 'childList') {
-            this.addTouchFeedback();
-          }
-        });
+        const hasNewNodes = mutations.some(m => m.type === 'childList' && m.addedNodes.length > 0);
+        if (hasNewNodes) debouncedFeedback();
       });
 
       observer.observe(document.body, {
@@ -1579,12 +1596,26 @@
     init() {
       this.ensureLogos();
       this.handleSOSVisibility();
-      // Re-check when DOM changes (screen transitions)
-      this.observer = new MutationObserver(() => {
+      // Re-check when DOM changes (screen transitions) â debounced to prevent loops
+      // since ensureLogos() adds DOM elements which would trigger the observer again
+      let isUpdating = false;
+      const debouncedUpdate = debounce(() => {
+        if (isUpdating) return;
+        isUpdating = true;
         this.ensureLogos();
         this.handleSOSVisibility();
+        isUpdating = false;
+      }, 400);
+      this.observer = new MutationObserver((mutations) => {
+        // Ignore mutations from our own logo additions
+        const isOwnMutation = mutations.every(m =>
+          m.addedNodes.length === 1 &&
+          m.addedNodes[0].classList &&
+          (m.addedNodes[0].classList.contains('ida-screen-logo') || m.addedNodes[0].tagName === 'IMG')
+        );
+        if (!isOwnMutation) debouncedUpdate();
       });
-      this.observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+      this.observer.observe(document.body, { childList: true, subtree: true });
     }
 
     isLoggedIn() {
@@ -1593,7 +1624,7 @@
       if (!activeScreen) return false;
       const screenText = (activeScreen.textContent || '').toLowerCase();
       // Pre-login screens: splash, role selection, phone/OTP, KYC
-      const preLoginKeywords = ['get started', 'how will you use', 'enter your phone', 'enter otp', 'verification (kyc)', 'driver verification'];
+      const preLoginKeywords = ['get started', 'how will you use', 'enter your phone', 'enter otp', 'verification (kyc)', 'driver verification', 'auto \u2022 cab', 'indian drivers association'];
       return !preLoginKeywords.some(kw => screenText.includes(kw));
     }
 
