@@ -1,102 +1,8 @@
-/**
- * IDA - Indian Drivers Association App Redesign & Enhancement Script
- *
- * Features:
- * 1. Promo code UI removal
- * 2. 2% platform fee display on wallet recharge
- * 3. Particle background effect
- * 4. Page transition animations
- * 5. Scroll-triggered card animations
- * 6. Button ripple effect
- * 7. Counter animation for wallet balance
- * 8. Bottom navigation enhancement
- * 9. Smooth scroll and haptic feedback
- * 10. Login screen gradient animation
- */
-
 (function() {
   'use strict';
 
-  // ============================================================================
-  // Configuration & Constants
-  // ============================================================================
+  // ==================== UTILITY FUNCTIONS ====================
 
-  const CONFIG = {
-    platformFeePercent: 2,
-    particleColor: '#3B82F6',
-    particleColorAlt: '#FFFFFF',
-    particleOpacity: 0.6,
-    animationDuration: 300,
-    rippleDuration: 600,
-    countAnimationDuration: 1000,
-  };
-
-  // ============================================================================
-  // Utility Functions
-  // ============================================================================
-
-  /**
-   * Check if an element is visible in the DOM
-   */
-  function isElementVisible(element) {
-    return element && element.offsetParent !== null;
-  }
-
-  /**
-   * Safely calculate 2% fee with precise paise rounding
-   */
-  function calculatePlatformFee(amount) {
-    const fee = amount * (CONFIG.platformFeePercent / 100);
-    return Math.ceil(fee); // Round up to nearest paise
-  }
-
-  /**
-   * Find all elements containing specific text
-   */
-  function findElementsByText(text, options = {}) {
-    const { partial = false, tagName = '*' } = options;
-    const elements = [];
-    const regex = partial ? new RegExp(text, 'i') : new RegExp(`^${text}$`, 'i');
-
-    document.querySelectorAll(tagName).forEach(el => {
-      if (regex.test(el.textContent || el.innerText || '')) {
-        elements.push(el);
-      }
-    });
-
-    return elements;
-  }
-
-  /**
-   * Find elements by multiple attributes
-   */
-  function findElementsByAttributes(selectors) {
-    let results = [];
-    selectors.forEach(selector => {
-      results.push(...document.querySelectorAll(selector));
-    });
-    return results;
-  }
-
-  /**
-   * Request animation frame with fallback
-   */
-  function animationFrame(callback) {
-    return window.requestAnimationFrame(callback) || setTimeout(callback, 16);
-  }
-
-  /**
-   * Emit haptic feedback if available
-   */
-  function hapticFeedback() {
-    if (navigator.vibrate) {
-      navigator.vibrate(10);
-    }
-  }
-
-  /**
-   * Debounce helper to prevent MutationObserver infinite loops
-   */
   function debounce(fn, delay = 200) {
     let timer;
     return function(...args) {
@@ -105,1677 +11,1134 @@
     };
   }
 
-  // ============================================================================
-  // 1. Promo Code UI Removal
-  // ============================================================================
+  function isLoggedIn() {
+    const activeScreen = document.querySelector('.screen.active');
+    if (!activeScreen) return false;
+    const screenText = (activeScreen.textContent || '').toLowerCase();
+    const preLoginKeywords = [
+      'get started',
+      'how will you use',
+      'enter your phone',
+      'enter otp',
+      'verification (kyc)',
+      'driver verification',
+      'auto â¢ cab',
+      'indian drivers association'
+    ];
+    return !preLoginKeywords.some(kw => screenText.includes(kw));
+  }
 
-  class PromoCodeRemover {
-    constructor() {
-      this.promoSelectors = [
-        '[placeholder*="promo" i]',
-        '[placeholder*="coupon" i]',
-        '[placeholder*="discount" i]',
-        'input[type="text"][class*="promo" i]',
-        'input[type="text"][class*="coupon" i]',
-        'button:contains("Apply"):has(+ input[placeholder*="promo" i])',
-        'button:contains("Apply Promo")i',
-        'button:contains("Apply Code")i',
-        '[class*="promo" i]',
-        '[id*="promo" i]',
-        'label:contains("Promo Discount")i',
-      ];
+  function addStyle(css) {
+    const style = document.createElement('style');
+    style.textContent = css;
+    document.head.appendChild(style);
+    return style;
+  }
 
-      this.observer = null;
+  function showElement(el) {
+    if (!el) return;
+    el.style.removeProperty('display');
+  }
+
+  function hideElement(el) {
+    if (!el) return;
+    el.style.setProperty('display', 'none', 'important');
+  }
+
+  // ==================== STYLE INJECTION ====================
+
+  const globalStyles = `
+    * {
+      transition: color 0.3s ease, background-color 0.3s ease;
     }
 
-    /**
-     * Hide promo elements
-     */
-    hide() {
-      // Find and hide promo input fields
-      const promoInputs = document.querySelectorAll(
-        'input[placeholder*="promo" i], ' +
-        'input[placeholder*="coupon" i], ' +
-        'input[placeholder*="discount" i], ' +
-        'input[class*="promo" i], ' +
-        'input[class*="coupon" i]'
-      );
-      promoInputs.forEach(input => {
-        this.hideElement(input);
-      });
+    html {
+      scroll-behavior: smooth;
+    }
 
-      // Find and hide promo sections/containers
-      const promoContainers = document.querySelectorAll(
-        '[class*="promo" i], ' +
-        '[id*="promo" i], ' +
-        '[class*="coupon" i]'
-      );
-      promoContainers.forEach(container => {
-        // Only hide if it's actually a promo-related element
-        if (this.isPromoElement(container)) {
-          this.hideElement(container);
-        }
-      });
+    .screen {
+      display: none;
+    }
 
-      // Find and hide text nodes containing "Promo Discount"
-      const walker = document.createTreeWalker(
-        document.body,
-        NodeFilter.SHOW_TEXT,
-        null,
-        false
-      );
+    .screen.active {
+      display: block !important;
+    }
 
-      let node;
-      const nodesToHide = [];
-      while (node = walker.nextNode()) {
-        if (/promo discount|apply promo|promo code|coupon/i.test(node.textContent)) {
-          nodesToHide.push(node.parentElement);
-        }
+    /* Color palette */
+    :root {
+      --ida-gold: #FFD700;
+      --ida-red: #DC2626;
+      --ida-bg: #0a0a0a;
+      --ida-card: #1a1a1a;
+    }
+
+    /* Gold ripple effect */
+    .ripple {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ripple::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 215, 0, 0.6);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .ripple.active::after {
+      animation: rippleEffect 0.6s ease-out;
+    }
+
+    @keyframes rippleEffect {
+      to {
+        width: 300px;
+        height: 300px;
+        opacity: 0;
       }
-      nodesToHide.forEach(el => this.hideElement(el));
+    }
 
-      // Find and hide "Apply" buttons near promo inputs
-      const applyButtons = document.querySelectorAll('button');
-      applyButtons.forEach(btn => {
-        if (/apply|redeem|coupon|promo/i.test(btn.textContent)) {
-          const nearby = btn.parentElement?.querySelector('input[placeholder*="promo" i]') ||
-                        btn.parentElement?.querySelector('input[placeholder*="coupon" i]');
-          if (nearby) {
-            this.hideElement(btn);
-          }
-        }
+    /* Button touch feedback */
+    button, .button, [role="button"] {
+      transition: transform 0.1s ease;
+    }
+
+    button:active, .button:active, [role="button"]:active {
+      transform: scale(0.98);
+    }
+
+    /* Smooth page transitions */
+    .screen {
+      animation: fadeInScreen 0.4s ease-in;
+    }
+
+    @keyframes fadeInScreen {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Scroll-triggered fade-in */
+    .card-fade-in {
+      opacity: 0;
+      animation: cardFadeIn 0.6s ease-out forwards;
+    }
+
+    @keyframes cardFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Login gradient animation */
+    .auth-gradient {
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%);
+      animation: gradientShift 3s ease-in-out infinite;
+    }
+
+    @keyframes gradientShift {
+      0%, 100% {
+        background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%);
+      }
+      50% {
+        background: linear-gradient(135deg, rgba(220, 38, 38, 0.05) 0%, rgba(255, 215, 0, 0.1) 100%);
+      }
+    }
+
+    /* Role selector styling */
+    .role-selector {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+    }
+
+    .role-btn {
+      flex: 1;
+      padding: 12px 16px;
+      border: 2px solid rgba(255, 215, 0, 0.3);
+      background: rgba(255, 215, 0, 0.05);
+      color: #fff;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .role-btn:hover {
+      border-color: rgba(255, 215, 0, 0.6);
+      background: rgba(255, 215, 0, 0.15);
+    }
+
+    .role-btn.active {
+      border-color: #FFD700;
+      background: rgba(255, 215, 0, 0.2);
+      color: #FFD700;
+      box-shadow: 0 0 12px rgba(255, 215, 0, 0.3);
+    }
+
+    /* Bottom nav enhancement */
+    nav button, nav [role="button"] {
+      transition: all 0.3s ease;
+    }
+
+    nav button.active, nav [role="button"].active {
+      color: #FFD700;
+      border-bottom: 3px solid #FFD700;
+    }
+
+    nav button:not(.active), nav [role="button"]:not(.active) {
+      color: #999;
+    }
+
+    /* Fee breakdown styling */
+    .fee-breakdown {
+      background: rgba(255, 215, 0, 0.08);
+      border: 1px solid rgba(255, 215, 0, 0.2);
+      border-radius: 8px;
+      padding: 12px;
+      margin: 12px 0;
+      font-size: 13px;
+    }
+
+    .fee-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      color: #ccc;
+    }
+
+    .fee-row.total {
+      border-top: 1px solid rgba(255, 215, 0, 0.2);
+      padding-top: 8px;
+      margin-top: 8px;
+      color: #FFD700;
+      font-weight: 700;
+    }
+
+    /* Wallet balance counter */
+    .wallet-balance {
+      font-size: 32px;
+      font-weight: 700;
+      color: #FFD700;
+    }
+
+    .wallet-balance.animate {
+      animation: balanceCounter 0.6s ease-out;
+    }
+
+    @keyframes balanceCounter {
+      from {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    /* Logo styling */
+    .ida-logo {
+      height: 40px;
+      margin: 12px 0;
+      object-fit: contain;
+    }
+
+    .header-logo {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      height: 36px;
+      object-fit: contain;
+    }
+
+    /* Hide promo elements */
+    [class*="promo"], [id*="promo"],
+    [class*="coupon"], [id*="coupon"],
+    [class*="discount"], [id*="discount"] {
+      display: none !important;
+    }
+
+    /* Bottom sheet on pre-login */
+    .bottom-sheet {
+      transition: all 0.3s ease;
+    }
+
+    .bottom-sheet.hidden {
+      display: none !important;
+    }
+  `;
+
+  addStyle(globalStyles);
+
+  // ==================== MODULE: Role Selector ====================
+
+  class RoleSelector {
+    constructor() {
+      this.selectedRole = localStorage.getItem('ida_user_role') || null;
+      this.injected = false;
+      this.handleAuthScreenChange = debounce(() => this.onAuthScreenActive(), 300);
+    }
+
+    init() {
+      try {
+        console.log('[IDA] RoleSelector: Initializing');
+        this.setupMutationObserver();
+        this.checkCurrentScreen();
+      } catch (error) {
+        console.error('[IDA] RoleSelector init error:', error);
+      }
+    }
+
+    setupMutationObserver() {
+      const observer = new MutationObserver(this.handleAuthScreenChange);
+      observer.observe(document.body, {
+        attributes: true,
+        subtree: true,
+        attributeFilter: ['class']
       });
     }
 
-    /**
-     * Check if element is actually promo-related
-     */
-    isPromoElement(element) {
-      const text = (element.textContent || '').toLowerCase();
-      const classes = (element.className || '').toLowerCase();
-      const id = (element.id || '').toLowerCase();
-
-      return /(promo|coupon|discount|code)/i.test(text + classes + id);
+    checkCurrentScreen() {
+      const authScreen = document.getElementById('authScreen');
+      if (authScreen && authScreen.classList.contains('active')) {
+        this.onAuthScreenActive();
+      }
     }
 
-    /**
-     * Safely hide an element
-     */
-    hideElement(element) {
-      if (!element) return;
+    onAuthScreenActive() {
+      if (this.injected) return;
 
-      element.style.display = 'none';
-      element.style.visibility = 'hidden';
-      element.style.height = '0';
-      element.style.opacity = '0';
-      element.setAttribute('aria-hidden', 'true');
+      const authScreen = document.getElementById('authScreen');
+      if (!authScreen) return;
+
+      const phoneInput = authScreen.querySelector('input[type="tel"], input[type="text"][placeholder*="phone"], input[placeholder*="Phone"]');
+      if (!phoneInput) return;
+
+      this.injectRoleSelector(phoneInput);
+      this.injected = true;
     }
 
-    /**
-     * Setup MutationObserver for dynamically added promo elements
-     */
-    observeDOMChanges() {
-      this.observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-          if (mutation.type === 'childList') {
-            mutation.addedNodes.forEach((node) => {
-              if (node.nodeType === 1) { // Element node
-                if (this.isPromoElement(node)) {
-                  this.hideElement(node);
-                }
-              }
-            });
+    injectRoleSelector(phoneInput) {
+      const existingSelector = document.querySelector('.role-selector');
+      if (existingSelector) return;
+
+      const selector = document.createElement('div');
+      selector.className = 'role-selector';
+      selector.innerHTML = `
+        <button class="role-btn" data-role="rider">ð§ Rider</button>
+        <button class="role-btn" data-role="driver">ð Driver</button>
+      `;
+
+      phoneInput.parentNode.insertBefore(selector, phoneInput);
+
+      const buttons = selector.querySelectorAll('.role-btn');
+      buttons.forEach(btn => {
+        if (this.selectedRole === btn.dataset.role) {
+          btn.classList.add('active');
+        }
+
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          buttons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          this.selectedRole = btn.dataset.role;
+          localStorage.setItem('ida_user_role', this.selectedRole);
+          this.addRippleEffect(btn);
+          if (navigator.vibrate) {
+            navigator.vibrate(50);
           }
         });
       });
-
-      this.observer.observe(document.body, {
-        childList: true,
-        subtree: true,
-      });
     }
 
-    /**
-     * Initialize promo code remover
-     */
-    init() {
-      this.hide();
-      this.observeDOMChanges();
+    addRippleEffect(btn) {
+      btn.classList.add('ripple', 'active');
+      setTimeout(() => {
+        btn.classList.remove('active');
+      }, 600);
     }
 
-    /**
-     * Cleanup
-     */
+    getSelectedRole() {
+      return this.selectedRole;
+    }
+
     destroy() {
-      if (this.observer) {
-        this.observer.disconnect();
+      console.log('[IDA] RoleSelector: Destroying');
+      const selector = document.querySelector('.role-selector');
+      if (selector) {
+        selector.remove();
       }
     }
   }
 
-  // ============================================================================
-  // 2. Platform Fee Display on Wallet Recharge
-  // ============================================================================
+  // ==================== MODULE: Promo Removal ====================
 
-  class WalletFeeCalculator {
+  class PromoRemover {
     constructor() {
-      this.presetAmounts = [100, 200, 500, 1000, 2000, 5000];
-      this.selectedAmount = null;
-      this.feeBreakdownElement = null;
-      this.observer = null;
+      this.isUpdating = false;
+      this.handlePromoCheck = debounce(() => this.removePromoElements(), 250);
     }
 
-    /**
-     * Create fee breakdown UI
-     */
-    createFeeBreakdown(amount) {
-      const fee = calculatePlatformFee(amount);
-      const total = amount + fee;
-
-      const breakdownHTML = `
-        <div class="ida-fee-breakdown" style="
-          margin: 12px 0;
-          padding: 14px 16px;
-          background: rgba(59, 130, 246, 0.08);
-          border: 1px solid rgba(59, 130, 246, 0.2);
-          border-radius: 12px;
-          font-size: 14px;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-          backdrop-filter: blur(8px);
-          animation: fadeInUp 0.3s ease-out;
-        ">
-          <div style="
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
-          ">
-            <span style="color: #9ca3af;">Recharge Amount</span>
-            <span style="font-weight: 500; color: #e5e7eb;">â¹${amount}</span>
-          </div>
-          <div style="
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
-          ">
-            <span style="color: #9ca3af;">Platform Fee (${CONFIG.platformFeePercent}%)</span>
-            <span style="font-weight: 500; color: #f59e0b;">â¹${fee}</span>
-          </div>
-          <div style="
-            display: flex;
-            justify-content: space-between;
-            padding-top: 4px;
-          ">
-            <span style="color: #d1d5db; font-weight: 600;">Total Payable</span>
-            <span style="font-weight: 700; color: #3b82f6; font-size: 16px;">â¹${total}</span>
-          </div>
-        </div>
-      `;
-
-      return breakdownHTML;
-    }
-
-    /**
-     * Update or create fee breakdown element
-     */
-    updateFeeBreakdown(amount) {
-      this.selectedAmount = amount;
-
-      // Remove existing breakdown
-      const existing = document.querySelector('.ida-fee-breakdown');
-      if (existing) {
-        existing.remove();
-      }
-
-      // Find the wallet add money form/section
-      const walletAddMoneySection = this.findWalletAddMoneySection();
-      if (!walletAddMoneySection) return;
-
-      // Create new breakdown
-      const breakdownContainer = document.createElement('div');
-      breakdownContainer.innerHTML = this.createFeeBreakdown(amount);
-
-      // Insert after amount selection or before submit button
-      const submitButton = walletAddMoneySection.querySelector('button[type="submit"], button:contains("Pay"):contains("Add"):contains("Recharge")');
-      if (submitButton) {
-        submitButton.parentElement.insertBefore(breakdownContainer.firstElementChild, submitButton);
-      } else {
-        walletAddMoneySection.appendChild(breakdownContainer.firstElementChild);
+    init() {
+      try {
+        console.log('[IDA] PromoRemover: Initializing');
+        this.removePromoElements();
+        this.setupMutationObserver();
+        this.interceptPromoAPI();
+      } catch (error) {
+        console.error('[IDA] PromoRemover init error:', error);
       }
     }
 
-    /**
-     * Find wallet add money section
-     */
-    findWalletAddMoneySection() {
-      const selectors = [
-        '[class*="wallet" i]',
-        '[id*="wallet" i]',
-        '[class*="add-money" i]',
-        '[id*="add-money" i]',
-        '[class*="recharge" i]',
-      ];
-
-      for (const selector of selectors) {
-        const elements = document.querySelectorAll(selector);
-        for (const el of elements) {
-          if (/wallet|add money|recharge|topup/i.test(el.textContent)) {
-            return el;
-          }
-        }
-      }
-
-      return null;
-    }
-
-    /**
-     * Find preset amount buttons
-     */
-    findPresetAmountButtons() {
-      const buttons = [];
-
-      document.querySelectorAll('button').forEach(btn => {
-        const text = btn.textContent?.trim();
-        if (this.presetAmounts.some(amount => text === `â¹${amount}` || text === amount.toString())) {
-          buttons.push(btn);
-        }
+    setupMutationObserver() {
+      const observer = new MutationObserver(this.handlePromoCheck);
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true
       });
-
-      return buttons;
     }
 
-    /**
-     * Find custom amount input
-     */
-    findCustomAmountInput() {
-      const selectors = [
-        'input[type="number"][placeholder*="amount" i]',
-        'input[type="text"][placeholder*="amount" i]',
-        'input[type="number"][placeholder*="enter" i]',
-        'input[type="text"][placeholder*="enter" i]',
-      ];
+    removePromoElements() {
+      if (this.isUpdating) return;
+      this.isUpdating = true;
 
-      for (const selector of selectors) {
-        const input = document.querySelector(selector);
-        if (input) return input;
+      try {
+        const selectors = [
+          '[class*="promo"]',
+          '[id*="promo"]',
+          '[class*="coupon"]',
+          '[id*="coupon"]',
+          '[class*="discount"]',
+          '[id*="discount"]'
+        ];
+
+        selectors.forEach(selector => {
+          document.querySelectorAll(selector).forEach(el => {
+            hideElement(el);
+          });
+        });
+
+        const textPatterns = ['Promo', 'Coupon', 'Discount', 'Apply Promo'];
+        document.body.querySelectorAll('*').forEach(el => {
+          const text = el.textContent || '';
+          textPatterns.forEach(pattern => {
+            if (text.includes(pattern) && el.children.length === 0) {
+              hideElement(el);
+            }
+          });
+        });
+      } finally {
+        this.isUpdating = false;
       }
-
-      return null;
     }
 
-    /**
-     * Intercept fetch calls to add 2% platform fee on wallet recharge
-     * Monkey-patches window.fetch to intercept /api/payments/create-order
-     */
-    interceptRazorpayPayment() {
-      const self = this;
+    interceptPromoAPI() {
       const originalFetch = window.fetch;
-
-      window.fetch = function(url, options) {
-        // Intercept wallet recharge payment creation
-        if (typeof url === 'string' && url.includes('/api/payments/create-order') && self.selectedAmount) {
-          try {
-            const body = JSON.parse(options?.body || '{}');
-            if (body.amount) {
-              const fee = calculatePlatformFee(body.amount);
-              body.amount = body.amount + fee; // Add 2% platform fee
-              body._platformFee = fee;
-              body._originalAmount = body.amount - fee;
-              options = { ...options, body: JSON.stringify(body) };
-              console.log('[IDA] Platform fee applied:', { original: body._originalAmount, fee, total: body.amount });
-            }
-          } catch (e) {
-            console.warn('[IDA] Could not parse payment body:', e);
-          }
+      window.fetch = function(...args) {
+        const url = args[0] || '';
+        if (typeof url === 'string' && url.includes('/api/promo')) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({ success: false, error: 'Promo disabled' }),
+              { status: 400, headers: { 'Content-Type': 'application/json' } }
+            )
+          );
         }
-
-        // Also intercept promo code validation to always fail
-        if (typeof url === 'string' && url.includes('/api/promo/validate')) {
-          return Promise.resolve(new Response(JSON.stringify({
-            success: false,
-            error: 'Promo codes are no longer available'
-          }), { status: 200, headers: { 'Content-Type': 'application/json' } }));
-        }
-
-        return originalFetch.apply(this, [url, options]);
+        return originalFetch.apply(this, args);
       };
 
-      // Also intercept XMLHttpRequest for older code paths
-      const originalXHROpen = XMLHttpRequest.prototype.open;
-      const originalXHRSend = XMLHttpRequest.prototype.send;
-
-      XMLHttpRequest.prototype.open = function(method, url, ...args) {
-        this._idaUrl = url;
-        return originalXHROpen.apply(this, [method, url, ...args]);
+      const originalXHR = window.XMLHttpRequest.prototype.open;
+      window.XMLHttpRequest.prototype.open = function(method, url, ...rest) {
+        if (typeof url === 'string' && url.includes('/api/promo')) {
+          this._isPromoRequest = true;
+        }
+        return originalXHR.apply(this, [method, url, ...rest]);
       };
 
-      XMLHttpRequest.prototype.send = function(body) {
-        if (this._idaUrl && this._idaUrl.includes('/api/payments/create-order') && self.selectedAmount) {
-          try {
-            const parsed = JSON.parse(body);
-            if (parsed.amount) {
-              const fee = calculatePlatformFee(parsed.amount);
-              parsed.amount = parsed.amount + fee;
-              body = JSON.stringify(parsed);
-            }
-          } catch (e) { /* ignore */ }
+      const originalSend = window.XMLHttpRequest.prototype.send;
+      window.XMLHttpRequest.prototype.send = function(data) {
+        if (this._isPromoRequest) {
+          this.addEventListener('loadstart', () => {
+            this.status = 400;
+            this.responseText = JSON.stringify({ success: false, error: 'Promo disabled' });
+            this.dispatchEvent(new ProgressEvent('load'));
+          });
+          return;
         }
+        return originalSend.apply(this, [data]);
+      };
+    }
 
-        if (this._idaUrl && this._idaUrl.includes('/api/promo/validate')) {
-          // Fake a successful response with promo disabled
-          const self2 = this;
-          setTimeout(() => {
-            Object.defineProperty(self2, 'responseText', { value: JSON.stringify({ success: false, error: 'Promo codes are no longer available' }) });
-            Object.defineProperty(self2, 'status', { value: 200 });
-            Object.defineProperty(self2, 'readyState', { value: 4 });
-            self2.onreadystatechange && self2.onreadystatechange();
-            self2.onload && self2.onload();
-          }, 50);
+    destroy() {
+      console.log('[IDA] PromoRemover: Destroying');
+    }
+  }
+
+  // ==================== MODULE: Wallet Fee ====================
+
+  class WalletFeeHandler {
+    constructor() {
+      this.isUpdating = false;
+      this.platformFeePercent = 2;
+      this.handleRechargeScreen = debounce(() => this.setupFeeBreakdown(), 300);
+    }
+
+    init() {
+      try {
+        console.log('[IDA] WalletFeeHandler: Initializing');
+        this.setupMutationObserver();
+        this.interceptPaymentAPI();
+      } catch (error) {
+        console.error('[IDA] WalletFeeHandler init error:', error);
+      }
+    }
+
+    setupMutationObserver() {
+      const observer = new MutationObserver(this.handleRechargeScreen);
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: true
+      });
+    }
+
+    setupFeeBreakdown() {
+      if (this.isUpdating) return;
+      this.isUpdating = true;
+
+      try {
+        const walletScreen = document.getElementById('walletScreen');
+        if (!walletScreen || !walletScreen.classList.contains('active')) {
+          this.isUpdating = false;
           return;
         }
 
-        return originalXHRSend.apply(this, [body]);
-      };
-    }
+        const amountInputs = walletScreen.querySelectorAll('input[type="number"], input[type="tel"], input[placeholder*="amount"]');
+        amountInputs.forEach(input => {
+          if (input._feeHandlerAttached) return;
+          input._feeHandlerAttached = true;
 
-    /**
-     * Setup event listeners for preset amounts
-     */
-    setupPresetAmountListeners() {
-      const presetButtons = this.findPresetAmountButtons();
-      presetButtons.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const text = btn.textContent?.trim().replace('â¹', '');
-          const amount = parseInt(text, 10);
+          const updateFee = () => {
+            const amount = parseFloat(input.value) || 0;
+            if (amount <= 0) return;
 
-          if (!isNaN(amount)) {
-            this.updateFeeBreakdown(amount);
-            hapticFeedback();
-          }
-        });
-      });
-
-      // Listen for custom amount input
-      const customInput = this.findCustomAmountInput();
-      if (customInput) {
-        let inputTimeout;
-        customInput.addEventListener('input', (e) => {
-          clearTimeout(inputTimeout);
-          inputTimeout = setTimeout(() => {
-            const amount = parseInt(e.target.value, 10);
-            if (!isNaN(amount) && amount > 0) {
-              this.updateFeeBreakdown(amount);
+            let feeBreakdown = input.parentNode.querySelector('.fee-breakdown');
+            if (!feeBreakdown) {
+              feeBreakdown = document.createElement('div');
+              feeBreakdown.className = 'fee-breakdown';
+              input.parentNode.insertBefore(feeBreakdown, input.nextSibling);
             }
-          }, 300);
+
+            const fee = (amount * this.platformFeePercent) / 100;
+            const total = amount + fee;
+
+            feeBreakdown.innerHTML = `
+              <div class="fee-row">
+                <span>Recharge Amount</span>
+                <span>â¹${amount.toFixed(2)}</span>
+              </div>
+              <div class="fee-row">
+                <span>Platform Fee (${this.platformFeePercent}%)</span>
+                <span>â¹${fee.toFixed(2)}</span>
+              </div>
+              <div class="fee-row total">
+                <span>Total Payable</span>
+                <span>â¹${total.toFixed(2)}</span>
+              </div>
+            `;
+          };
+
+          input.addEventListener('input', updateFee);
+          input.addEventListener('change', updateFee);
         });
+      } finally {
+        this.isUpdating = false;
       }
     }
 
-    /**
-     * Observe wallet section for changes
-     */
-    observeWalletSection() {
-      this.observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-          if (mutation.type === 'childList') {
-            this.setupPresetAmountListeners();
-          }
-        });
-      });
+    interceptPaymentAPI() {
+      const originalFetch = window.fetch;
+      window.fetch = function(...args) {
+        const url = args[0] || '';
+        const options = args[1] || {};
 
-      const walletSection = this.findWalletAddMoneySection();
-      if (walletSection) {
-        this.observer.observe(walletSection, {
-          childList: true,
-          subtree: true,
-        });
-      }
-    }
-
-    /**
-     * Initialize wallet fee calculator
-     */
-    init() {
-      this.setupPresetAmountListeners();
-      this.observeWalletSection();
-      this.interceptRazorpayPayment();
-    }
-
-    /**
-     * Cleanup
-     */
-    destroy() {
-      if (this.observer) {
-        this.observer.disconnect();
-      }
-    }
-  }
-
-  // ===================================================================
-  // 3. Particle Background Effect
-  // ============================================================================
-
-  class ParticleBackground {
-    constructor(containerId = null) {
-      this.containerId = containerId;
-      this.canvas = null;
-      this.ctx = null;
-      this.particles = [];
-      this.animationId = null;
-      this.particleCount = 20;
-      this.connectionDistance = 100;
-      this.particleRadius = 2;
-      this.particleVelocity = 0.3;
-    }
-
-    /**
-     * Initialize particle system
-     */
-    init() {
-      this.createCanvas();
-      this.createParticles();
-      this.animate();
-      window.addEventListener('resize', () => this.handleResize());
-    }
-
-    /**
-     * Create canvas element
-     */
-    createCanvas() {
-      const container = this.containerId
-        ? document.getElementById(this.containerId)
-        : document.body;
-
-      if (!container) return;
-
-      this.canvas = document.createElement('canvas');
-      this.canvas.style.position = 'fixed';
-      this.canvas.style.top = '0';
-      this.canvas.style.left = '0';
-      this.canvas.style.width = '100%';
-      this.canvas.style.height = '100%';
-      this.canvas.style.zIndex = '-1';
-      this.canvas.style.pointerEvents = 'none';
-      this.canvas.style.background = 'transparent';
-
-      container.appendChild(this.canvas);
-      this.ctx = this.canvas.getContext('2d');
-
-      this.resizeCanvas();
-    }
-
-    /**
-     * Resize canvas to match window
-     */
-    resizeCanvas() {
-      if (!this.canvas) return;
-
-      this.canvas.width = window.innerWidth;
-      this.canvas.height = window.innerHeight;
-    }
-
-    /**
-     * Handle window resize
-     */
-    handleResize() {
-      this.resizeCanvas();
-    }
-
-    /**
-     * Create particles
-     */
-    createParticles() {
-      this.particles = [];
-
-      for (let i = 0; i < this.particleCount; i++) {
-        this.particles.push({
-          x: Math.random() * this.canvas.width,
-          y: Math.random() * this.canvas.height,
-          vx: (Math.random() - 0.5) * this.particleVelocity,
-          vy: (Math.random() - 0.5) * this.particleVelocity,
-          radius: this.particleRadius,
-          color: Math.random() > 0.5 ? CONFIG.particleColor : CONFIG.particleColorAlt,
-          opacity: CONFIG.particleOpacity,
-        });
-      }
-    }
-
-    /**
-     * Update particle positions
-     */
-    updateParticles() {
-      this.particles.forEach(particle => {
-        particle.x += particle.vx;
-        particle.y += particle.vy;
-
-        // Wrap around edges
-        if (particle.x < 0) particle.x = this.canvas.width;
-        if (particle.x > this.canvas.width) particle.x = 0;
-        if (particle.y < 0) particle.y = this.canvas.height;
-        if (particle.y > this.canvas.height) particle.y = 0;
-      });
-    }
-
-    /**
-     * Draw particles
-     */
-    drawParticles() {
-      this.particles.forEach(particle => {
-        this.ctx.fillStyle = `rgba(59, 130, 246, ${particle.opacity})`;
-        this.ctx.beginPath();
-        this.ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
-        this.ctx.fill();
-      });
-    }
-
-    /**
-     * Draw connection lines between nearby particles
-     */
-    drawConnections() {
-      this.ctx.strokeStyle = `rgba(59, 130, 246, 0.2)`;
-      this.ctx.lineWidth = 1;
-
-      for (let i = 0; i < this.particles.length; i++) {
-        for (let j = i + 1; j < this.particles.length; j++) {
-          const dx = this.particles[i].x - this.particles[j].x;
-          const dy = this.particles[i].y - this.particles[j].y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-
-          if (distance < this.connectionDistance) {
-            const opacity = 1 - (distance / this.connectionDistance);
-            this.ctx.strokeStyle = `rgba(59, 130, 246, ${opacity * 0.3})`;
-            this.ctx.beginPath();
-            this.ctx.moveTo(this.particles[i].x, this.particles[i].y);
-            this.ctx.lineTo(this.particles[j].x, this.particles[j].y);
-            this.ctx.stroke();
-          }
-        }
-      }
-    }
-
-    /**
-     * Animation loop
-     */
-    animate() {
-      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-      this.updateParticles();
-      this.drawConnections();
-      this.drawParticles();
-
-      this.animationId = animationFrame(() => this.animate());
-    }
-
-    /**
-     * Destroy particle system
-     */
-    destroy() {
-      if (this.animationId) {
-        cancelAnimationFrame(this.animationId);
-      }
-      if (this.canvas) {
-        this.canvas.remove();
-      }
-    }
-  }
-
-  // ============================================================================
-  // 4. Page Transition Animations
-  // ============================================================================
-
-  class PageTransitionAnimator {
-    constructor() {
-      this.currentPage = null;
-      this.observer = null;
-    }
-
-    /**
-     * Add slide-in animation CSS
-     */
-    addAnimationStyles() {
-      if (document.getElementById('ida-transition-styles')) return;
-
-      const style = document.createElement('style');
-      style.id = 'ida-transition-styles';
-      style.textContent = `
-        @keyframes slideInRight {
-          from {
-            opacity: 0;
-            transform: translateX(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-
-        @keyframes slideOutLeft {
-          from {
-            opacity: 1;
-            transform: translateX(0);
-          }
-          to {
-            opacity: 0;
-            transform: translateX(-30px);
-          }
-        }
-
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-
-        .ida-page-enter {
-          animation: slideInRight ${CONFIG.animationDuration}ms ease-out forwards;
-        }
-
-        .ida-page-exit {
-          animation: slideOutLeft ${CONFIG.animationDuration}ms ease-in forwards;
-        }
-      `;
-
-      document.head.appendChild(style);
-    }
-
-    /**
-     * Detect page changes
-     */
-    detectPageChanges() {
-      const pages = document.querySelectorAll(
-        '[role="main"], main, .page, [class*="page" i], [class*="screen" i]'
-      );
-
-      pages.forEach(page => {
-        const isVisible = page.style.display !== 'none' &&
-                         page.offsetHeight > 0 &&
-                         getComputedStyle(page).visibility !== 'hidden';
-
-        if (isVisible && page !== this.currentPage) {
-          this.animatePageEnter(page);
-          this.currentPage = page;
-        }
-      });
-    }
-
-    /**
-     * Animate page enter
-     */
-    animatePageEnter(page) {
-      page.classList.remove('ida-page-exit');
-      page.classList.add('ida-page-enter');
-      hapticFeedback();
-
-      setTimeout(() => {
-        page.classList.remove('ida-page-enter');
-      }, CONFIG.animationDuration);
-    }
-
-    /**
-     * Animate page exit
-     */
-    animatePageExit(page) {
-      page.classList.remove('ida-page-enter');
-      page.classList.add('ida-page-exit');
-    }
-
-    /**
-     * Observe page changes
-     */
-    observePageChanges() {
-      const debouncedDetect = debounce(() => this.detectPageChanges(), 300);
-      this.observer = new MutationObserver((mutations) => {
-        // Only react to class changes on .screen elements (not our own animation classes)
-        const relevant = mutations.some(m =>
-          m.type === 'attributes' &&
-          m.target.classList &&
-          m.target.classList.contains('screen') &&
-          !m.target.classList.contains('ida-page-enter') &&
-          !m.target.classList.contains('ida-page-exit')
-        );
-        if (relevant) debouncedDetect();
-      });
-
-      this.observer.observe(document.body, {
-        subtree: true,
-        attributes: true,
-        attributeFilter: ['class'],
-      });
-    }
-
-    /**
-     * Initialize page transition animator
-     */
-    init() {
-      this.addAnimationStyles();
-      this.detectPageChanges();
-      this.observePageChanges();
-    }
-
-    /**
-     * Cleanup
-     */
-    destroy() {
-      if (this.observer) {
-        this.observer.disconnect();
-      }
-    }
-  }
-
-  // ============================================================================
-  // 5. Scroll-Triggered Card Animations
-  // ============================================================================
-
-  class ScrollCardAnimator {
-    constructor() {
-      this.observer = null;
-      this.observedCards = new Set();
-    }
-
-    /**
-     * Add card animation styles
-     */
-    addAnimationStyles() {
-      if (document.getElementById('ida-card-animation-styles')) return;
-
-      const style = document.createElement('style');
-      style.id = 'ida-card-animation-styles';
-      style.textContent = `
-        @keyframes fadeUpCard {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        .ida-card-animated {
-          animation: fadeUpCard 600ms ease-out forwards;
-        }
-
-        .ida-card-stagger-1 { animation-delay: 0ms; }
-        .ida-card-stagger-2 { animation-delay: 100ms; }
-        .ida-card-stagger-3 { animation-delay: 200ms; }
-        .ida-card-stagger-4 { animation-delay: 300ms; }
-        .ida-card-stagger-5 { animation-delay: 400ms; }
-      `;
-
-      document.head.appendChild(style);
-    }
-
-    /**
-     * Find cards to animate
-     */
-    findCards() {
-      const selectors = [
-        '[class*="card" i]',
-        '[role="article"]',
-        '.ride-item',
-        '.history-item',
-        '[class*="item" i]:not(nav *)',
-      ];
-
-      let cards = [];
-      selectors.forEach(selector => {
-        cards.push(...document.querySelectorAll(selector));
-      });
-
-      return [...new Set(cards)]; // Remove duplicates
-    }
-
-    /**
-     * Animate card when it enters viewport
-     */
-    animateCard(card) {
-      if (this.observedCards.has(card)) return;
-
-      this.observedCards.add(card);
-
-      const staggerIndex = Array.from(card.parentElement?.children || []).indexOf(card);
-      const staggerClass = `ida-card-stagger-${Math.min(staggerIndex + 1, 5)}`;
-
-      card.classList.add('ida-card-animated', staggerClass);
-    }
-
-    /**
-     * Setup IntersectionObserver for cards
-     */
-    setupIntersectionObserver() {
-      const options = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px',
-      };
-
-      this.observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            this.animateCard(entry.target);
-            this.observer.unobserve(entry.target);
-          }
-        });
-      }, options);
-
-      const cards = this.findCards();
-      cards.forEach(card => this.observer.observe(card));
-    }
-
-    /**
-     * Observe DOM for new cards
-     */
-    observeNewCards() {
-      const domObserver = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-          if (mutation.type === 'childList') {
-            mutation.addedNodes.forEach(node => {
-              if (node.nodeType === 1) { // Element node
-                const cards = node.querySelectorAll('[class*="card" i], [role="article"], .ride-item, .history-item');
-                cards.forEach(card => {
-                  if (this.observer && !this.observedCards.has(card)) {
-                    this.observer.observe(card);
-                  }
+        if (typeof url === 'string' && url.includes('/api/payment')) {
+          return originalFetch.apply(this, args).then(response => {
+            if (response.ok) {
+              return response.clone().json().then(data => {
+                if (data.amount) {
+                  data.platformFee = (data.amount * 2) / 100;
+                  data.totalAmount = data.amount + data.platformFee;
+                }
+                return new Response(JSON.stringify(data), {
+                  status: response.status,
+                  headers: response.headers
                 });
-              }
-            });
-          }
-        });
-      });
-
-      domObserver.observe(document.body, {
-        childList: true,
-        subtree: true,
-      });
-    }
-
-    /**
-     * Initialize scroll card animator
-     */
-    init() {
-      this.addAnimationStyles();
-      this.setupIntersectionObserver();
-      this.observeNewCards();
-    }
-
-    /**
-     * Cleanup
-     */
-    destroy() {
-      if (this.observer) {
-        this.observer.disconnect();
-      }
-    }
-  }
-
-  // ============================================================================
-  // 6. Button Ripple Effect
-  // ============================================================================
-
-  class ButtonRippleEffect {
-    constructor() {
-      this.rippleSelector = 'button, [role="button"], a[href]:not([href^="#"])';
-    }
-
-    /**
-     * Add ripple effect styles
-     */
-    addRippleStyles() {
-      if (document.getElementById('ida-ripple-styles')) return;
-
-      const style = document.createElement('style');
-      style.id = 'ida-ripple-styles';
-      style.textContent = `
-        @keyframes ripple {
-          to {
-            transform: scale(4);
-            opacity: 0;
-          }
-        }
-
-        .ida-ripple-container {
-          position: relative;
-          overflow: hidden;
-        }
-
-        .ida-ripple {
-          position: absolute;
-          border-radius: 50%;
-          background: rgba(255, 255, 255, 0.6);
-          pointer-events: none;
-          animation: ripple ${CONFIG.rippleDuration}ms ease-out;
-        }
-      `;
-
-      document.head.appendChild(style);
-    }
-
-    /**
-     * Create ripple effect at click position
-     */
-    createRipple(event) {
-      const button = event.currentTarget;
-      const rect = button.getBoundingClientRect();
-
-      // Make sure container has position relative
-      if (getComputedStyle(button).position === 'static') {
-        button.style.position = 'relative';
-      }
-
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
-
-      const ripple = document.createElement('span');
-      ripple.className = 'ida-ripple';
-      ripple.style.width = ripple.style.height = '20px';
-      ripple.style.left = `${x - 10}px`;
-      ripple.style.top = `${y - 10}px`;
-
-      button.appendChild(ripple);
-
-      setTimeout(() => ripple.remove(), CONFIG.rippleDuration);
-    }
-
-    /**
-     * Add ripple listeners to buttons
-     */
-    setupRippleListeners() {
-      const buttons = document.querySelectorAll(this.rippleSelector);
-      buttons.forEach(btn => {
-        if (!btn.dataset.rippleEnabled) {
-          btn.addEventListener('click', (e) => this.createRipple(e), { passive: true });
-          btn.dataset.rippleEnabled = 'true';
-        }
-      });
-    }
-
-    /**
-     * Observe for new buttons
-     */
-    observeNewButtons() {
-      const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-          if (mutation.type === 'childList') {
-            mutation.addedNodes.forEach(node => {
-              if (node.nodeType === 1) { // Element node
-                this.setupRippleListeners();
-              }
-            });
-          }
-        });
-      });
-
-      observer.observe(document.body, {
-        childList: true,
-        subtree: true,
-      });
-    }
-
-    /**
-     * Initialize button ripple effect
-     */
-    init() {
-      this.addRippleStyles();
-      this.setupRippleListeners();
-      this.observeNewButtons();
-    }
-  }
-
-  // =========================================================================
-  // 7. Counter Animation for Wallet Balance
-  // ============================================================================
-
-  class WalletBalanceCounter {
-    constructor() {
-      this.observer = null;
-      this.currentBalance = 0;
-    }
-
-    /**
-     * Animate number counter
-     */
-    animateCounter(element, fromValue, toValue, duration = CONFIG.countAnimationDuration) {
-      const startTime = performance.now();
-      const startValue = fromValue;
-      const difference = toValue - fromValue;
-
-      const animate = (currentTime) => {
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-
-        const currentValue = Math.floor(startValue + difference * progress);
-        element.textContent = `â¹${currentValue}`;
-
-        if (progress < 1) {
-          animationFrame(animate);
-        } else {
-          element.textContent = `â¹${toValue}`;
-        }
-      };
-
-      animationFrame(animate);
-    }
-
-    /**
-     * Find wallet balance element
-     */
-    findWalletBalanceElement() {
-      const selectors = [
-        '[class*="wallet" i] [class*="balance" i]',
-        '[id*="wallet" i] [class*="balance" i]',
-        '[class*="balance" i]',
-      ];
-
-      for (const selector of selectors) {
-        try {
-          const element = document.querySelector(selector);
-          if (element && /â¹\d+/.test(element.textContent)) {
-            return element;
-          }
-        } catch(e) { /* skip invalid selectors */ }
-      }
-
-      // Fallback: manually find spans containing â¹
-      const spans = document.querySelectorAll('span');
-      for (const span of spans) {
-        if (/â¹\d+/.test(span.textContent)) {
-          return span;
-        }
-      }
-
-      return null;
-    }
-
-    /**
-     * Extract numeric value from balance text
-     */
-    extractBalance(text) {
-      const match = text.match(/â¹(\d+)/);
-      return match ? parseInt(match[1], 10) : 0;
-    }
-
-    /**
-     * Observe wallet balance changes
-     */
-    observeBalanceChanges() {
-      const balanceElement = this.findWalletBalanceElement();
-      if (!balanceElement) return;
-
-      this.observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-          if (mutation.type === 'characterData' || mutation.type === 'childList') {
-            const newBalance = this.extractBalance(balanceElement.textContent);
-
-            if (newBalance !== this.currentBalance && newBalance > 0) {
-              this.animateCounter(balanceElement, this.currentBalance, newBalance);
-              this.currentBalance = newBalance;
+              });
             }
-          }
-        });
-      });
+            return response;
+          });
+        }
 
-      this.currentBalance = this.extractBalance(balanceElement.textContent);
-
-      this.observer.observe(balanceElement, {
-        characterData: true,
-        childList: true,
-        subtree: true,
-      });
+        return originalFetch.apply(this, args);
+      };
     }
 
-    /**
-     * Initialize wallet balance counter
-     */
-    init() {
-      this.observeBalanceChanges();
-
-      // Retry if wallet balance element not found yet
-      if (!this.observer) {
-        setTimeout(() => this.init(), 1000);
-      }
-    }
-
-    /**
-     * Cleanup
-     */
     destroy() {
-      if (this.observer) {
-        this.observer.disconnect();
-      }
+      console.log('[IDA] WalletFeeHandler: Destroying');
     }
   }
 
-  // ============================================================================
-  // 8. Bottom Navigation Enhancement
-  // ============================================================================
+  // ==================== MODULE: Navigation Visibility ====================
+
+  class NavVisibilityHandler {
+    constructor() {
+      this.isUpdating = false;
+      this.handleNavVisibility = debounce(() => this.updateNavVisibility(), 250);
+    }
+
+    init() {
+      try {
+        console.log('[IDA] NavVisibilityHandler: Initializing');
+        this.updateNavVisibility();
+        this.setupMutationObserver();
+      } catch (error) {
+        console.error('[IDA] NavVisibilityHandler init error:', error);
+      }
+    }
+
+    setupMutationObserver() {
+      const observer = new MutationObserver(this.handleNavVisibility);
+      observer.observe(document.body, {
+        attributes: true,
+        subtree: true,
+        attributeFilter: ['class']
+      });
+    }
+
+    updateNavVisibility() {
+      if (this.isUpdating) return;
+      this.isUpdating = true;
+
+      try {
+        const nav = document.querySelector('nav');
+        const sosButton = document.querySelector('[class*="sos"], button[data-sos], [aria-label*="SOS"]');
+        const bottomSheets = document.querySelectorAll('.bottom-sheet');
+
+        const loggedIn = isLoggedIn();
+
+        if (nav) {
+          if (loggedIn) {
+            showElement(nav);
+            this.hideQRPayAndVoice(nav);
+          } else {
+            hideElement(nav);
+          }
+        }
+
+        if (sosButton) {
+          if (loggedIn) {
+            showElement(sosButton);
+          } else {
+            hideElement(sosButton);
+          }
+        }
+
+        bottomSheets.forEach(sheet => {
+          if (loggedIn) {
+            sheet.classList.remove('hidden');
+            showElement(sheet);
+          } else {
+            sheet.classList.add('hidden');
+            hideElement(sheet);
+          }
+        });
+      } finally {
+        this.isUpdating = false;
+      }
+    }
+
+    hideQRPayAndVoice(nav) {
+      const buttons = nav.querySelectorAll('button, [role="button"]');
+      const qrPayKeywords = ['qr', 'pay', 'scan'];
+      const voiceKeywords = ['voice', 'speak'];
+
+      buttons.forEach(btn => {
+        const text = (btn.textContent || '').toLowerCase();
+        const isQRPay = qrPayKeywords.some(kw => text.includes(kw));
+        const isVoice = voiceKeywords.some(kw => text.includes(kw));
+
+        if (isQRPay || isVoice) {
+          hideElement(btn);
+        }
+      });
+    }
+
+    destroy() {
+      console.log('[IDA] NavVisibilityHandler: Destroying');
+    }
+  }
+
+  // ==================== MODULE: Bottom Nav Enhancement ====================
 
   class BottomNavEnhancer {
     constructor() {
-      this.navItems = [
-        { icon: 'ð ', label: 'Home', id: 'nav-home' },
-        { icon: 'ð', label: 'Rides', id: 'nav-rides' },
-        { icon: 'ð°', label: 'Earnings', id: 'nav-earnings' },
-        { icon: 'ð¤', label: 'Profile', id: 'nav-profile' },
-      ];
-
-      this.hiddenItems = ['qr-pay', 'voice', 'qr'];
+      this.isUpdating = false;
+      this.handleNavUpdate = debounce(() => this.enhanceNavBar(), 300);
     }
 
-    /**
-     * Find bottom navigation element
-     */
-    findBottomNav() {
-      const selectors = [
-        'nav:last-of-type',
-        '[role="navigation"]:last-of-type',
-        '[class*="bottom-nav" i]',
-        '[class*="tab-bar" i]',
-        '[class*="navbar" i]:last-of-type',
-      ];
-
-      for (const selector of selectors) {
-        const nav = document.querySelector(selector);
-        if (nav && nav.querySelector('button, [role="button"], a')) {
-          return nav;
-        }
-      }
-
-      return null;
-    }
-
-    /**
-     * Get current nav items
-     */
-    getCurrentNavItems() {
-      const nav = this.findBottomNav();
-      if (!nav) return [];
-
-      return Array.from(nav.querySelectorAll('button, [role="button"], a, li'));
-    }
-
-    /**
-     * Hide specific nav items
-     */
-    hideNavItems() {
-      const nav = this.findBottomNav();
-      if (!nav) return;
-
-      const items = this.getCurrentNavItems();
-      items.forEach(item => {
-        const text = (item.textContent || '').toLowerCase();
-        if (this.hiddenItems.some(hiddenItem => text.includes(hiddenItem))) {
-          item.style.display = 'none';
-          item.style.visibility = 'hidden';
-          item.setAttribute('aria-hidden', 'true');
-        }
-      });
-    }
-
-    /**
-     * Find earnings/dashboard button and ensure it's labeled correctly
-     */
-    enhanceEarningsItem() {
-      const nav = this.findBottomNav();
-      if (!nav) return;
-
-      const items = this.getCurrentNavItems();
-      items.forEach(item => {
-        const text = (item.textContent || '').toLowerCase();
-
-        if (text.includes('earn') || text.includes('dashboard') || text.includes('history')) {
-          item.innerHTML = 'ð° Earnings';
-          item.style.display = '';
-          item.style.visibility = '';
-        }
-
-        if (text.includes('home')) {
-          item.innerHTML = 'ð  Home';
-        }
-
-        if (text.includes('ride')) {
-          item.innerHTML = 'ð Rides';
-        }
-
-        if (text.includes('profile') || text.includes('account')) {
-          item.innerHTML = 'ð¤ Profile';
-        }
-      });
-    }
-
-    /**
-     * Add click handlers for nav items
-     */
-    addNavHandlers() {
-      const nav = this.findBottomNav();
-      if (!nav) return;
-
-      const items = this.getCurrentNavItems();
-      items.forEach(item => {
-        item.addEventListener('click', (e) => {
-          items.forEach(i => i.classList.remove('active'));
-          item.classList.add('active');
-          hapticFeedback();
-        });
-      });
-    }
-
-    /**
-     * Initialize bottom nav enhancement
-     */
     init() {
-      this.hideNavItems();
-      this.enhanceEarningsItem();
-      this.addNavHandlers();
-
-      // Observe for dynamic navigation changes â debounced to prevent loops
-      // since enhanceEarningsItem modifies innerHTML which triggers childList
-      let isUpdating = false;
-      const debouncedUpdate = debounce(() => {
-        if (isUpdating) return;
-        isUpdating = true;
-        this.hideNavItems();
-        this.enhanceEarningsItem();
-        isUpdating = false;
-      }, 500);
-
-      const nav = this.findBottomNav();
-      if (nav) {
-        const observer = new MutationObserver(() => debouncedUpdate());
-        observer.observe(nav, {
-          childList: true,
-          subtree: true,
-        });
+      try {
+        console.log('[IDA] BottomNavEnhancer: Initializing');
+        this.enhanceNavBar();
+        this.setupMutationObserver();
+        this.setupScreenChangeListener();
+      } catch (error) {
+        console.error('[IDA] BottomNavEnhancer init error:', error);
       }
     }
-  }
 
-  // ============================================================================
-  // 9. Smooth Scroll & Haptic-Like Feedback
-  // ============================================================================
-
-  class SmoothScrollEnhancer {
-    constructor() {
-      this.touchStartY = 0;
-      this.touchStartX = 0;
-    }
-
-    /**
-     * Add smooth scroll styles
-     */
-    addSmoothScrollStyles() {
-      if (document.getElementById('ida-smooth-scroll-styles')) return;
-
-      const style = document.createElement('style');
-      style.id = 'ida-smooth-scroll-styles';
-      style.textContent = `
-        html {
-          scroll-behavior: smooth;
-        }
-
-        * {
-          -webkit-tap-highlight-color: transparent;
-        }
-
-        button, [role="button"], a {
-          touch-action: manipulation;
-          -webkit-user-select: none;
-          user-select: none;
-        }
-
-        input, textarea, select {
-          -webkit-user-select: text;
-          user-select: text;
-        }
-      `;
-
-      document.head.appendChild(style);
-    }
-
-    /**
-     * Add touch feedback transform
-     */
-    addTouchFeedback() {
-      const interactiveElements = document.querySelectorAll('button, [role="button"], a, input');
-
-      interactiveElements.forEach(el => {
-        if (!el.dataset.touchFeedbackAdded) {
-          el.addEventListener('touchstart', (e) => {
-            el.style.transform = 'scale(0.98)';
-            el.style.transition = 'transform 100ms ease-out';
-          });
-
-          el.addEventListener('touchend', (e) => {
-            el.style.transform = 'scale(1)';
-            setTimeout(() => {
-              el.style.transition = '';
-            }, 100);
-          });
-
-          el.dataset.touchFeedbackAdded = 'true';
-        }
+    setupMutationObserver() {
+      const observer = new MutationObserver(this.handleNavUpdate);
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true
       });
     }
 
-    /**
-     * Observe for new interactive elements
-     */
-    observeNewElements() {
-      const debouncedFeedback = debounce(() => this.addTouchFeedback(), 500);
-      const observer = new MutationObserver((mutations) => {
-        const hasNewNodes = mutations.some(m => m.type === 'childList' && m.addedNodes.length > 0);
-        if (hasNewNodes) debouncedFeedback();
+    setupScreenChangeListener() {
+      const observer = new MutationObserver(() => {
+        this.updateActiveNavItem();
       });
 
       observer.observe(document.body, {
-        childList: true,
+        attributes: true,
         subtree: true,
+        attributeFilter: ['class']
       });
     }
 
-    /**
-     * Initialize smooth scroll enhancer
-     */
-    init() {
-      this.addSmoothScrollStyles();
-      this.addTouchFeedback();
-      this.observeNewElements();
-    }
-  }
+    enhanceNavBar() {
+      if (this.isUpdating) return;
+      this.isUpdating = true;
 
-  // ============================================================================
-  // 10. Login Screen Gradient Animation
-  // ============================================================================
-
-  class LoginGradientAnimation {
-    constructor() {
-      this.animationId = null;
-      this.gradientAngle = 0;
-    }
-
-    /**
-     * Find login screen
-     */
-    findLoginScreen() {
-      const selectors = [
-        '[class*="login" i]',
-        '[class*="auth" i]',
-        '[class*="welcome" i]',
-        '[class*="signin" i]',
-      ];
-
-      for (const selector of selectors) {
-        const element = document.querySelector(selector);
-        if (element && element.offsetHeight > 100) {
-          return element;
+      try {
+        const nav = document.querySelector('nav');
+        if (!nav) {
+          this.isUpdating = false;
+          return;
         }
-      }
 
-      return null;
-    }
+        const buttons = nav.querySelectorAll('button, [role="button"]');
+        const navItems = ['Home', 'Rides', 'Wallet', 'Profile', 'Earnings'];
 
-    /**
-     * Apply animated gradient background
-     */
-    applyGradientBackground(element) {
-      if (!element) return;
+        buttons.forEach(btn => {
+          const text = btn.textContent.trim();
+          const isNavItem = navItems.some(item => text.toLowerCase().includes(item.toLowerCase()));
 
-      element.style.background = this.generateGradient(0);
-      element.style.backgroundAttachment = 'fixed';
-      element.style.transition = 'background 5s ease-in-out';
-    }
+          if (isNavItem) {
+            btn.addEventListener('click', (e) => {
+              e.preventDefault();
+              this.updateActiveNavItem();
+              if (navigator.vibrate) {
+                navigator.vibrate(30);
+              }
+            });
 
-    /**
-     * Generate gradient string
-     */
-    generateGradient(angle) {
-      return `
-        linear-gradient(
-          ${angle}deg,
-          rgba(59, 130, 246, 0.1) 0%,
-          rgba(139, 92, 246, 0.1) 50%,
-          rgba(59, 130, 246, 0.1) 100%
-        )
-      `;
-    }
+            if (!btn._enhancementDone) {
+              btn.classList.add('ripple');
+              btn._enhancementDone = true;
+            }
+          }
+        });
 
-    /**
-     * Animate gradient
-     */
-    animateGradient() {
-      const loginScreen = this.findLoginScreen();
-      if (!loginScreen) return;
-
-      this.gradientAngle = (this.gradientAngle + 1) % 360;
-      loginScreen.style.backgroundImage = this.generateGradient(this.gradientAngle);
-
-      this.animationId = setTimeout(() => this.animateGradient(), 5000);
-    }
-
-    /**
-     * Initialize login gradient animation
-     */
-    init() {
-      const loginScreen = this.findLoginScreen();
-      if (loginScreen) {
-        this.applyGradientBackground(loginScreen);
-        this.animateGradient();
-      }
-
-      // Retry if login screen not found
-      if (!loginScreen) {
-        setTimeout(() => this.init(), 1000);
+        this.updateActiveNavItem();
+      } finally {
+        this.isUpdating = false;
       }
     }
 
-    /**
-     * Cleanup
-     */
+    updateActiveNavItem() {
+      const nav = document.querySelector('nav');
+      if (!nav) return;
+
+      const buttons = nav.querySelectorAll('button, [role="button"]');
+      buttons.forEach(btn => btn.classList.remove('active'));
+
+      const activeScreen = document.querySelector('.screen.active');
+      if (!activeScreen) return;
+
+      const screenId = activeScreen.id;
+      let activeNavIndex = -1;
+
+      if (screenId === 'homeScreen') activeNavIndex = 0;
+      else if (screenId === 'ridesScreen') activeNavIndex = 1;
+      else if (screenId === 'walletScreen') activeNavIndex = 3;
+      else if (screenId === 'profileScreen' || screenId === 'earningsScreen') activeNavIndex = 4;
+
+      if (activeNavIndex >= 0 && buttons[activeNavIndex]) {
+        buttons[activeNavIndex].classList.add('active');
+      }
+    }
+
     destroy() {
-      if (this.animationId) {
-        clearTimeout(this.animationId);
-      }
+      console.log('[IDA] BottomNavEnhancer: Destroying');
     }
   }
 
-  // ============================================================================
-  // Logo Enhancer - Ensures IDA logo appears everywhere
-  // ============================================================================
+  // ==================== MODULE: Logo Handler ====================
 
-  class LogoEnhancer {
+  class LogoHandler {
     constructor() {
       this.logoUrl = 'Modern%20Indian%20Drivers%20Association%20logo.png';
-      this.observer = null;
+      this.isUpdating = false;
+      this.handleLogoInject = debounce(() => this.injectLogos(), 300);
     }
 
     init() {
-      this.ensureLogos();
-      this.handleSOSVisibility();
-      // Re-check when DOM changes (screen transitions) â debounced to prevent loops
-      // since ensureLogos() adds DOM elements which would trigger the observer again
-      let isUpdating = false;
-      const debouncedUpdate = debounce(() => {
-        if (isUpdating) return;
-        isUpdating = true;
-        this.ensureLogos();
-        this.handleSOSVisibility();
-        isUpdating = false;
-      }, 400);
-      this.observer = new MutationObserver((mutations) => {
-        // Ignore mutations from our own logo additions
-        const isOwnMutation = mutations.every(m =>
-          m.addedNodes.length === 1 &&
-          m.addedNodes[0].classList &&
-          (m.addedNodes[0].classList.contains('ida-screen-logo') || m.addedNodes[0].tagName === 'IMG')
-        );
-        if (!isOwnMutation) debouncedUpdate();
-      });
-      this.observer.observe(document.body, { childList: true, subtree: true });
+      try {
+        console.log('[IDA] LogoHandler: Initializing');
+        this.injectLogos();
+        this.setupMutationObserver();
+      } catch (error) {
+        console.error('[IDA] LogoHandler init error:', error);
+      }
     }
 
-    isLoggedIn() {
-      // Check if we're past the login/role/KYC screens and into the main app
-      const activeScreen = document.querySelector('.screen.active');
-      if (!activeScreen) return false;
-      const screenText = (activeScreen.textContent || '').toLowerCase();
-      // Pre-login screens: splash, role selection, phone/OTP, KYC
-      const preLoginKeywords = ['get started', 'how will you use', 'enter your phone', 'enter otp', 'verification (kyc)', 'driver verification', 'auto \u2022 cab', 'indian drivers association'];
-      return !preLoginKeywords.some(kw => screenText.includes(kw));
-    }
-
-    handleSOSVisibility() {
-      const loggedIn = this.isLoggedIn();
-
-      // Hide SOS button on pre-login screens
-      const sosBtn = document.querySelector('.sos-btn, .sos-button, [class*="sos"]');
-      if (sosBtn) {
-        if (loggedIn) {
-          sosBtn.style.display = '';
-          sosBtn.style.visibility = 'visible';
-        } else {
-          sosBtn.style.display = 'none';
-          sosBtn.style.visibility = 'hidden';
-        }
-      }
-
-      // Hide bottom nav bar on pre-login screens
-      const nav = document.querySelector('nav');
-      if (nav) {
-        if (loggedIn) {
-          nav.style.display = '';
-          nav.style.visibility = '';
-        } else {
-          nav.style.display = 'none';
-          nav.style.visibility = 'hidden';
-        }
-      }
-
-      // Hide bottom-sheets on pre-login screens
-      const bottomSheets = document.querySelectorAll('.bottom-sheet');
-      bottomSheets.forEach(bs => {
-        if (!loggedIn) {
-          bs.style.display = 'none';
-        }
-      });
-
-      // Ensure only the active screen is visible (prevent bleed-through)
-      const screens = document.querySelectorAll('.screen');
-      screens.forEach(s => {
-        if (!s.classList.contains('active')) {
-          s.style.display = 'none';
-        }
+    setupMutationObserver() {
+      const observer = new MutationObserver(this.handleLogoInject);
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: true
       });
     }
 
-    ensureLogos() {
-      // Header logo
-      const headerLogo = document.querySelector('.header-logo');
-      if (headerLogo && !headerLogo.querySelector('img')) {
-        const img = document.createElement('img');
-        img.src = this.logoUrl;
-        img.style.cssText = 'width:32px;height:32px;border-radius:6px;object-fit:contain;margin-right:8px;';
-        headerLogo.prepend(img);
-      }
+    injectLogos() {
+      if (this.isUpdating) return;
+      this.isUpdating = true;
 
-      // Login / OTP screens - add logo at top if not present
-      const activeScreen = document.querySelector('.screen.active');
-      if (activeScreen && !activeScreen.querySelector('.ida-screen-logo')) {
-        const screenText = activeScreen.textContent || '';
-        // Add logo to screens that should have it (login, phone, OTP, role selection)
-        if (/phone|otp|login|verify|mobile|how will you use/i.test(screenText) || activeScreen.querySelector('input[type="tel"]')) {
-          const logoDiv = document.createElement('div');
-          logoDiv.className = 'ida-screen-logo';
-          logoDiv.style.cssText = 'text-align:center;padding:24px 0 16px;';
-          logoDiv.innerHTML = '<img src="' + this.logoUrl + '" style="width:80px;height:80px;border-radius:16px;object-fit:contain;box-shadow:0 8px 32px rgba(59,130,246,0.3);">';
-          activeScreen.prepend(logoDiv);
+      try {
+        const activeScreen = document.querySelector('.screen.active');
+        if (!activeScreen) {
+          this.isUpdating = false;
+          return;
         }
+
+        const preLoginScreens = ['splashScreen', 'authScreen', 'roleSelectScreen', 'kycScreen'];
+        const screenId = activeScreen.id;
+
+        if (preLoginScreens.includes(screenId)) {
+          this.injectAuthLogo(activeScreen);
+        }
+
+        this.injectHeaderLogo();
+      } finally {
+        this.isUpdating = false;
+      }
+    }
+
+    injectAuthLogo(screen) {
+      if (screen.querySelector('.ida-logo')) return;
+
+      const logo = document.createElement('img');
+      logo.className = 'ida-logo';
+      logo.src = this.logoUrl;
+      logo.alt = 'IDA Logo';
+
+      const firstChild = screen.firstChild;
+      if (firstChild) {
+        screen.insertBefore(logo, firstChild);
+      } else {
+        screen.appendChild(logo);
+      }
+    }
+
+    injectHeaderLogo() {
+      const header = document.querySelector('header, [role="banner"], .header, .top-bar');
+      if (!header || header.querySelector('.header-logo')) return;
+
+      const logo = document.createElement('img');
+      logo.className = 'header-logo';
+      logo.src = this.logoUrl;
+      logo.alt = 'IDA';
+
+      header.appendChild(logo);
+    }
+
+    destroy() {
+      console.log('[IDA] LogoHandler: Destroying');
+      document.querySelectorAll('.ida-logo, .header-logo').forEach(el => el.remove());
+    }
+  }
+
+  // ==================== MODULE: Animations ====================
+
+  class AnimationHandler {
+    constructor() {
+      this.isUpdating = false;
+      this.handleAnimations = debounce(() => this.setupAnimations(), 300);
+    }
+
+    init() {
+      try {
+        console.log('[IDA] AnimationHandler: Initializing');
+        this.setupAnimations();
+        this.setupMutationObserver();
+        this.setupScrollTrigger();
+      } catch (error) {
+        console.error('[IDA] AnimationHandler init error:', error);
+      }
+    }
+
+    setupMutationObserver() {
+      const observer = new MutationObserver(this.handleAnimations);
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+    }
+
+    setupAnimations() {
+      if (this.isUpdating) return;
+      this.isUpdating = true;
+
+      try {
+        const activeScreen = document.querySelector('.screen.active');
+        if (!activeScreen) {
+          this.isUpdating = false;
+          return;
+        }
+
+        // Button ripple setup
+        activeScreen.querySelectorAll('button, [role="button"]').forEach(btn => {
+          if (btn._rippleSetup) return;
+          btn._rippleSetup = true;
+
+          btn.addEventListener('click', (e) => {
+            btn.classList.add('ripple', 'active');
+            setTimeout(() => btn.classList.remove('active'), 600);
+          });
+        });
+
+        // Wallet balance counter
+        const walletBalance = activeScreen.querySelector('.wallet-balance, [class*="balance"]');
+        if (walletBalance) {
+          walletBalance.classList.add('animate');
+          setTimeout(() => walletBalance.classList.remove('animate'), 600);
+        }
+
+        // Auth gradient
+        const authScreen = document.getElementById('authScreen');
+        if (authScreen && authScreen.classList.contains('active')) {
+          authScreen.classList.add('auth-gradient');
+        }
+      } finally {
+        this.isUpdating = false;
+      }
+    }
+
+    setupScrollTrigger() {
+      if (!window.IntersectionObserver) return;
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('card-fade-in');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+
+      const observeCards = () => {
+        document.querySelectorAll('.card, [class*="card"]').forEach(card => {
+          if (!card.classList.contains('card-fade-in')) {
+            observer.observe(card);
+          }
+        });
+      };
+
+      observeCards();
+
+      const mutationObserver = new MutationObserver(observeCards);
+      mutationObserver.observe(document.body, { childList: true, subtree: true });
+    }
+
+    destroy() {
+      console.log('[IDA] AnimationHandler: Destroying');
+    }
+  }
+
+  // ==================== MODULE: Haptic Feedback ====================
+
+  class HapticFeedback {
+    constructor() {
+      this.isUpdating = false;
+      this.handleHapticSetup = debounce(() => this.setupHaptics(), 300);
+    }
+
+    init() {
+      try {
+        console.log('[IDA] HapticFeedback: Initializing');
+        this.setupHaptics();
+        this.setupMutationObserver();
+      } catch (error) {
+        console.error('[IDA] HapticFeedback init error:', error);
+      }
+    }
+
+    setupMutationObserver() {
+      const observer = new MutationObserver(this.handleHapticSetup);
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+    }
+
+    setupHaptics() {
+      if (this.isUpdating) return;
+      this.isUpdating = true;
+
+      try {
+        if (!navigator.vibrate) {
+          this.isUpdating = false;
+          return;
+        }
+
+        document.querySelectorAll('button, [role="button"]').forEach(btn => {
+          if (btn._hapticSetup) return;
+          btn._hapticSetup = true;
+
+          btn.addEventListener('click', () => {
+            navigator.vibrate(50);
+          });
+
+          btn.addEventListener('touchstart', () => {
+            navigator.vibrate(20);
+          });
+        });
+      } finally {
+        this.isUpdating = false;
       }
     }
 
     destroy() {
-      if (this.observer) this.observer.disconnect();
+      console.log('[IDA] HapticFeedback: Destroying');
     }
   }
 
-  // ============================================================================
-  // Master Initializer
-  // ============================================================================
+  // ==================== MASTER INITIALIZER ====================
 
-  class IDAAppEnhancer {
+  class IDAEnhancer {
     constructor() {
       this.modules = [];
+      this.initialized = false;
     }
 
-    /**
-     * Initialize all enhancement modules
-     */
-    async init() {
-      // Wait for DOM to be ready
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => this.initialize());
-      } else {
-        this.initialize();
+    init() {
+      if (this.initialized) {
+        console.warn('[IDA] Already initialized');
+        return;
+      }
+
+      console.log('[IDA] Initializing all modules...');
+
+      try {
+        const roleSelector = new RoleSelector();
+        roleSelector.init();
+        this.modules.push(roleSelector);
+
+        const promoRemover = new PromoRemover();
+        promoRemover.init();
+        this.modules.push(promoRemover);
+
+        const walletFee = new WalletFeeHandler();
+        walletFee.init();
+        this.modules.push(walletFee);
+
+        const navVisibility = new NavVisibilityHandler();
+        navVisibility.init();
+        this.modules.push(navVisibility);
+
+        const navEnhancer = new BottomNavEnhancer();
+        navEnhancer.init();
+        this.modules.push(navEnhancer);
+
+        const logoHandler = new LogoHandler();
+        logoHandler.init();
+        this.modules.push(logoHandler);
+
+        const animationHandler = new AnimationHandler();
+        animationHandler.init();
+        this.modules.push(animationHandler);
+
+        const hapticFeedback = new HapticFeedback();
+        hapticFeedback.init();
+        this.modules.push(hapticFeedback);
+
+        this.initialized = true;
+        console.log('[IDA] All modules initialized successfully');
+        console.log('[IDA] Enhancement script active - v1.0.0');
+      } catch (error) {
+        console.error('[IDA] Critical initialization error:', error);
       }
     }
 
-    /**
-     * Initialize enhancement modules
-     */
-    initialize() {
-      const moduleList = [
-        ['PromoCodeRemover', PromoCodeRemover],
-        ['WalletFeeCalculator', WalletFeeCalculator],
-        ['ParticleBackground', ParticleBackground],
-        ['PageTransitionAnimator', PageTransitionAnimator],
-        ['ScrollCardAnimator', ScrollCardAnimator],
-        ['ButtonRippleEffect', ButtonRippleEffect],
-        ['WalletBalanceCounter', WalletBalanceCounter],
-        ['BottomNavEnhancer', BottomNavEnhancer],
-        ['SmoothScrollEnhancer', SmoothScrollEnhancer],
-        ['LoginGradientAnimation', LoginGradientAnimation],
-        ['LogoEnhancer', LogoEnhancer],
-      ];
-
-      for (const [name, ModuleClass] of moduleList) {
-        try {
-          const instance = new ModuleClass();
-          instance.init();
-          this.modules.push(instance);
-        } catch (error) {
-          console.warn(`IDA module ${name} failed to init:`, error.message);
-        }
-      }
-
-      console.log(`IDA App Enhancement initialized: ${this.modules.length}/${moduleList.length} modules`);
-    }
-
-    /**
-     * Cleanup all modules
-     */
     destroy() {
+      console.log('[IDA] Destroying all modules...');
       this.modules.forEach(module => {
-        if (module.destroy && typeof module.destroy === 'function') {
-          module.destroy();
+        try {
+          if (module.destroy) {
+            module.destroy();
+          }
+        } catch (error) {
+          console.error('[IDA] Error destroying module:', error);
         }
       });
       this.modules = [];
+      this.initialized = false;
     }
   }
 
-  // ============================================================================
-  // Startup
-  // ============================================================================
+  // ==================== STARTUP ====================
 
-  // Create and initialize the main enhancer
-  const enhancer = new IDAAppEnhancer();
-  enhancer.init();
+  const enhancer = new IDAEnhancer();
 
-  // Allow access to enhancer from window for debugging
-  window.IDAAppEnhancer = enhancer;
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      enhancer.init();
+    });
+  } else {
+    enhancer.init();
+  }
+
+  // Expose for debugging/control
+  window.IDAEnhancer = enhancer;
+
+  // Auto-initialize on window load as fallback
+  window.addEventListener('load', () => {
+    if (!enhancer.initialized) {
+      enhancer.init();
+    }
+  });
 
 })();
