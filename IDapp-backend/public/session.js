@@ -2,7 +2,6 @@
 (function() {
   var SESSION_KEY = 'idapp_session';
 
-  // Save session after user enters the app
   function saveSession(phone, role) {
     try {
       localStorage.setItem(SESSION_KEY, JSON.stringify({
@@ -13,7 +12,6 @@
     } catch(e) {}
   }
 
-  // Get saved session
   function getSession() {
     try {
       var s = localStorage.getItem(SESSION_KEY);
@@ -22,25 +20,35 @@
     return null;
   }
 
-  // Clear session (for logout)
   function clearSession() {
     try { localStorage.removeItem(SESSION_KEY); } catch(e) {}
   }
 
-  // Check session on page load and auto-login
+  // Direct screen transition (works even if showAuth is broken)
+  function goToAuth() {
+    try {
+      var splash = document.getElementById('splashScreen');
+      var auth = document.getElementById('authScreen');
+      if (splash) splash.classList.remove('active');
+      if (auth) auth.classList.add('active');
+      // Also try calling showAuth if available
+      if (typeof window.showAuth === 'function') {
+        try { window.showAuth(); } catch(e) {}
+      }
+    } catch(e) {
+      console.log('[Session] goToAuth error:', e);
+    }
+  }
+
   function checkSessionOnLoad() {
     var session = getSession();
     if (session && session.phone && session.role) {
-      // User was logged in before - skip auth, go straight to app
       setTimeout(function() {
-        // Hide splash and auth screens
         var screens = document.querySelectorAll('.screen');
         screens.forEach(function(s) { s.classList.remove('active'); });
-        // Enter the app directly
         if (typeof enterApp === 'function') {
           enterApp();
         } else {
-          // Fallback - show home screen manually
           var home = document.getElementById('homeScreen');
           if (home) home.classList.add('active');
           var nav = document.getElementById('bottomNav');
@@ -52,7 +60,7 @@
     return false;
   }
 
-  // Monkey-patch selectAppRole to save session on signup
+  // Monkey-patch selectAppRole
   var origSelectAppRole = window.selectAppRole;
   if (origSelectAppRole) {
     window.selectAppRole = function(role) {
@@ -63,7 +71,7 @@
     };
   }
 
-  // Monkey-patch enterApp to save session if not saved yet
+  // Monkey-patch enterApp
   var origEnterApp = window.enterApp;
   if (origEnterApp) {
     window.enterApp = function() {
@@ -76,7 +84,7 @@
     };
   }
 
-  // Monkey-patch logout to clear session
+  // Monkey-patch logout
   var origLogout = window.logout;
   if (origLogout) {
     window.logout = function() {
@@ -85,31 +93,42 @@
     };
   }
 
-  // Modify the splash screen Get Started button behavior
+  // Monkey-patch showAuth
   var origShowAuth = window.showAuth;
   if (origShowAuth) {
     window.showAuth = function() {
-      // Check if returning user
       var session = getSession();
       if (session && session.phone) {
-        // Returning user - auto-fill phone and show login mode
         setTimeout(function() {
           var phoneInput = document.querySelector('#phoneInput') || document.querySelector('input[type="tel"]');
           if (phoneInput) phoneInput.value = session.phone;
-          var authTitle = document.querySelector('.auth-header h2, .auth-header .auth-title');
-          if (authTitle) authTitle.textContent = 'Welcome Back!';
-          var authSub = document.querySelector('.auth-header p, .auth-header .auth-subtitle');
-          if (authSub) authSub.textContent = 'Sign in with your phone number';
         }, 100);
       }
       return origShowAuth.apply(this, arguments);
     };
   }
 
-  // Run session check
+  // === BULLETPROOF SPLASH BUTTON FIX ===
+  // Add direct click handler to Get Started button
+  // This works even if showAuth() is broken/undefined
+  var splashBtn = document.querySelector('.splash-btn');
+  if (splashBtn) {
+    splashBtn.addEventListener('click', function(e) {
+      goToAuth();
+    });
+    // Also make sure it's tappable on mobile
+    splashBtn.style.position = 'relative';
+    splashBtn.style.zIndex = '100';
+  }
+
+  // Auto-transition from splash to auth after 3 seconds (for new users)
   var hasSession = checkSessionOnLoad();
-  // If no session, trigger splash -> auth transition
-  if (!hasSession && typeof initSplashScreen === 'function') {
-    initSplashScreen();
+  if (!hasSession) {
+    setTimeout(function() {
+      var splash = document.getElementById('splashScreen');
+      if (splash && splash.classList.contains('active')) {
+        goToAuth();
+      }
+    }, 3000);
   }
 })();
