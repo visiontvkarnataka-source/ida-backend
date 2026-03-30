@@ -798,7 +798,7 @@
       // Fallback: manually switch screens
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       const homeScreen = document.getElementById('homeScreen') || document.getElementById('driverHomeScreen');
-      if (homeScreen) homeScreen.classList.add('active');
+      if (homeScreen.classList.add('active');
     }
 
     // Trigger any existing app login handlers
@@ -1151,31 +1151,26 @@
   }
 
   // ===== AUTO-INIT ON DOM READY =====
+  // LAZY LOADING: Only inject styles + UI on page load.
+  // Firebase SDK is loaded on-demand when user taps "Send OTP".
   function autoInit() {
     injectAuthStyles();
 
-    initFirebaseAuth().then((ok) => {
-      if (ok) {
-        // Check if user is already logged in
-        checkAuthState().then((user) => {
-          if (user && localStorage.getItem('ida_logged_in') === 'true') {
-            console.log('[IDA Auth] User already logged in:', user.phone);
-            // Don't navigate - let the app handle it
-          } else {
-            // Wire auth UI
-            injectAuthUI();
-          }
-        });
-      } else {
-        console.warn('[IDA Auth] Firebase init failed, auth UI will use fallback');
-        injectAuthUI();
-      }
-    });
+    // Check if user was previously logged in (without loading Firebase SDK)
+    if (localStorage.getItem('ida_logged_in') === 'true') {
+      console.log('[IDA Auth] Previous session detected, skipping auth UI');
+      // Don't load SDK or show auth - let the app handle navigation
+      return;
+    }
+
+    // Just wire up the auth UI - SDK loads lazily on first sendOTP call
+    injectAuthUI();
+    console.log('[IDA Auth] Auth UI ready (Firebase SDK will load on demand)');
   }
 
   // Start when DOM is ready
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', autoInit);
+    document.addEventListener('DOMContentLoaded', () => setTimeout(autoInit, 800));
   } else {
     // Small delay to let redesign.js inject the role selector first
     setTimeout(autoInit, 800);
