@@ -107,5 +107,9 @@
   }
 
   // Run session check
-  checkSessionOnLoad();
+  var hasSession = checkSessionOnLoad();
+  // If no session, trigger splash -> auth transition
+  if (!hasSession && typeof initSplashScreen === 'function') {
+    initSplashScreen();
+  }
 })();
