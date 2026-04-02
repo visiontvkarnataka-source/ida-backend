@@ -338,7 +338,7 @@
             display: none;
         }
 
-           .location-input {
+        .location-input {
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
@@ -391,6 +391,7 @@
             scroll-behavior: smooth;
             padding-bottom: 10px;
         }
+
         .services-carousel::-webkit-scrollbar {
             height: 4px;
         }
@@ -508,7 +509,7 @@
         /* Search Modal */
         .search-modal {
             position: fixed;
-             bottom: 0;
+            bottom: 0;
             left: 0;
             right: 0;
             background: white;
@@ -1217,7 +1218,7 @@
             <div class="home-header">
                 <h2>Book Your Ride</h2>
                 <div class="header-icons">
-                    <button class="icon-btn" id="sosBtn" title="Emergency SOS">🆘</button>
+                    <button class="icon-btn" id="sosBtn" title="Emergency SOS">ð</button>
                 </div>
             </div>
 
@@ -1226,7 +1227,7 @@
             <div class="booking-card">
                 <div class="location-input">
                     <input type="text" id="pickupInput" placeholder="Pickup location" readonly>
-                    <button class="location-icon" id="getCurrentLocation" title="Use current location">📍</button>
+                    <button class="location-icon" id="getCurrentLocation" title="Use current location">ð</button>
                 </div>
 
                 <div class="location-input">
@@ -1243,7 +1244,7 @@
                     <button class="ride-option" data-type="schedule">Schedule</button>
                 </div>
 
-                <button class="book-ride-btn" id="bookRideBtn" disabled>Book Ride - ₹0</button>
+                <button class="book-ride-btn" id="bookRideBtn" disabled>Book Ride - â¹0</button>
             </div>
         </div>
 
@@ -1251,7 +1252,7 @@
         <div class="screen wallet" id="walletScreen">
             <div class="wallet-header">
                 <h2>My Wallet</h2>
-                <div class="wallet-balance" id="walletBalance">₹0</div>
+                <div class="wallet-balance" id="walletBalance">â¹0</div>
                 <div class="wallet-actions">
                     <button class="wallet-action-btn" id="addMoneyBtn">Add Money</button>
                     <button class="wallet-action-btn" id="viewHistoryBtn">History</button>
@@ -1262,16 +1263,16 @@
                 <div class="recharge-section">
                     <div class="section-title">Quick Recharge</div>
                     <div class="amount-chips">
-                        <div class="amount-chip" data-amount="100">₹100</div>
-                        <div class="amount-chip" data-amount="250">₹250</div>
-                        <div class="amount-chip" data-amount="500">₹500</div>
+                        <div class="amount-chip" data-amount="100">â¹100</div>
+                        <div class="amount-chip" data-amount="250">â¹250</div>
+                        <div class="amount-chip" data-amount="500">â¹500</div>
                     </div>
                     <div class="custom-amount">
                         <input type="number" id="customAmount" placeholder="Enter amount" min="1">
                         <button id="rechargeBtn">Recharge</button>
                     </div>
                     <div class="markup-info">
-                        💡 2% processing fee applies to all recharges
+                        ð¡ 2% processing fee applies to all recharges
                     </div>
                 </div>
 
@@ -1295,7 +1296,7 @@
         <!-- Profile Screen -->
         <div class="screen profile" id="profileScreen">
             <div class="profile-header">
-                <div class="profile-avatar" id="profileAvatar">👤</div>
+                <div class="profile-avatar" id="profileAvatar">ð¤</div>
                 <div class="profile-name" id="profileName">User</div>
                 <div class="profile-phone" id="profilePhone">+91 XXXXXXXXXX</div>
             </div>
@@ -1314,38 +1315,38 @@
             <div class="menu-section">
                 <div class="menu-item" id="editProfileMenu">
                     <div class="menu-left">
-                        <div class="menu-icon">✏️</div>
+                        <div class="menu-icon">âï¸</div>
                         <div class="menu-text">Edit Profile</div>
                     </div>
-                    <div class="menu-right">›</div>
+                    <div class="menu-right">âº</div>
                 </div>
                 <div class="menu-item" id="savedPlacesMenu">
                     <div class="menu-left">
-                        <div class="menu-icon">📍</div>
+                     <div class="menu-icon">ð</div>
                         <div class="menu-text">Saved Places</div>
                     </div>
-                    <div class="menu-right">›</div>
+                    <div class="menu-right">âº</div>
                 </div>
                 <div class="menu-item" id="settingsMenu">
                     <div class="menu-left">
-                        <div class="menu-icon">⚙️</div>
+                        <div class="menu-icon">âï¸</div>
                         <div class="menu-text">Settings</div>
                     </div>
-                    <div class="menu-right">›</div>
+                    <div class="menu-right">âº</div>
                 </div>
                 <div class="menu-item" id="helpMenu">
                     <div class="menu-left">
-                        <div class="menu-icon">❓</div>
+                        <div class="menu-icon">â</div>
                         <div class="menu-text">Help & Support</div>
                     </div>
-                    <div class="menu-right">›</div>
+                    <div class="menu-right">âº</div>
                 </div>
                 <div class="menu-item" id="logoutMenu">
                     <div class="menu-left">
-                        <div class="menu-icon">🚪</div>
+                        <div class="menu-icon">ðª</div>
                         <div class="menu-text">Logout</div>
                     </div>
-                    <div class="menu-right">›</div>
+                    <div class="menu-right">âº</div>
                 </div>
             </div>
         </div>
@@ -1357,7 +1358,7 @@
                 <p>Show this QR code to the driver</p>
             </div>
             <div id="qrcode"></div>
-            <div class="qr-amount" id="qrAmount">₹0</div>
+            <div class="qr-amount" id="qrAmount">â¹0</div>
             <div class="qr-footer">
                 Payment will be debited from your UPI account
             </div>
@@ -1368,7 +1369,7 @@
             <div class="modal-drag"></div>
             <div class="modal-header">
                 <h3 id="modalTitle">Finding Your Ride...</h3>
-                <button class="modal-close" id="closeModalBtn">✕</button>
+                <button class="modal-close" id="closeModalBtn">â</button>
             </div>
             <div id="modalContent"></div>
         </div>
@@ -1379,19 +1380,19 @@
         <!-- Bottom Navigation -->
         <div class="bottom-nav">
             <a class="nav-item active" data-screen="homeScreen" href="#home">
-                <div class="nav-icon">🏠</div>
+                <div class="nav-icon">ð </div>
                 <div class="nav-label">Home</div>
             </a>
             <a class="nav-item" data-screen="walletScreen" href="#wallet">
-                <div class="nav-icon">💳</div>
+                <div class="nav-icon">ð³</div>
                 <div class="nav-label">Wallet</div>
             </a>
             <a class="nav-item" data-screen="historyScreen" href="#history">
-                <div class="nav-icon">📋</div>
+                <div class="nav-icon">ð</div>
                 <div class="nav-label">Rides</div>
             </a>
             <a class="nav-item" data-screen="profileScreen" href="#profile">
-                <div class="nav-icon">👤</div>
+                <div class="nav-icon">ð¤</div>
                 <div class="nav-label">Profile</div>
             </a>
         </div>
@@ -1590,7 +1591,7 @@
                 <div class="service-card ${key === 'auto' ? 'active' : ''}" data-service="${key}">
                     <div class="service-icon">${vehicleIcons[key]}</div>
                     <div class="service-name">${service.name}</div>
-                    <div class="service-price">₹${service.price}</div>
+                    <div class="service-price">â¹${service.price}</div>
                 </div>
             `).join('');
 
@@ -1609,7 +1610,7 @@
             const btn = document.getElementById('bookRideBtn');
             const service = services[app.selectedService];
             const estimatedPrice = service.price + (app.dropoffLocation ? 10 : 0);
-            btn.textContent = `Book Ride - ₹${estimatedPrice}`;
+            btn.textContent = `Book Ride - â¹${estimatedPrice}`;
             btn.disabled = !app.pickupLocation;
         }
 
@@ -1681,7 +1682,7 @@
                 content.innerHTML = `
                     <div class="driver-info">
                         <div class="driver-name">Driver Found!</div>
-                        <div class="driver-rating"><span class="star">★</span> ${driver.rating} (1,250 rides)</div>
+                        <div class="driver-rating"><span class="star">â</span> ${driver.rating} (1,250 rides)</div>
                         <div class="vehicle-details">${driver.vehicle}</div>
                     </div>
                     <div class="eta-info">
@@ -1690,7 +1691,7 @@
                             <div class="eta-card-label">mins away</div>
                         </div>
                         <div class="eta-card">
-                            <div class="eta-card-value">₹${driver.amount}</div>
+                            <div class="eta-card-value">â¹${driver.amount}</div>
                             <div class="eta-card-label">Estimated fare</div>
                         </div>
                     </div>
@@ -1719,7 +1720,7 @@
             updateHistory();
 
             setTimeout(() => {
-                showToast('Ride completed! Payment of ₹' + amount + ' done', 'success');
+                showToast('Ride completed! Payment of â¹' + amount + ' done', 'success');
             }, 8000);
         };
 
@@ -1792,7 +1793,7 @@
 
         // Wallet Functionality
         function updateWalletBalance() {
-            document.getElementById('walletBalance').textContent = '₹' + app.wallet;
+            document.getElementById('walletBalance').textContent = 'â¹' + app.wallet;
         }
 
         document.addEventListener('click', (e) => {
@@ -1818,7 +1819,7 @@
                 key: 'rzp_test_SVw7TwtCMoWIno',
                 amount: markupAmount * 100,
                 currency: 'INR',
-                description: `Wallet Recharge - ₹${amount}`,
+                description: `Wallet Recharge - â¹${amount}`,
                 handler: function(response) {
                     app.wallet += amount;
                     const transaction = {
@@ -1826,12 +1827,12 @@
                         type: 'Credit',
                         amount: amount,
                         description: 'Wallet Recharge',
-                        icon: '➕'
+                        icon: 'â'
                     };
                     app.transactions.unshift(transaction);
                     updateWalletBalance();
                     renderTransactions();
-                    showToast(`₹${amount} added to wallet!`, 'success');
+                    showToast(`â¹${amount} added to wallet!`, 'success');
                     document.getElementById('customAmount').value = '';
                 },
                 prefill: {
@@ -1860,7 +1861,7 @@
                         </div>
                     </div>
                     <div class="transaction-amount ${t.type === 'Debit' ? 'debit' : ''}">
-                        ${t.type === 'Credit' ? '+' : '-'}₹${t.amount}
+                        ${t.type === 'Credit' ? '+' : '-'}â¹${t.amount}
                     </div>
                 </div>
             `).join('');
@@ -1878,9 +1879,9 @@
                 <div class="ride-card">
                     <div class="ride-card-top">
                         <div class="ride-time">${ride.date}</div>
-                        <div class="ride-cost">₹${ride.amount}</div>
+                        <div class="ride-cost">â¹${ride.amount}</div>
                     </div>
-                    <div class="ride-route">📍 ${ride.from} → ${ride.to}</div>
+                    <div class="ride-route">ð ${ride.from} â ${ride.to}</div>
                     <div>
                         <span class="ride-status">${ride.status}</span>
                         <span style="color: var(--text-light); font-size: 12px; margin-left: 10px;">${ride.distance} km</span>
@@ -1953,7 +1954,7 @@
         // QR Pay
         document.getElementById('addMoneyBtn').addEventListener('click', () => {
             const amount = document.getElementById('customAmount').value || 250;
-            document.getElementById('qrAmount').textContent = '₹' + amount;
+            document.getElementById('qrAmount').textContent = 'â¹' + amount;
             document.getElementById('qrcode').innerHTML = '';
             new QRCode(document.getElementById('qrcode'), {
                 text: `upi://pay?pa=idarides@okhdfcbank&pn=IDARides&am=${amount}&tr=${Date.now()}`,
@@ -1974,8 +1975,8 @@
         function loadDemoData() {
             app.wallet = 500;
             app.transactions = [
-                { date: 'Today 10:30 AM', type: 'Debit', amount: 45, description: 'Ride to Mall Road', icon: '🚗' },
-                { date: 'Yesterday 3:15 PM', type: 'Credit', amount: 200, description: 'Wallet Recharge', icon: '➕' }
+                { date: 'Today 10:30 AM', type: 'Debit', amount: 45, description: 'Ride to Mall Road', icon: 'ð' },
+                { date: 'Yesterday 3:15 PM', type: 'Credit', amount: 200, description: 'Wallet Recharge', icon: 'â' }
             ];
             app.ridesHistory = [
                 { id: 'R001', date: 'Today 10:30 AM', from: 'Delhi Airport', to: 'Connaught Place', amount: 245, status: 'Completed', distance: 22.5 },
