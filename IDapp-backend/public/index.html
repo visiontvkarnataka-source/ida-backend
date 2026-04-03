@@ -335,1507 +335,981 @@
 
             <div class="booking-card">
                 <div style="margin-bottom: 20px;">
-                    <div style="display: flex; gap: 8px; margin-bottom: 15px;">
-                        <button class="btn btn-small" onclick="window.togglePinkMode()" id="pinkModeBtn" title="Women Safety Mode">ð© Safety</button>
-                        <button class="btn btn-small" onclick="window.toggleQuietTrip()" id="quietTripBtn" title="Quiet Trip">ð¤ Quiet</button>
-                        <button class="btn btn-small" onclick="window.togglePetMode()" id="petModeBtn" title="Pet-friendly">ð¾ Pets</button>
-                        <button class="btn btn-small" onclick="window.toggleEcoMode()" id="ecoModeBtn" title="Eco Mode">ð¿ Eco</button>
+                    <!-- Night Safety Banner -->
+                    <div id="nightSafetyBanner" style="display:none;"></div>
+                    <!-- Prediction Banner -->
+                    <div id="predictionBanner" style="display:none;"></div>
+
+                    <div style="display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto;">
+                        <button class="btn btn-small" onclick="window.togglePinkMode()" id="pinkModeBtn" title="Women Safety Mode" aria-label="Toggle Women Safety Mode">ð© Safety</button>
+                        <button class="btn btn-small" onclick="window.toggleQuietTrip()" id="quietTripBtn" title="Quiet Trip" aria-label="Toggle Quiet Trip">ð¤ Quiet</button>
+                        <button class="btn btn-small" onclick="window.togglePetMode()" id="petModeBtn" title="Pet-friendly" aria-label="Toggle Pet Friendly Mode">ð¾ Pets</button>
+                        <button class="btn btn-small" onclick="window.toggleEcoMode()" id="ecoModeBtn" title="Eco Mode" aria-label="Toggle Eco Mode">ð¿ Eco</button>
+                        <button class="btn btn-small" onclick="window.toggleBaggageMode()" id="baggageBtn" title="I have luggage" aria-label="Toggle Baggage Mode" style="opacity:0.5;">ð§³ Baggage</button>
                     </div>
 
+                    <!-- Smart Pickup Hint -->
+                    <div id="smartPickupHint"></div>
+
                     <div class="location-input">
-                        <input type="text" id="pickupInput" placeholder="Pickup location" readonly onclick="window.selectLocation('pickup')">
-                        <button class="location-icon" onclick="window.getCurrentLocation()">ð</button>
+                        <input type="text" id="pickupInput" placeholder="Pickup location" readonly onclick="window.selectLocation('pickup')" aria-label="Pickup location input">
+                        <button class="location-icon" onclick="window.getCurrentLocation()" aria-label="Use current location">ð</button>
                     </div>
 
                     <div style="display: flex; gap: 8px; margin-bottom: 15px;">
                         <button class="btn btn-small" onclick="window.quickSelect('Home')" style="flex: 1;">ð  Home</button>
-                        <button class="btn btn-small" onclick="window.quickSelect('Work')" style="flex: 1;">ð¼ Work</button>
-                        <button class="btn btn-small" onclick="window.quickSelect('Gym')" style="flex: 1;">ðª Gym</button>
-                    </div>
-
-                    <div class="location-input">
-                        <input type="text" id="destinationInput" placeholder="Where to?" readonly onclick="window.selectLocation('destination')">
-                        <button class="location-icon" onclick="window.openScheduledRides()" title="Schedule">ð</button>
-                    </div>
-
-                    <div id="waypointsContainer" style="display: none; margin-bottom: 15px;">
-                        <div class="waypoint-list" id="waypointList"></div>
-                        <button class="btn btn-secondary btn-small" onclick="window.addWaypoint()" style="width: 100%;">+ Add Stop</button>
-                    </div>
-
-                    <div style="margin-top: 15px;">
-                        <label style="font-size: 12px; font-weight: 500; margin-bottom: 8px; display: block;">Vehicle Type</label>
-                        <div class="vehicle-selector" id="vehicleSelector"></div>
-                    </div>
-
-                    <div id="fareEstimate" style="background: var(--bg-secondary); padding: 12px; border-radius: 8px; margin: 15px 0; font-size: 14px;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                            <span>Fare Estimate:</span>
-                            <span style="font-weight: 700;">â¹<span id="estimatedFare">0</span></span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-light);">
-                            <span id="surgeInfo"></span>
-                            <span id="ecoSavings" style="display: none; color: var(--success);"></span>
-                        </div>
-                    </div>
-
-                    <button class="btn btn-primary" id="bookRideBtn" onclick="window.bookRide()" style="width: 100%;" disabled>Book Ride</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- RIDES SCREEN (Bottom Nav) -->
-        <div class="screen" id="ridesScreen">
-            <div class="home-header">
-                <h2>Your Rides</h2>
-                <button class="icon-btn" onclick="window.pullToRefresh()">ð</button>
-            </div>
-            <div class="screen-content">
-                <div style="padding: 20px;">
-                    <div class="rides-list" id="ridesList">
-                        <div style="text-align: center; color: var(--text-light); padding: 40px 20px;">
-                            No active rides
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- WALLET SCREEN (Bottom Nav) -->
-        <div class="screen wallet" id="walletScreen">
-            <div class="home-header">
-                <h2>Wallet & Rewards</h2>
-                <button class="icon-btn" onclick="window.showScreen('homeScreen')">â</button>
-            </div>
-            <div class="screen-content" style="padding: 20px;">
-                <div class="wallet-card">
-                    <div class="wallet-balance">Wallet Balance</div>
-                    <div class="wallet-amount">â¹<span id="walletBalance">0</span></div>
-                </div>
-
-                <div class="loyalty-card">
-                    <div class="loyalty-level" id="loyaltyLevel">Bronze Member</div>
-                    <div class="loyalty-points" id="loyaltyPoints">0 XP</div>
-                    <div class="loyalty-progress">
-                        <div class="loyalty-bar" id="loyaltyBar" style="width: 0%;"></div>
-                    </div>
-                </div>
-
-                <div class="section-title">ð¯ Earn Badges</div>
-                <div class="badge-grid" id="badgeGrid"></div>
-
-                <div class="section-title">ð³ Subscription Packs</div>
-                <div class="pack-grid" id="packGrid"></div>
-
-                <div class="section-title">Wallet Top-up</div>
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px;">
-                    <button class="btn btn-secondary" onclick="window.addMoney(200)">+â¹200</button>
-                    <button class="btn btn-secondary" onclick="window.addMoney(500)">+â¹500</button>
-                    <button class="btn btn-secondary" onclick="window.addMoney(1000)">+â¹1000</button>
-                    <button class="btn btn-secondary" onclick="window.addMoney(5000)">+â¹5000</button>
-                </div>
-                <button class="btn btn-primary" onclick="window.openRazorpay()" style="width: 100%;">Add Custom Amount (via Razorpay)</button>
-
-                <div class="section-title" style="margin-top: 30px;">ðï¸ Promo Codes</div>
-                <div class="promo-input">
-                    <input type="text" id="promoInput" placeholder="Enter promo code">
-                    <button class="btn btn-secondary btn-small" onclick="window.applyPromo()">Apply</button>
-                </div>
-                <div id="appliedPromos" style="margin-top: 15px;"></div>
-
-                <div class="section-title" style="margin-top: 30px;">ð¿ Environmental Impact</div>
-                <div class="eco-info">
-                    <div class="eco-savings">Total CO2 Saved: <strong id="totalCO2">0</strong> kg</div>
-                    <div class="co2-tracker">Equivalent to <strong id="co2Equivalent">0</strong> trees planted</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- PROFILE SCREEN (Bottom Nav) -->
-        <div class="screen profile" id="profileScreen">
-            <div class="home-header">
-                <h2>Profile & Settings</h2>
-                <button class="icon-btn" onclick="window.showScreen('homeScreen')">â</button>
-            </div>
-            <div class="screen-content" style="padding: 20px;">
-                <div class="profile-header">
-                    <div class="profile-avatar">ð¤</div>
-                    <div class="profile-name" id="profileName">User Name</div>
-                    <div class="profile-phone" id="profilePhone">+91 9999999999</div>
-                </div>
-
-                <div class="settings-group">
-                    <div class="settings-group-title">Safety</div>
-                    <div class="setting-item">
-                        <div class="setting-label">
-                            <div class="setting-label-main">Women Safety Mode (Pink Mode)</div>
-                            <div class="setting-label-sub">Verified female drivers only</div>
-                        </div>
-                        <div class="toggle-switch" id="pinkModeSetting" onclick="window.togglePinkModeSetting(event)">
-                            <div class="toggle-thumb"></div>
-                        </div>
-                    </div>
-                    <div class="setting-item">
-                        <div class="setting-label">
-                            <div class="setting-label-main">Quiet Trip Mode</div>
-                            <div class="setting-label-sub">Silent ride - no talking</div>
-                        </div>
-                        <div class="toggle-switch" id="quietTripSetting" onclick="window.toggleQuietTripSetting(event)">
-                            <div class="toggle-thumb"></div>
-                        </div>
-                    </div>
-                    <div class="setting-item">
-                        <div class="setting-label">
-                            <div class="setting-label-main">SOS Quick Access</div>
-                            <div class="setting-label-sub">Shake phone for emergency</div>
-                        </div>
-                        <div class="toggle-switch" id="sosSetting" onclick="window.toggleSOSSetting(event)">
-                            <div class="toggle-thumb active"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="settings-group">
-                    <div class="settings-group-title">Preferences</div>
-                    <div class="setting-item">
-                        <div class="setting-label">
-                            <div class="setting-label-main">Dark Mode</div>
-                            <div class="setting-label-sub">Easy on eyes</div>
-                        </div>
-                        <div class="toggle-switch" id="darkModeSetting" onclick="window.toggleDarkModeSetting(event)">
-                            <div class="toggle-thumb"></div>
-                        </div>
-                    </div>
-                    <div class="setting-item">
-                        <div class="setting-label">
-                            <div class="setting-label-main">Eco Mode</div>
-                            <div class="setting-label-sub">Green rides preferred</div>
-                        </div>
-                        <div class="toggle-switch" id="ecoModeSetting" onclick="window.toggleEcoModeSetting(event)">
-                            <div class="toggle-thumb"></div>
-                        </div>
-                    </div>
-                    <div class="setting-item">
-                        <div class="setting-label">
-                            <div class="setting-label-main">Pet-Friendly Rides</div>
-                            <div class="setting-label-sub">Travel with your pet</div>
-                        </div>
-                        <div class="toggle-switch" id="petModeSetting" onclick="window.togglePetModeSetting(event)">
-                            <div class="toggle-thumb"></div>
-                        </div>
-                    </div>
-                    <div class="setting-item">
-                        <div class="setting-label">
-                            <div class="setting-label-main">Voice Booking</div>
-                            <div class="setting-label-sub">Book with your voice</div>
-                        </div>
-                        <div class="toggle-switch" id="voiceBookingSetting" onclick="window.toggleVoiceBookingSetting(event)">
-                            <div class="toggle-thumb"></div>
-                        </div>
-                    </div>
-                    <div class="setting-item">
-                        <div class="setting-label">
-                            <div class="setting-label-main">Offline Mode</div>
-                            <div class="setting-label-sub">Queue bookings offline</div>
-                        </div>
-                        <div class="toggle-switch" id="offlineModeSetting" onclick="window.toggleOfflineModeSetting(event)">
-                            <div class="toggle-thumb"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="settings-group">
-                    <div class="settings-group-title">App</div>
-                    <div class="setting-item" onclick="window.selectLanguage()">
-                        <div class="setting-label">
-                            <div class="setting-label-main">Language</div>
-                            <div class="setting-label-sub" id="currentLanguage">English</div>
-                        </div>
-                        <span style="color: var(--text-light);">âº</span>
-                    </div>
-                    <div class="setting-item">
-                        <div class="setting-label">
-                            <div class="setting-label-main">App Version</div>
-                            <div class="setting-label-sub">v2.0.0 (Mega)</div>
-                        </div>
-                    </div>
-                </div>
-
-                <button class="btn btn-secondary" onclick="window.logout()" style="width: 100%; margin-top: 20px;">Logout</button>
-            </div>
-        </div>
-
-        <!-- NOTIFICATION SCREEN -->
-        <div class="screen" id="notificationScreen">
-            <div class="home-header">
-                <h2>Notifications</h2>
-                <button class="icon-btn" onclick="window.showScreen('homeScreen')">â</button>
-            </div>
-            <div class="screen-content" style="padding: 20px;">
-                <div id="notificationsList" style="display: flex; flex-direction: column; gap: 12px;"></div>
-            </div>
-        </div>
-
-        <!-- RIDE ACTIVE SCREEN -->
-        <div class="screen" id="rideActiveScreen">
-            <div class="home-header">
-                <h2>Active Ride</h2>
-                <button class="icon-btn" onclick="window.cancelRide()">â</button>
-            </div>
-
-            <div class="map-container" id="activeMap"></div>
-
-            <div class="booking-card">
-                <div class="driver-card" id="driverCard"></div>
-
-                <div style="margin-bottom: 20px;">
-                    <div style="background: var(--bg-secondary); padding: 15px; border-radius: 12px; margin-bottom: 15px;">
-                        <div style="font-size: 12px; color: var(--text-light); margin-bottom: 5px;">ETA</div>
-                        <div style="font-size: 24px; font-weight: 700;" id="rideETA">--:--</div>
-                        <div style="font-size: 12px; color: var(--text-light); margin-top: 8px;">Distance: <span id="rideDistance">0</span> km</div>
-                    </div>
-
-                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                        <button class="btn btn-secondary" onclick="window.callDriver()" style="flex: 1;">ð Call</button>
-                        <button class="btn btn-secondary" onclick="window.showChat()" style="flex: 1;">ð¬ Chat</button>
-                        <button class="btn btn-secondary" onclick="window.triggerSOS()" style="flex: 1;">ð SOS</button>
-                        <button class="btn btn-secondary" onclick="window.shareTrip()" style="flex: 1;">ð¤ Share</button>
-                    </div>
-
-                    <div id="chatContainer" style="display: none; background: var(--bg-secondary); border-radius: 12px; height: 300px; flex-direction: column; margin-bottom: 15px;">
-                        <div class="chat-messages" id="chatMessages"></div>
-                        <div class="chat-input-area">
-                            <input type="text" id="chatInput" placeholder="Message driver...">
-                            <button class="chat-send" onclick="window.sendMessage()">Send</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- BOTTOM NAVIGATION -->
-        <div class="bottom-nav">
-            <div class="nav-item active" onclick="window.switchTab('home')">
-                <div class="nav-icon">ð </div>
-                <div>Home</div>
-            </div>
-            <div class="nav-item" onclick="window.switchTab('rides')">
-                <div class="nav-icon">ð</div>
-                <div>Rides</div>
-            </div>
-            <div class="nav-item" onclick="window.switchTab('wallet')">
-                <div class="nav-icon">ð³</div>
-                <div>Wallet</div>
-            </div>
-            <div class="nav-item" onclick="window.switchTab('profile')">
-                <div class="nav-icon">ð¤</div>
-                <div>Profile</div>
-            </div>
-        </div>
-
-        <!-- MODALS -->
-        <div class="modal-overlay" id="scheduledRidesModal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <span>Schedule Ride</span>
-                    <button class="close-btn" onclick="document.getElementById('scheduledRidesModal').classList.remove('active');">â</button>
-                </div>
-                <div class="form-group">
-                    <label>Date</label>
-                    <input type="date" id="rideDate" min="">
-                </div>
-                <div class="form-group">
-                    <label>Time</label>
-                    <input type="time" id="rideTime">
-                </div>
-                <button class="btn btn-primary" onclick="window.confirmScheduledRide()" style="width: 100%; margin-top: 20px;">Schedule Ride</button>
-            </div>
-        </div>
-
-        <div class="modal-overlay" id="splitFareModal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <span>Split Fare</span>
-                    <button class="close-btn" onclick="document.getElementById('splitFareModal').classList.remove('active');">â</button>
-                </div>
-                <div class="split-section">
-                    <div class="split-header">
-                        Ride Cost: â¹<span id="splitTotalFare">0</span>
-                        <button class="split-add-btn" onclick="window.addSplitPerson()">+ Add Friend</button>
-                    </div>
-                    <div id="splitPersonsList"></div>
-                </div>
-                <button class="btn btn-primary" onclick="window.confirmSplitFare()" style="width: 100%; margin-top: 20px;">Confirm Split</button>
-            </div>
-        </div>
-
-        <div class="modal-overlay" id="voiceBookingModal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <span>Voice Booking</span>
-                    <button class="close-btn" onclick="document.getElementById('voiceBookingModal').classList.remove('active');">â</button>
-                </div>
-                <div style="text-align: center; padding: 40px 20px;">
-                    <div style="font-size: 48px; margin-bottom: 20px; animation: pulse 2s infinite;">ð¤</div>
-                    <p id="voiceStatus" style="margin-bottom: 20px;">Click to start speaking...</p>
-                    <button class="btn btn-primary" onclick="window.startVoiceBooking()" id="voiceStartBtn" style="width: 100%;">Start Listening</button>
-                    <button class="btn btn-secondary" onclick="window.cancelVoiceBooking()" id="voiceCancelBtn" style="width: 100%; margin-top: 10px; display: none;">Stop</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="modal-overlay" id="predictiveModal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <span>Quick Suggestions</span>
-                    <button class="close-btn" onclick="document.getElementById('predictiveModal').classList.remove('active');">â</button>
-                </div>
-                <div id="predictiveList"></div>
-            </div>
-        </div>
-
-        <div class="modal-overlay" id="fareNegotiationModal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <span>Fare Negotiation</span>
-                    <button class="close-btn" onclick="document.getElementById('fareNegotiationModal').classList.remove('active');">â</button>
-                </div>
-                <div style="margin-bottom: 20px;">
-                    <div style="font-size: 14px; color: var(--text-light); margin-bottom: 10px;">
-                        Suggested Fare: â¹<span id="suggestedFare">0</span>
-                    </div>
-                    <input type="range" id="fareSlider" min="100" max="2000" step="10" value="0" style="width: 100%;">
-                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-light); margin-top: 5px;">
-                        <span>â¹100</span>
-                        <span>Your Offer: â¹<span id="offerAmount">0</span></span>
-                        <span>â¹2000</span>
-                    </div>
-                </div>
-                <button class="btn btn-primary" onclick="window.submitFareOffer()" style="width: 100%;">Send Offer</button>
-            </div>
-        </div>
-
-        <div class="modal-overlay" id="ratingModal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <span>Rate Ride</span>
-                    <button class="close-btn" onclick="document.getElementById('ratingModal').classList.remove('active');">â</button>
-                </div>
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <div style="font-size: 48px; margin-bottom: 15px; cursor: pointer;" id="ratingStars">â­â­â­â­â­</div>
-                    <div style="font-size: 14px; color: var(--text-light);">Tap stars to rate</div>
-                </div>
-                <div class="form-group">
-                    <label>Feedback (Optional)</label>
-                    <textarea id="ratingFeedback" placeholder="Tell us about your experience" style="padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-family: 'Inter', sans-serif; background: var(--bg-secondary); color: var(--text); min-height: 100px;"></textarea>
-                </div>
-                <button class="btn btn-primary" onclick="window.submitRating()" style="width: 100%; margin-top: 20px;">Submit Rating</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDAmVPxaRK56FrK9LeuFAhyc5iu2ZFGc2M&libraries=places"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js"></script>
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyDgM5YY0CS1oqn-Us7rZLtzPxtyJbaCNLk",
-            authDomain: "project-18bcddb7-1b7d-4641-8ec.firebaseapp.com",
-            projectId: "project-18bcddb7-1b7d-4641-8ec",
-            storageBucket: "project-18bcddb7-1b7d-4641-8ec.appspot.com",
-            messagingSenderId: "1020738279305",
-            appId: "1:1020738279305:web:7e4f7b0b6f8a9e1c2d3f"
-        };
-
-        const googleMapsApiKey = "AIzaSyDAmVPxaRK56FrK9LeuFAhyc5iu2ZFGc2M";
-        const razorpayKey = "rzp_live_ILYSvWTQRHVvFm";
-
-        // GLOBAL STATE
-        const app = {
-            user: null,
-            isDarkMode: localStorage.getItem('darkMode') === 'true',
-            currentLang: localStorage.getItem('language') || 'en',
-            pickup: null,
-            destination: null,
-            waypoints: [],
-            selectedVehicle: 'auto',
-            estimatedFare: 0,
-            activeRide: null,
-            wallet: parseFloat(localStorage.getItem('wallet')) || 500,
-            loyaltyPoints: parseInt(localStorage.getItem('loyaltyPoints')) || 0,
-            loyaltyLevel: localStorage.getItem('loyaltyLevel') || 'bronze',
-            badges: JSON.parse(localStorage.getItem('badges')) || [],
-            notifications: JSON.parse(localStorage.getItem('notifications')) || [],
-            rideHistory: JSON.parse(localStorage.getItem('rideHistory')) || [],
-            appliedPromos: JSON.parse(localStorage.getItem('appliedPromos')) || [],
-            subscribedPacks: JSON.parse(localStorage.getItem('subscribedPacks')) || [],
-            totalCO2Saved: parseFloat(localStorage.getItem('totalCO2Saved')) || 0,
-            otpTimestamp: 0,
-            otpResendCount: 0,
-            pinkMode: localStorage.getItem('pinkMode') === 'true',
-            quietTrip: localStorage.getItem('quietTrip') === 'true',
-            petMode: localStorage.getItem('petMode') === 'true',
-            ecoMode: localStorage.getItem('ecoMode') === 'true',
-            voiceBooking: localStorage.getItem('voiceBooking') === 'true',
-            offlineMode: localStorage.getItem('offlineMode') === 'true',
-            favoriteLocations: JSON.parse(localStorage.getItem('favoriteLocations')) || {
-                home: null,
-                work: null,
-                gym: null
-            },
-            splitFarePersons: [],
-            chatMessages: [],
-            driverProfile: null,
-            trustScore: 0,
-            surgePricing: 1.0,
-            surgeReason: '',
-            scheduledRide: null,
-            predictions: [],
-            offlineQueue: JSON.parse(localStorage.getItem('offlineQueue')) || []
-        };
-
-        // INITIALIZATION
-        window.addEventListener('load', function() {
-            initializeDarkMode();
-            setupEventListeners();
-            initializeMap();
-            renderServices();
-
-            setTimeout(() => {
-                showScreen('authScreen');
-            }, 2000);
-
-            // Shake to SOS
-            if(window.DeviceMotionEvent) {
-                window.addEventListener('devicemotion', handleShake);
-            }
-
-            // Offline detection
-            window.addEventListener('offline', () => {
-                app.offlineMode = true;
-                showToast('Offline Mode: Bookings queued', 'info');
-            });
-            window.addEventListener('online', () => {
-                showToast('Back Online!', 'success');
-                app.offlineMode = false;
-            });
-        });
-
-        // DARK MODE
-        function initializeDarkMode() {
-            if(app.isDarkMode) {
-                document.body.classList.add('dark-mode');
-                document.getElementById('darkModeIcon').textContent = 'âï¸';
-            }
-        }
-
-        window.toggleDarkMode = function() {
-            app.isDarkMode = !app.isDarkMode;
-            document.body.classList.toggle('dark-mode');
-            localStorage.setItem('darkMode', app.isDarkMode);
-            document.getElementById('darkModeIcon').textContent = app.isDarkMode ? 'âï¸' : 'ð';
-            document.getElementById('darkModeSetting').classList.toggle('active');
-        };
-
-        window.toggleDarkModeSetting = function(e) {
-            e.stopPropagation();
-            window.toggleDarkMode();
-        };
-
-        // SCREEN NAVIGATION
-        function showScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(screenId).classList.add('active');
-        }
-
-        window.showScreen = showScreen;
-
-        window.switchTab = function(tab) {
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            event.target.closest('.nav-item').classList.add('active');
-
-            const screenMap = {
-                home: 'homeScreen',
-                rides: 'ridesScreen',
-                wallet: 'walletScreen',
-                profile: 'profileScreen'
-            };
-            showScreen(screenMap[tab]);
-        };
-
-        // MAPS & LOCATIONS
-        let map, placesService, userLocation;
-
-        function initializeMap() {
-            const defaultLocation = { lat: 28.7041, lng: 77.1025 };
-            map = new google.maps.Map(document.getElementById('map'), {
-                zoom: 14,
-                center: defaultLocation,
-                disableDefaultUI: true
-            });
-            placesService = new google.maps.places.PlacesService(map);
-        }
-
-        window.getCurrentLocation = function() {
-            if(navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(pos => {
-                    userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-                    document.getElementById('pickupInput').value = 'Current Location';
-                    app.pickup = userLocation;
-                    map.setCenter(userLocation);
-                    updateBookRideButton();
-                });
-            }
-        };
-
-        window.selectLocation = function(type) {
-            const value = prompt(`Enter ${type} location:`);
-            if(value) {
-                if(type === 'pickup') {
-                    document.getElementById('pickupInput').value = value;
-                    app.pickup = value;
-                } else {
-                    document.getElementById('destinationInput').value = value;
-                    app.destination = value;
-                }
-                calculateFare();
-                updateBookRideButton();
-            }
-        };
-
-        window.quickSelect = function(place) {
-            const locations = {
-                'Home': '123 Home Street, New Delhi',
-                'Work': '456 Office Avenue, New Delhi',
-                'Gym': '789 Fitness Plaza, New Delhi'
-            };
-            document.getElementById('destinationInput').value = locations[place];
-            app.destination = locations[place];
-            app.favoriteLocations[place.toLowerCase()] = locations[place];
-            calculateFare();
-            updateBookRideButton();
-        };
-
-        // VEHICLES
-        const vehicles = [
-            { id: 'auto', name: 'Auto', emoji: 'ð', baseFare: 50, pricePerKm: 8 },
-            { id: 'mini', name: 'Mini', emoji: 'ð', baseFare: 60, pricePerKm: 12 },
-            { id: 'sedan', name: 'Sedan', emoji: 'ð', baseFare: 100, pricePerKm: 15 },
-            { id: 'suv', name: 'SUV', emoji: 'ð', baseFare: 150, pricePerKm: 20 },
-            { id: 'bike', name: 'Bike', emoji: 'ðï¸', baseFare: 30, pricePerKm: 6 },
-            { id: 'truck', name: 'Truck', emoji: 'ð', baseFare: 200, pricePerKm: 25 }
-        ];
-
-        function renderServices() {
-            const selector = document.getElementById('vehicleSelector');
-            selector.innerHTML = vehicles.map(v => `
-                <div class="vehicle-option ${v.id === 'auto' ? 'selected' : ''}" onclick="window.selectVehicle('${v.id}')">
-                    <div class="vehicle-icon">${v.emoji}</div>
-                    <div class="vehicle-name">${v.name}</div>
-                    <div class="vehicle-price">â¹${v.baseFare}</div>
-                </div>
-            `).join('');
-        }
-
-        window.selectVehicle = function(vehicleId) {
-            app.selectedVehicle = vehicleId;
-            document.querySelectorAll('.vehicle-option').forEach(v => v.classList.remove('selected'));
-            event.target.closest('.vehicle-option').classList.add('selected');
-            calculateFare();
-        };
-
-        // FARE CALCULATION
-        function calculateFare() {
-            if(!app.pickup || !app.destination) {
-                document.getElementById('estimatedFare').textContent = '0';
-                return;
-            }
-
-            const distance = Math.random() * 20 + 2;
-            const vehicle = vehicles.find(v => v.id === app.selectedVehicle);
-            let fare = vehicle.baseFare + (distance * vehicle.pricePerKm);
-
-            // Apply surge pricing
-            fare *= app.surgePricing;
-
-            // Apply eco mode discount
-            if(app.ecoMode) {
-                fare *= 0.9;
-                document.getElementById('ecoSavings').style.display = 'block';
-                document.getElementById('ecoSavings').textContent = `Save â¹${Math.round(fare * 0.1)}`;
-            } else {
-                document.getElementById('ecoSavings').style.display = 'none';
-            }
-
-            // Apply promo codes
-            app.appliedPromos.forEach(promo => {
-                if(promo.discount) {
-                    fare *= (1 - promo.discount / 100);
-                }
-            });
-
-            app.estimatedFare = Math.round(fare);
-            document.getElementById('estimatedFare').textContent = app.estimatedFare;
-            return distance;
-        }
-
-        function updateBookRideButton() {
-            const btn = document.getElementById('bookRideBtn');
-            if(app.pickup && app.destination) {
-                btn.disabled = false;
-            } else {
-                btn.disabled = true;
-            }
-        }
-
-        // SURGE PRICING
-        function updateSurgePricing() {
-            const hour = new Date().getHours();
-            const day = new Date().getDay();
-
-            let surge = 1.0;
-            let reason = '';
-
-            if(hour >= 8 && hour <= 10) {
-                surge = 1.5;
-                reason = 'Morning Rush';
-            } else if(hour >= 17 && hour <= 19) {
-                surge = 1.4;
-                reason = 'Evening Rush';
-            } else if(hour >= 22 || hour <= 5) {
-                surge = 1.3;
-                reason = 'Late Night';
-            }
-
-            // Simulate weather/events
-            if(Math.random() > 0.7) {
-                surge *= 1.2;
-                reason = reason ? reason + ' + Heavy Rain' : 'Heavy Rain';
-            }
-
-            app.surgePricing = surge;
-            app.surgeReason = reason;
-
-            const surgeInfo = document.getElementById('surgeInfo');
-            if(surge > 1) {
-                surgeInfo.textContent = `${reason}: ${((surge - 1) * 100).toFixed(0)}% surge`;
-            } else {
-                surgeInfo.textContent = 'Normal pricing';
-            }
-        }
-
-        // RIDE BOOKING
-        window.bookRide = function() {
-            if(!app.pickup || !app.destination) {
-                showToast('Select pickup and destination', 'error');
-                return;
-            }
-
-            if(app.wallet < app.estimatedFare) {
-                showToast('Insufficient wallet balance', 'error');
-                return;
-            }
-
-            // Create ride
-            const rideId = 'RIDE' + Date.now();
-            app.activeRide = {
-                id: rideId,
-                pickup: app.pickup,
-                destination: app.destination,
-                vehicle: app.selectedVehicle,
-                fare: app.estimatedFare,
-                status: 'searching',
-                createdAt: new Date(),
-                waypoints: app.waypoints,
-                splitFare: app.splitFarePersons.length > 0,
-                pinkMode: app.pinkMode,
-                quietTrip: app.quietTrip,
-                petFriendly: app.petMode,
-                ecoFriendly: app.ecoMode
-            };
-
-            app.rideHistory.push(app.activeRide);
-            localStorage.setItem('rideHistory', JSON.stringify(app.rideHistory));
-
-            // Simulate driver matching
-            simulateRideSearch();
-            showScreen('rideActiveScreen');
-            showToast('Searching for driver...', 'info');
-        };
-
-        function simulateRideSearch() {
-            let searchProgress = 0;
-            const interval = setInterval(() => {
-                searchProgress += Math.random() * 30;
-                if(searchProgress >= 100) {
-                    clearInterval(interval);
-                    confirmDriver();
-                }
-            }, 1000);
-        }
-
-        function confirmDriver() {
-            app.activeRide.status = 'confirmed';
-            app.driverProfile = {
-                name: ['Raj Kumar', 'Priya Sharma', 'Arjun Singh'][Math.floor(Math.random() * 3)],
-                rating: (4 + Math.random()).toFixed(1),
-                reviews: Math.floor(Math.random() * 500) + 100,
-                vehicle: vehicles.find(v => v.id === app.selectedVehicle),
-                photo: 'ð¨âð¼',
-                badges: ['Expert Navigator', 'Safe Driver', 'Friendly'],
-                trustScore: Math.floor(Math.random() * 30) + 70
-            };
-
-            updateDriverCard();
-            startRideTracking();
-            showToast('Driver confirmed! ' + app.driverProfile.name, 'success');
-        }
-
-        function updateDriverCard() {
-            const card = document.getElementById('driverCard');
-            card.innerHTML = `
-                <div class="driver-header">
-                    <div class="driver-avatar">${app.driverProfile.photo}</div>
-                    <div class="driver-info">
-                        <div class="driver-name">${app.driverProfile.name}</div>
-                        <div class="driver-rating">â­ ${app.driverProfile.rating} (${app.driverProfile.reviews} rides)</div>
-                    </div>
-                </div>
-                <div class="driver-badges">
-                    ${app.driverProfile.badges.map(b => `<div class="driver-badge">${b}</div>`).join('')}
-                </div>
-                <div class="trust-score">
-                    <span>Trust Score</span>
-                    <span class="trust-score-value">${app.driverProfile.trustScore}/100</span>
-                </div>
-            `;
-        }
-
-        function startRideTracking() {
-            let eta = 25;
-            const etaInterval = setInterval(() => {
-                eta--;
-                document.getElementById('rideETA').textContent = `${Math.floor(eta / 60)}:${String(eta % 60).padStart(2, '0')}`;
-                if(eta <= 0) {
-                    clearInterval(etaInterval);
-                    completeRide();
-                }
-            }, 1000);
-
-            // Simulate distance
-            let distance = 15;
-            const distanceInterval = setInterval(() => {
-                distance -= 0.2;
-                document.getElementById('rideDistance').textContent = distance.toFixed(1);
-                if(distance <= 0) {
-                    clearInterval(distanceInterval);
-                }
-            }, 1000);
-        }
-
-        function completeRide() {
-            app.activeRide.status = 'completed';
-
-            // Update wallet
-            app.wallet -= app.estimatedFare;
-            localStorage.setItem('wallet', app.wallet);
-            updateWalletBalance();
-
-            // Add loyalty points
-            const points = Math.floor(app.estimatedFare / 10);
-            addLoyaltyPoints(points);
-
-            // Add CO2 savings
-            const co2 = Math.random() * 5 + 2;
-            app.totalCO2Saved += co2;
-            localStorage.setItem('totalCO2Saved', app.totalCO2Saved);
-
-            showToast('Ride completed! Rate your experience', 'success');
-            setTimeout(() => {
-                document.getElementById('ratingModal').classList.add('active');
-            }, 1000);
-        }
-
-        window.cancelRide = function() {
-            if(app.activeRide && app.activeRide.status !== 'completed') {
-                showToast('Ride cancelled', 'info');
-                app.activeRide.status = 'cancelled';
-                showScreen('homeScreen');
-            }
-        };
-
-        window.callDriver = function() {
-            showToast('Calling ' + app.driverProfile.name + '...', 'info');
-        };
-
-        window.showChat = function() {
-            document.getElementById('chatContainer').style.display = 'flex';
-            initializeChat();
-        };
-
-        function initializeChat() {
-            app.chatMessages = [
-                { type: 'driver', text: 'Hi! I\'m on my way. ETA 5 minutes.' },
-                { type: 'driver', text: 'I\'m driving the white sedan.' }
-            ];
-            renderChat();
-        }
-
-        function renderChat() {
-            const messagesDiv = document.getElementById('chatMessages');
-            messagesDiv.innerHTML = app.chatMessages.map(msg => `
-                <div class="message ${msg.type}">
-                    <div class="message-bubble">${msg.text}</div>
-                </div>
-            `).join('');
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        }
-
-        window.sendMessage = function() {
-            const input = document.getElementById('chatInput');
-            if(input.value.trim()) {
-                app.chatMessages.push({ type: 'rider', text: input.value });
-                renderChat();
-                input.value = '';
-
-                // Simulate driver response
-                setTimeout(() => {
-                    const responses = [
-                        'Sure! See you soon.',
-                        'No problem!',
-                        'Thanks for the info!',
-                        'Arriving now!'
-                    ];
-                    app.chatMessages.push({
-                        type: 'driver',
-                        text: responses[Math.floor(Math.random() * responses.length)]
-                    });
-                    renderChat();
-                }, 1000);
-            }
-        };
-
-        window.shareTrip = function() {
-            showToast('Trip shared with emergency contacts', 'success');
-        };
-
-        window.triggerSOS = function() {
-            showToast('ð Emergency alert sent!', 'danger');
-        };
-
-        // RATINGS
-        window.submitRating = function() {
-            const rating = app.activeRide.rating || 5;
-            const feedback = document.getElementById('ratingFeedback').value;
-
-            app.activeRide.rating = rating;
-            app.activeRide.feedback = feedback;
-
-            localStorage.setItem('rideHistory', JSON.stringify(app.rideHistory));
-            document.getElementById('ratingModal').classList.remove('active');
-
-            showToast('Thanks for your rating!', 'success');
-            showScreen('homeScreen');
-        };
-
-        // WALLET & PAYMENT
-        function updateWalletBalance() {
-            document.getElementById('walletBalance').textContent = Math.round(app.wallet);
-        }
-
-        window.addMoney = function(amount) {
-            app.wallet += amount;
-            localStorage.setItem('wallet', app.wallet);
-            updateWalletBalance();
-            showToast(`â¹${amount} added!`, 'success');
-        };
-
-        window.openRazorpay = function() {
-            const amount = prompt('Enter amount to add (â¹):');
-            if(amount) {
-                const options = {
-                    key: razorpayKey,
-                    amount: amount * 100,
-                    currency: 'INR',
-                    description: 'Add Money to IDA Mega Wallet',
-                    handler: function(response) {
-                        app.wallet += parseInt(amount);
-                        localStorage.setItem('wallet', app.wallet);
-                        updateWalletBalance();
-                        showToast('Payment successful! Added â¹' + amount, 'success');
-                    },
-                    prefill: {
-                        email: app.user?.email || ''
-                    }
-                };
-                const rzp = new Razorpay(options);
-                rzp.open();
-            }
-        };
-
-        window.applyPromo = function() {
-            const code = document.getElementById('promoInput').value.toUpperCase();
-            const promos = {
-                'FIRST50': { discount: 50, desc: 'â¹50 off' },
-                'WELCOME': { discount: 100, desc: 'â¹100 off' },
-                'MEGA20': { discount: 20, desc: '20% off' }
-            };
-
-            if(promos[code]) {
-                const promo = promos[code];
-                if(!app.appliedPromos.find(p => p.code === code)) {
-                    app.appliedPromos.push({ code, ...promo });
-                    localStorage.setItem('appliedPromos', JSON.stringify(app.appliedPromos));
-                    calculateFare();
-                    document.getElementById('promoInput').value = '';
-                    showToast(`Promo applied: ${promo.desc}`, 'success');
-                }
-            } else {
-                showToast('Invalid promo code', 'error');
-            }
-        };
-
-        // LOYALTY & BADGES
-        function addLoyaltyPoints(points) {
-            app.loyaltyPoints += points;
-            localStorage.setItem('loyaltyPoints', app.loyaltyPoints);
-            updateLoyaltyDisplay();
-
-            // Check for level ups
-            if(app.loyaltyPoints >= 1000) app.loyaltyLevel = 'silver';
-            if(app.loyaltyPoints >= 5000) app.loyaltyLevel = 'gold';
-            if(app.loyaltyPoints >= 10000) app.loyaltyLevel = 'platinum';
-            localStorage.setItem('loyaltyLevel', app.loyaltyLevel);
-
-            // Unlock badges
-            checkBadges();
-        }
-
-        function updateLoyaltyDisplay() {
-            const levels = { bronze: { name: 'Bronze', color: '#CD7F32' }, silver: { name: 'Silver', color: '#C0C0C0' }, gold: { name: 'Gold', color: '#FFD700' }, platinum: { name: 'Platinum', color: '#E5E4E2' } };
-            document.getElementById('loyaltyLevel').textContent = levels[app.loyaltyLevel].name + ' Member';
-            document.getElementById('loyaltyPoints').textContent = app.loyaltyPoints + ' XP';
-
-            const maxPoints = app.loyaltyLevel === 'platinum' ? 10000 : (app.loyaltyLevel === 'gold' ? 5000 : (app.loyaltyLevel === 'silver' ? 1000 : 500));
-            const currentLevelPoints = Math.min(app.loyaltyPoints, maxPoints);
-            document.getElementById('loyaltyBar').style.width = (currentLevelPoints / maxPoints) * 100 + '%';
-        }
-
-        function checkBadges() {
-            const availableBadges = [
-                { id: 'first_ride', name: 'First Ride', emoji: 'ð', condition: () => app.rideHistory.length >= 1 },
-                { id: 'ten_rides', name: '10 Rides', emoji: 'ð', condition: () => app.rideHistory.length >= 10 },
-                { id: 'night_owl', name: 'Night Owl', emoji: 'ð', condition: () => app.rideHistory.some(r => new Date(r.createdAt).getHours() > 22) },
-                { id: 'eco_warrior', name: 'Eco Warrior', emoji: 'ð¿', condition: () => app.rideHistory.filter(r => r.ecoFriendly).length >= 5 },
-                { id: 'safety_first', name: 'Safety First', emoji: 'ð¡ï¸', condition: () => app.rideHistory.filter(r => r.pinkMode).length >= 3 }
-            ];
-
-            availableBadges.forEach(badge => {
-                if(!app.badges.includes(badge.id) && badge.condition()) {
-                    app.badges.push(badge.id);
-                    localStorage.setItem('badges', JSON.stringify(app.badges));
-                    showToast(`Badge Unlocked: ${badge.name} ${badge.emoji}`, 'success');
-                }
-            });
-
-            renderBadges();
-        }
-
-        function renderBadges() {
-            const badgeGrid = document.getElementById('badgeGrid');
-            const allBadges = [
-                { id: 'first_ride', name: 'First Ride', emoji: 'ð' },
-                { id: 'ten_rides', name: '10 Rides', emoji: 'ð' },
-                { id: 'night_owl', name: 'Night Owl', emoji: 'ð' },
-                { id: 'eco_warrior', name: 'Eco Warrior', emoji: 'ð¿' },
-                { id: 'safety_first', name: 'Safety First', emoji: 'ð¡ï¸' }
-            ];
-
-            badgeGrid.innerHTML = allBadges.map(badge => `
-                <div class="badge-item ${app.badges.includes(badge.id) ? 'earned' : 'locked'}">
-                    <div class="badge-icon">${badge.emoji}</div>
-                    <div class="badge-name">${badge.name}</div>
-                </div>
-            `).join('');
-        }
-
-        // SUBSCRIPTION PACKS
-        const subscriptionPacks = [
-            { id: 'office', name: 'Office Pack', price: 999, rides: 20, savings: 'â¹500', emoji: 'ð¼' },
-            { id: 'weekend', name: 'Weekend Pack', price: 499, rides: 10, savings: 'â¹200', emoji: 'ð' },
-            { id: 'night', name: 'Night Owl Pack', price: 599, rides: 15, savings: 'â¹300', emoji: 'ð' }
-        ];
-
-        function renderSubscriptionPacks() {
-            const packGrid = document.getElementById('packGrid');
-            packGrid.innerHTML = subscriptionPacks.map(pack => `
-                <div class="pack-card ${app.subscribedPacks.includes(pack.id) ? 'active' : ''}" onclick="window.subscribePack('${pack.id}')">
-                    <div class="pack-header">
-                        <span class="pack-name">${pack.emoji} ${pack.name}</span>
-                        <span class="pack-price">â¹${pack.price}/mo</span>
-                    </div>
-                    <div class="pack-features">${pack.rides} rides/month</div>
-                    <div class="pack-savings">Save ${pack.savings}</div>
-                </div>
-            `).join('');
-        }
-
-        window.subscribePack = function(packId) {
-            if(app.subscribedPacks.includes(packId)) {
-                app.subscribedPacks = app.subscribedPacks.filter(p => p !== packId);
-                showToast('Pack cancelled', 'info');
-            } else {
-                const pack = subscriptionPacks.find(p => p.id === packId);
-                if(app.wallet >= pack.price) {
-                    app.subscribedPacks.push(packId);
-                    app.wallet -= pack.price;
-                    updateWalletBalance();
-                    showToast(`Subscribed to ${pack.name}!`, 'success');
-                } else {
-                    showToast('Insufficient balance', 'error');
-                }
-            }
-            localStorage.setItem('subscribedPacks', JSON.stringify(app.subscribedPacks));
-            renderSubscriptionPacks();
-        };
-
-        // NEW FEATURES: WOMEN SAFETY, ECO MODE, PET MODE, QUIET TRIP
-        window.togglePinkMode = function() {
-            app.pinkMode = !app.pinkMode;
-            localStorage.setItem('pinkMode', app.pinkMode);
-            document.getElementById('pinkModeBtn').style.opacity = app.pinkMode ? '1' : '0.5';
-            if(app.pinkMode) showToast('Pink Mode Activated - Verified female drivers only', 'success');
-        };
-
-        window.togglePinkModeSetting = function(e) {
-            e.stopPropagation();
-            app.pinkMode = !app.pinkMode;
-            localStorage.setItem('pinkMode', app.pinkMode);
-            document.getElementById('pinkModeSetting').classList.toggle('active');
-            showToast('Women Safety Mode ' + (app.pinkMode ? 'Enabled' : 'Disabled'), 'info');
-        };
-
-        window.toggleEcoMode = function() {
-            app.ecoMode = !app.ecoMode;
-            localStorage.setItem('ecoMode', app.ecoMode);
-            document.getElementById('ecoModeBtn').style.opacity = app.ecoMode ? '1' : '0.5';
-            calculateFare();
-            if(app.ecoMode) showToast('Eco Mode: Preferring green vehicles', 'success');
-        };
-
-        window.toggleEcoModeSetting = function(e) {
-            e.stopPropagation();
-            window.toggleEcoMode();
-        };
-
-        window.togglePetMode = function() {
-            app.petMode = !app.petMode;
-            localStorage.setItem('petMode', app.petMode);
-            document.getElementById('petModeBtn').style.opacity = app.petMode ? '1' : '0.5';
-            if(app.petMode) showToast('Pet-Friendly Mode: Travel with your furry friend', 'success');
-        };
-
-        window.togglePetModeSetting = function(e) {
-            e.stopPropagation();
-            app.petMode = !app.petMode;
-            localStorage.setItem('petMode', app.petMode);
-            document.getElementById('petModeSetting').classList.toggle('active');
-        };
-
-        window.toggleQuietTrip = function() {
-            app.quietTrip = !app.quietTrip;
-            localStorage.setItem('quietTrip', app.quietTrip);
-            document.getElementById('quietTripBtn').style.opacity = app.quietTrip ? '1' : '0.5';
-            if(app.quietTrip) showToast('Quiet Trip: No conversations', 'success');
-        };
-
-        window.toggleQuietTripSetting = function(e) {
-            e.stopPropagation();
-            app.quietTrip = !app.quietTrip;
-            localStorage.setItem('quietTrip', app.quietTrip);
-            document.getElementById('quietTripSetting').classList.toggle('active');
-        };
-
-        window.toggleVoiceBookingSetting = function(e) {
-            e.stopPropagation();
-            app.voiceBooking = !app.voiceBooking;
-            localStorage.setItem('voiceBooking', app.voiceBooking);
-            document.getElementById('voiceBookingSetting').classList.toggle('active');
-            showToast('Voice Booking ' + (app.voiceBooking ? 'Enabled' : 'Disabled'), 'info');
-        };
-
-        window.toggleOfflineModeSetting = function(e) {
-            e.stopPropagation();
-            app.offlineMode = !app.offlineMode;
-            localStorage.setItem('offlineMode', app.offlineMode);
-            document.getElementById('offlineModeSetting').classList.toggle('active');
-            showToast('Offline Mode ' + (app.offlineMode ? 'Enabled' : 'Disabled'), 'info');
-        };
-
-        window.toggleSOSSetting = function(e) {
-            e.stopPropagation();
-            document.getElementById('sosSetting').classList.toggle('active');
-        };
-
-        // VOICE BOOKING
-        let voiceRecognition;
-        window.startVoiceBooking = function() {
-            if(!('webkitSpeechRecognition' in window)) {
-                showToast('Voice booking not supported on this device', 'error');
-                return;
-            }
-
-            voiceRecognition = new webkitSpeechRecognition();
-            voiceRecognition.onstart = () => {
-                document.getElementById('voiceStatus').textContent = 'Listening...';
-                document.getElementById('voiceStartBtn').style.display = 'none';
-                document.getElementById('voiceCancelBtn').style.display = 'block';
-            };
-
-            voiceRecognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                document.getElementById('voiceStatus').textContent = `You said: "${transcript}"`;
-
-                // Parse voice command
-                if(transcript.toLowerCase().includes('office')) {
-                    window.quickSelect('Work');
-                } else if(transcript.toLowerCase().includes('home')) {
-                    window.quickSelect('Home');
-                }
-            };
-
-            voiceRecognition.onerror = () => {
-                document.getElementById('voiceStatus').textContent = 'Try again...';
-                window.cancelVoiceBooking();
-            };
-
-            voiceRecognition.start();
-        };
-
-        window.cancelVoiceBooking = function() {
-            if(voiceRecognition) voiceRecognition.abort();
-            document.getElementById('voiceStartBtn').style.display = 'block';
-            document.getElementById('voiceCancelBtn').style.display = 'none';
-            document.getElementById('voiceStatus').textContent = 'Click to start speaking...';
-        };
-
-        // WAYPOINTS / MULTI-STOP
-        window.addWaypoint = function() {
-            document.getElementById('waypointsContainer').style.display = 'block';
-            const wp = prompt('Enter waypoint location:');
-            if(wp) {
-                app.waypoints.push(wp);
-                renderWaypoints();
-            }
-        };
-
-        function renderWaypoints() {
-            const list = document.getElementById('waypointList');
-            list.innerHTML = app.waypoints.map((wp, i) => `
-                <div class="waypoint-item">
-                    <input type="text" class="waypoint-input" value="${wp}" readonly>
-                    <button class="waypoint-remove" onclick="window.removeWaypoint(${i})">Remove</button>
-                </div>
-            `).join('');
-        }
-
-        window.removeWaypoint = function(idx) {
-            app.waypoints.splice(idx, 1);
-            renderWaypoints();
-            if(app.waypoints.length === 0) {
-                document.getElementById('waypointsContainer').style.display = 'none';
-            }
-        };
-
-        // SCHEDULED RIDES
-        window.openScheduledRides = function() {
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            document.getElementById('rideDate').min = tomorrow.toISOString().split('T')[0];
-            document.getElementById('scheduledRidesModal').classList.add('active');
-        };
-
-        window.confirmScheduledRide = function() {
-            const date = document.getElementById('rideDate').value;
-            const time = document.getElementById('rideTime').value;
-            if(date && time) {
-                app.scheduledRide = { date, time };
-                document.getElementById('destinationInput').value += ` (Scheduled: ${date} ${time})`;
-                document.getElementById('scheduledRidesModal').classList.remove('active');
-                showToast('Ride scheduled!', 'success');
-            }
-        };
-
-        // SPLIT FARE
-        window.addSplitPerson = function() {
-            const name = prompt('Enter friend\'s name:');
-            if(name) {
-                app.splitFarePersons.push({ name, amount: 0 });
-                renderSplitFare();
-            }
-        };
-
-        function renderSplitFare() {
-            const list = document.getElementById('splitPersonsList');
-            const eachAmount = Math.round(app.estimatedFare / (app.splitFarePersons.length + 1));
-            document.getElementById('splitTotalFare').textContent = app.estimatedFare;
-
-            list.innerHTML = app.splitFarePersons.map((person, i) => `
-                <div class="split-person">
-                    <span>${person.name}</span>
-                    <span class="split-amount">â¹${eachAmount}</span>
-                </div>
-            `).join('') + `
-                <div class="split-person">
-                    <span>You</span>
-                    <span class="split-amount">â¹${eachAmount}</span>
-                </div>
-            `;
-        }
-
-        window.confirmSplitFare = function() {
-            if(app.splitFarePersons.length > 0) {
-                showToast('Split fare requests sent!', 'success');
-                document.getElementById('splitFareModal').classList.remove('active');
-            }
-        };
-
-        // NOTIFICATIONS
-        window.addNotification = function(message) {
-            const notification = {
-                id: Date.now(),
-                message,
-                timestamp: new Date(),
-                read: false
-            };
-            app.notifications.push(notification);
-            localStorage.setItem('notifications', JSON.stringify(app.notifications));
-            updateNotificationBadge();
-        };
-
-        function updateNotificationBadge() {
-            const unread = app.notifications.filter(n => !n.read).length;
-            const badge = document.getElementById('notificationBadge');
-            if(unread > 0) {
-                badge.textContent = unread;
-                badge.style.display = 'flex';
-            } else {
-                badge.style.display = 'none';
-            }
-        }
-
-        // PROFILE
-        window.updateProfile = function() {
-            const name = prompt('Enter your name:', 'User');
-            if(name) {
-                app.user = app.user || {};
-                app.user.name = name;
-                document.getElementById('profileName').textContent = name;
-                localStorage.setItem('user', JSON.stringify(app.user));
-                showToast('Profile updated!', 'success');
-            }
-        };
-
-        window.selectLanguage = function() {
-            const lang = prompt('Select language: en, hi, ta, te');
-            if(lang && ['en', 'hi', 'ta', 'te'].includes(lang)) {
-                app.currentLang = lang;
-                localStorage.setItem('language', lang);
-                document.getElementById('currentLanguage').textContent = lang.toUpperCase();
-                showToast(`Language changed to ${lang.toUpperCase()}`, 'success');
-            }
-        };
-
-        // AUTH
-        window.sendOTP = function() {
-            const phone = document.getElementById('phoneInput').value;
-            if(phone.length === 10) {
-                document.getElementById('otpContainer').style.display = 'block';
-                generateOTPInputs();
-                app.otpTimestamp = Date.now();
-                showToast('OTP sent to +91' + phone, 'success');
-            } else {
-                showToast('Enter valid 10-digit number', 'error');
-            }
-        };
-
-        function generateOTPInputs() {
-            const container = document.getElementById('otpInputs');
-            container.innerHTML = '';
-            for(let i = 0; i < 6; i++) {
-                const input = document.createElement('input');
-                input.type = 'text';
-                input.maxLength = '1';
-                input.className = 'otp-input';
-                input.inputMode = 'numeric';
-                input.onkeyup = (e) => {
-                    if(e.key === 'Backspace' && i > 0) {
-                        document.querySelectorAll('.otp-input')[i - 1].focus();
-                    } else if(i < 5 && e.target.value) {
-                        document.querySelectorAll('.otp-input')[i + 1].focus();
-                    }
-                };
-                container.appendChild(input);
-            }
-        }
-
-        window.verifyOTP = function() {
-            const otps = Array.from(document.querySelectorAll('.otp-input')).map(inp => inp.value).join('');
-            if(otps.length === 6) {
-                app.user = { phone: '+91' + document.getElementById('phoneInput').value };
-                localStorage.setItem('user', JSON.stringify(app.user));
-                document.getElementById('profilePhone').textContent = app.user.phone;
-                document.getElementById('profileName').textContent = 'Guest User';
-                showToast('Authentication successful!', 'success');
-                showScreen('onboardingScreen');
-            } else {
-                showToast('Enter valid 6-digit OTP', 'error');
-            }
-        };
-
-        window.completeOnboarding = function() {
-            showScreen('homeScreen');
-            renderServices();
-            renderBadges();
-            renderSubscriptionPacks();
-            updateWalletBalance();
-            updateLoyaltyDisplay();
-            updateSurgePricing();
-        };
-
-        window.logout = function() {
-            if(confirm('Logout from your account?')) {
-                localStorage.clear();
-                location.reload();
-            }
-        };
-
-        // PULL TO REFRESH
-        let startY = 0;
-        window.pullToRefresh = function() {
-            showToast('Refreshing...', 'info');
-            setTimeout(() => {
-                updateHistory();
-                showToast('Refreshed!', 'success');
-            }, 1000);
-        };
-
-        function updateHistory() {
-            const list = document.getElementById('ridesList');
-            if(app.rideHistory.length > 0) {
-                list.innerHTML = app.rideHistory.map(ride => `
-                    <div class="ride-card">
-                        <div class="ride-header">
-                            <div>
-                                <div class="ride-title">${ride.destination}</div>
-                                <div style="font-size: 12px; color: var(--text-light);">${new Date(ride.createdAt).toLocaleDateString()}</div>
-                            </div>
-                            <div style="text-align: right;">
-                                <div style="font-weight: 700;">â¹${ride.fare}</div>
-                                <span class="ride-status ${ride.status}">${ride.status.toUpperCase()}</span>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-            }
-        }
-
-        // SHAKE TO SOS
-        let lastShakeTime = 0;
-        function handleShake(event) {
-            const acceleration = Math.abs(event.accelerationIncludingGravity.x) +
-                               Math.abs(event.accelerationIncludingGravity.y) +
-                               Math.abs(event.accelerationIncludingGravity.z);
-
-            if(acceleration > 50) {
-                const now = Date.now();
-                if(now - lastShakeTime > 500) {
-                    lastShakeTime = now;
-                    if(app.activeRide) {
-                        window.triggerSOS();
-                    }
-                }
-            }
-        }
-
-        // HAPTIC FEEDBACK
-        function vibrate(duration = 100) {
-            if(navigator.vibrate) {
-                navigator.vibrate(duration);
-            }
-        }
-
-        // TOAST NOTIFICATIONS
-        function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            vibrate(50);
-            setTimeout(() => toast.remove(), 3000);
-        }
-
-        window.showToast = showToast;
-
-        // PREDICTIVE BOOKING
-        function generatePredictions() {
-            const hour = new Date().getHours();
-            app.predictions = [];
-
-            if(hour >= 8 && hour <= 10) {
-                app.predictions.push({ destination: 'Office', emoji: 'ð¼' });
-            } else if(hour >= 17 && hour <= 19) {
-                app.predictions.push({ destination: 'Home', emoji: 'ð ' });
-            } else if(hour >= 19 && hour <= 21) {
-                app.predictions.push({ destination: 'Gym', emoji: 'ðª' });
-            }
-        }
-
-        // FARE NEGOTIATION
-        window.openFareNegotiation = function() {
-            document.getElementById('suggestedFare').textContent = app.estimatedFare;
-            document.getElementById('fareSlider').value = app.estimatedFare;
-            document.getElementById('offerAmount').textContent = app.estimatedFare;
-            document.getElementById('fareNegotiationModal').classList.add('active');
-
-            document.getElementById('fareSlider').oninput = function() {
-                document.getElementById('offerAmount').textContent = this.value;
-            };
-        };
-
-        window.submitFareOffer = function() {
-            const offer = parseInt(document.getElementById('fareSlider').value);
-            showToast(`Fare offer â¹${offer} sent to driver`, 'info');
-            document.getElementById('fareNegotiationModal').classList.remove('active');
-        };
-
-        // SETUP EVENT LISTENERS
-        function setupEventListeners() {
-            document.getElementById('pickupInput').addEventListener('click', () => window.selectLocation('pickup'));
-            document.getElementById('destinationInput').addEventListener('click', () => window.selectLocation('destination'));
-        }
-
-        // INITIALIZE ON LOAD
-        setTimeout(() => {
-            updateWalletBalance();
-            updateLoyaltyDisplay();
-            updateSurgePricing();
-            renderBadges();
-            renderSubscriptionPacks();
-            updateHistory();
-        }, 500);
-
-        // Periodically update surge pricing
-        setInterval(updateSurgePricing, 60000);
-    </script>
-
-    <script>
-        // PWA Manifest
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('data:application/javascript,self.addEventListener("install",e=>self.skipWaiting());self.addEventListener("activate",e=>e.waitUntil(clients.claim()));').catch(() => {});
-        }
-    </script>
-</body>
-</html>
+                        ]ÛÛ\ÜÏH\ÛX[ÛÛXÚÏHÚ[ÝË]ZXÚÔÙ[XÝ
+	ÕÛÜÉÊHÝ[OH^NÈ¼'ä¯ÛÜÏØ]Û]ÛÛ\ÜÏH\ÛX[ÛÛXÚÏHÚ[ÝË]ZXÚÔÙ[XÝ
+	ÑÞ[IÊHÝ[OH^NÈ¼'äªÞ[OØ]ÛÙ]]Û\ÜÏHØØ][ÛZ[][]\OH^YH\Ý[][Û[]XÙZÛ\HÚ\HÏÈXYÛHÛÛXÚÏHÚ[ÝËÙ[XÝØØ][Û	Ù\Ý[][ÛÊH]ÛÛ\ÜÏHØØ][ÛZXÛÛÛÛXÚÏHÚ[ÝËÜ[ØÚY[YY\Ê
+H]OHØÚY[H¼'äáOØ]ÛÙ]]YHØ^\Ú[ÐÛÛZ[\Ý[OH\Ü^NÛNÈX\Ú[XÝÛNM\È]Û\ÜÏHØ^\Ú[[\ÝYHØ^\Ú[\ÝÙ]]ÛÛ\ÜÏH\ÙXÛÛ\H\ÛX[ÛÛXÚÏHÚ[ÝËYØ^\Ú[
+
+HÝ[OHÚYL	NÈÈYÝÜØ]ÛÙ]]Ý[OHX\Ú[]ÜM\ÈX[Ý[OHÛ\Ú^NLÈÛ]ÙZYÚ
+LÈX\Ú[XÝÛNÈ\Ü^NØÚÎÈZXÛH\OÛX[]Û\ÜÏHZXÛK\Ù[XÝÜYHZXÛTÙ[XÝÜÙ]Ù]]YH\Q\Ý[X]HÝ[OHXÚÙÜÝ[\KXË\ÙXÛÛ\JNÈY[ÎLÈÜ\\Y]\ÎÈX\Ú[M\ÈÛ\Ú^NMÈ]Ý[OH\Ü^N^È\ÝYKXÛÛ[ÜXÙKX]ÙY[ÈX\Ú[XÝÛNÈÜ[\H\Ý[X]NÜÜ[Ü[Ý[OHÛ]ÙZYÚ
+ÌÈ¸ ®OÜ[YH\Ý[X]Y\HÜÜ[Ü[YHÙX]\Ý\ÙRXÛÛÝ[OHÛ\Ú^NMÈ]OHÙX]\ÛÛ][ÛÜÜ[ÜÜ[Ù]]Ý[OH\Ü^N^È\ÝYKXÛÛ[ÜXÙKX]ÙY[ÈÛ\Ú^NLÈÛÛÜ\K]^[YÚ
+NÈÜ[YHÝ\ÙR[ÈÜÜ[Ü[YHXÛÔØ][ÜÈÝ[OH\Ü^NÛNÈÛÛÜ\K\ÝXØÙ\ÜÊNÈÜÜ[Ù]]ÛYHXÙSØÚÐÛÛXÚÏHÚ[ÝËØÚÔXÙJ
+HÝ[OHÚYL	NÛX\Ú[]ÜÜY[ÎØÜ\\\ÚY\K\[X\JNØÜ\\Y]\ÎØXÚÙÜÝ[[Ü\[ØÛÛÜ\K\[X\JNÙÛ\Ú^NLÜÙÛ]ÙZYÚØÝ\ÛÜÚ[\È¼'å$ÈØÚÈXÙHÜZ[ÏØ]ÛÙ]]Ý[OH\Ü^N^ÙØ\ÛX\Ú[XÝÛNM\È]ÛÛ\ÜÏH\[X\HYHÛÚÔYPÛÛXÚÏHÚ[ÝËÛÚÔYJ
+HÝ[OH^NÈ\ØXYÛÚÈYOØ]Û]ÛÛ\ÜÏH\ÙXÛÛ\H\ÛX[ÛÛXÚÏHÚ[ÝËÚYYJ
+H]OHÚYHYH\XK[X[HÚYHYHÈÛÛY[ÛHÝ[OHÛ\Ú^NNÈ¼'ã OØ]ÛÙ]Ù]Ù]Ù]KKHQTÈÐÔQS
+ÝÛH]HKO]Û\ÜÏHØÜY[YHY\ÔØÜY[]Û\ÜÏHÛYKZXY\[Ý\Y\ÏÚ]ÛÛ\ÜÏHXÛÛXÛÛXÚÏHÚ[ÝË[ÔY\Ú
+
+H¼'å!Ø]ÛÙ]]Û\ÜÏHØÜY[XÛÛ[]Ý[OHY[ÎÈ]Û\ÜÏHY\Ë[\ÝYHY\Ó\Ý]Ý[OH^X[YÛÙ[\ÈÛÛÜ\K]^[YÚ
+NÈY[Î
+ÈÈXÝ]HY\ÂÙ]Ù]Ù]Ù]Ù]KKHÐSUÐÔQS
+ÝÛH]HKO]Û\ÜÏHØÜY[Ø[]YHØ[]ØÜY[]Û\ÜÏHÛYKZXY\Ø[]	]Ø\ÏÚ]ÛÛ\ÜÏHXÛÛXÛÛXÚÏHÚ[ÝËÚÝÔØÜY[	ÚÛYTØÜY[ÊH¸§%OØ]ÛÙ]]Û\ÜÏHØÜY[XÛÛ[Ý[OHY[ÎÈ]Û\ÜÏHØ[]XØ\]Û\ÜÏHØ[]X[[ÙHØ[][[ÙOÙ]]Û\ÜÏHØ[]X[[Ý[¸ ®OÜ[YHØ[][[ÙHÜÜ[Ù]Ù]]Û\ÜÏHÞX[KXØ\]Û\ÜÏHÞX[K[][YHÞX[S][ÛHY[X\Ù]]Û\ÜÏHÞX[K\Ú[ÈYHÞX[TÚ[ÈÙ]]Û\ÜÏHÞX[K\ÙÜ\ÜÈ]Û\ÜÏHÞX[KX\YHÞX[P\Ý[OHÚY	NÈÙ]Ù]Ù]]Û\ÜÏHÙXÝ[Û]]H¼'ã«ÈX\YÙ\ÏÙ]]Û\ÜÏHYÙKYÜYYHYÙQÜYÙ]]Û\ÜÏHÙXÝ[Û]]H¼'ä¬ÈÝXØÜ\[ÛXÚÜÏÙ]]Û\ÜÏHXÚËYÜYYHXÚÑÜYÙ]]Û\ÜÏHÙXÝ[Û]]HØ[]Ü]\Ù]]Ý[OH\Ü^NÜYÈÜY][\]KXÛÛ[[Î\X]
+YNÈØ\LÈX\Ú[XÝÛNÈ]ÛÛ\ÜÏH\ÙXÛÛ\HÛÛXÚÏHÚ[ÝËY[Û^J
+Hø ®LØ]Û]ÛÛ\ÜÏH\ÙXÛÛ\HÛÛXÚÏHÚ[ÝËY[Û^J
+L
+Hø ®MLØ]Û]ÛÛ\ÜÏH\ÙXÛÛ\HÛÛXÚÏHÚ[ÝËY[Û^JL
+Hø ®LLØ]Û]ÛÛ\ÜÏH\ÙXÛÛ\HÛÛXÚÏHÚ[ÝËY[Û^J
+L
+Hø ®MLØ]ÛÙ]]ÛÛ\ÜÏH\[X\HÛÛXÚÏHÚ[ÝËÜ[^Ü^J
+HÝ[OHÚYL	NÈYÝ\ÝÛH[[Ý[
+XH^Ü^JOØ]Û]Û\ÜÏHÙXÝ[Û]]HÝ[OHX\Ú[]ÜÌÈ¼'ã§ûî#ÈÛ[ÈÛÙ\ÏÙ]]Û\ÜÏHÛ[ËZ[][]\OH^YHÛ[Ò[]XÙZÛ\H[\Û[ÈÛÙH]ÛÛ\ÜÏH\ÙXÛÛ\H\ÛX[ÛÛXÚÏHÚ[ÝË\TÛ[Ê
+H\OØ]ÛÙ]]YH\YYÛ[ÜÈÝ[OHX\Ú[]ÜM\ÈÙ]]Û\ÜÏHÙXÝ[Û]]HÝ[OHX\Ú[]ÜÌÈ¼'ã/È[\ÛY[[[\XÝÙ]]Û\ÜÏHXÛËZ[È]Û\ÜÏHXÛË\Ø][ÜÈÝ[ÓÌØ]YÝÛÈYHÝ[ÓÌÜÝÛÏÙÏÙ]]Û\ÜÏHÛÌ]XÚÙ\\]Z][[ÈÝÛÈYHÛÌ\]Z][[ÜÝÛÏY\È[YÙ]Ù]Ù]Ù]KKHÑSHÐÔQS
+ÝÛH]HKO]Û\ÜÏHØÜY[Ù[HYHÙ[TØÜY[]Û\ÜÏHÛYKZXY\Ù[H	Ù][ÜÏÚ]ÛÛ\ÜÏHXÛÛXÛÛXÚÏHÚ[ÝËÚÝÔØÜY[	ÚÛYTØÜY[ÊH¸§%OØ]ÛÙ]]Û\ÜÏHØÜY[XÛÛ[Ý[OHY[ÎÈ]Û\ÜÏHÙ[KZXY\]Û\ÜÏHÙ[KX]]\¼'äiÙ]]Û\ÜÏHÙ[K[[YHYHÙ[S[YH\Ù\[YOÙ]]Û\ÜÏHÙ[K\ÛHYHÙ[TÛHÎLHNNNNNNNNNOÙ]Ù]]Û\ÜÏHÙ][ÜËYÜÝ\]Û\ÜÏHÙ][ÜËYÜÝ\]]HØY]OÙ]]Û\ÜÏHÙ][ËZ][H]Û\ÜÏHÙ][Ë[X[]Û\ÜÏHÙ][Ë[X[[XZ[ÛÛY[ØY]H[ÙH
+[È[ÙJOÙ]]Û\ÜÏHÙ][Ë[X[\ÝX\YYY[X[H]\ÈÛOÙ]Ù]]Û\ÜÏHÙÙÛK\ÝÚ]ÚYH[Ó[ÙTÙ][ÈÛÛXÚÏHÚ[ÝËÙÙÛT[Ó[ÙTÙ][Ê][
+H]Û\ÜÏHÙÙÛK][XÙ]Ù]Ù]]Û\ÜÏHÙ][ËZ][H]Û\ÜÏHÙ][Ë[X[]Û\ÜÏHÙ][Ë[X[[XZ[]ZY]\[ÙOÙ]]Û\ÜÏHÙ][Ë[X[\ÝXÚ[[YHHÈ[Ú[ÏÙ]Ù]]Û\ÜÏHÙÙÛK\ÝÚ]ÚYH]ZY]\Ù][ÈÛÛXÚÏHÚ[ÝËÙÙÛT]ZY]\Ù][Ê][
+H]Û\ÜÏHÙÙÛK][XÙ]Ù]Ù]]Û\ÜÏHÙ][ËZ][H]Û\ÜÏHÙ][Ë[X[]Û\ÜÏHÙ][Ë[X[[XZ[ÓÔÈ]ZXÚÈXØÙ\ÜÏÙ]]Û\ÜÏHÙ][Ë[X[\ÝXÚZÙHÛHÜ[Y\Ù[ÞH
+ËLLHÛÝ[ÝÛOÙ]Ù]]Û\ÜÏHÙÙÛK\ÝÚ]ÚYHÛÜÔÙ][ÈÛÛXÚÏHÚ[ÝËÙÙÛTÓÔÔÙ][Ê][
+H]Û\ÜÏHÙÙÛK][XXÝ]HÙ]Ù]Ù]]Û\ÜÏHÙ][ËZ][HÛÛXÚÏHÚ[ÝËÙ][XÔS
+HÝ[OHÝ\ÛÜÚ[\È]Û\ÜÏHÙ][Ë[X[]Û\ÜÏHÙ][Ë[X[[XZ[¼'å$Ú[[[XÈSÙ]]Û\ÜÏHÙ][Ë[X[\ÝX[\\ÈÕÈYÙÙ\Ú[[ÓÔÏÙ]Ù]Ü[Ý[OHÛÛÜ\K]^[YÚ
+NÈ¸¡¤ÜÜ[Ù]Ù]]Û\ÜÏHÙ][ÜËYÜÝ\]Û\ÜÏHÙ][ÜËYÜÝ\]]H¼'äj8 #|'äjx #|'äiø #|'äi[Z[HØY]HÚ\ÛOÙ]]YH[Z[PÛÛXÝÓ\ÝÙ]]ÛÛ\ÜÏH\ÙXÛÛ\H\ÛX[ÛÛXÚÏHÚ[ÝËY[Z[PÛÛXÝ
+
+HÝ[OHÚYL	NÛX\Ú[]ÜLÈÈY[Z[HÛÛXÝØ]ÛÙ]]Û\ÜÏHÙ][ÜËYÜÝ\]Û\ÜÏHÙ][ÜËYÜÝ\]]HY\[Ù\ÏÙ]]Û\ÜÏHÙ][ËZ][H]Û\ÜÏHÙ][Ë[X[]Û\ÜÏHÙ][Ë[X[[XZ[\È[ÙOÙ]]Û\ÜÏHÙ][Ë[X[\ÝXX\ÞHÛ^Y\ÏÙ]Ù]]Û\ÜÏHÙÙÛK\ÝÚ]ÚYH\Ó[ÙTÙ][ÈÛÛXÚÏHÚ[ÝËÙÙÛQ\Ó[ÙTÙ][Ê][
+H]Û\ÜÏHÙÙÛK][XÙ]Ù]Ù]]Û\ÜÏHÙ][ËZ][H]Û\ÜÏHÙ][Ë[X[]Û\ÜÏHÙ][Ë[X[[XZ[XÛÈ[ÙOÙ]]Û\ÜÏHÙ][Ë[X[\ÝXÜY[Y\ÈY\YÙ]Ù]]Û\ÜÏHÙÙÛK\ÝÚ]ÚYHXÛÓ[ÙTÙ][ÈÛÛXÚÏHÚ[ÝËÙÙÛQXÛÓ[ÙTÙ][Ê][
+H]Û\ÜÏHÙÙÛK][XÙ]Ù]Ù]]Û\ÜÏHÙ][ËZ][H]Û\ÜÏHÙ][Ë[X[]Û\ÜÏHÙ][Ë[X[[XZ[]QY[HY\ÏÙ]]Û\ÜÏHÙ][Ë[X[\ÝX][Ú][Ý\]Ù]Ù]]Û\ÜÏHÙÙÛK\ÝÚ]ÚYH][ÙTÙ][ÈÛÛXÚÏHÚ[ÝËÙÙÛT][ÙTÙ][Ê][
+H]Û\ÜÏHÙÙÛK][XÙ]Ù]Ù]]Û\ÜÏHÙ][ËZ][H]Û\ÜÏHÙ][Ë[X[]Û\ÜÏHÙ][Ë[X[[XZ[ÚXÙHÛÚÚ[ÏÙ]]Û\ÜÏHÙ][Ë[X[\ÝXÛÚÈÚ][Ý\ÚXÙOÙ]Ù]]Û\ÜÏHÙÙÛK\ÝÚ]ÚYHÚXÙPÛÚÚ[ÔÙ][ÈÛÛXÚÏHÚ[ÝËÙÙÛUÚXÙPÛÚÚ[ÔÙ][Ê][
+H]Û\ÜÏHÙÙÛK][XÙ]Ù]Ù]]Û\ÜÏHÙ][ËZ][H]Û\ÜÏHÙ][Ë[X[]Û\ÜÏHÙ][Ë[X[[XZ[Ù[H[ÙOÙ]]Û\ÜÏHÙ][Ë[X[\ÝX]Y]YHÛÚÚ[ÜÈÙ[OÙ]Ù]]Û\ÜÏHÙÙÛK\ÝÚ]ÚYHÙ[S[ÙTÙ][ÈÛÛXÚÏHÚ[ÝËÙÙÛSÙ[S[ÙTÙ][Ê][
+H]Û\ÜÏHÙÙÛK][XÙ]Ù]Ù]Ù]]Û\ÜÏHÙ][ÜËYÜÝ\]Û\ÜÏHÙ][ÜËYÜÝ\]]H\Ù]]Û\ÜÏHÙ][ËZ][HÛÛXÚÏHÚ[ÝËÙ[XÝ[ÝXYÙJ
+H]Û\ÜÏHÙ][Ë[X[]Û\ÜÏHÙ][Ë[X[[XZ[[ÝXYÙOÙ]]Û\ÜÏHÙ][Ë[X[\ÝXYHÝ\[[ÝXYÙH[Û\ÚÙ]Ù]Ü[Ý[OHÛÛÜ\K]^[YÚ
+NÈ¸ .ÜÜ[Ù]]Û\ÜÏHÙ][ËZ][H]Û\ÜÏHÙ][Ë[X[]Û\ÜÏHÙ][Ë[X[[XZ[\\Ú[ÛÙ]]Û\ÜÏHÙ][Ë[X[\ÝX
+YYØJOÙ]Ù]Ù]Ù]]ÛÛ\ÜÏH\ÙXÛÛ\HÛÛXÚÏHÚ[ÝËÙÛÝ]
+
+HÝ[OHÚYL	NÈX\Ú[]ÜÈÙÛÝ]Ø]ÛÙ]Ù]KKHÕQPÐUSÓÐÔQSKO]Û\ÜÏHØÜY[YHÝYXØ][ÛØÜY[]Û\ÜÏHÛYKZXY\ÝYXØ][ÛÏÚ]ÛÛ\ÜÏHXÛÛXÛÛXÚÏHÚ[ÝËÚÝÔØÜY[	ÚÛYTØÜY[ÊH¸§%OØ]ÛÙ]]Û\ÜÏHØÜY[XÛÛ[Ý[OHY[ÎÈ]YHÝYXØ][ÛÓ\ÝÝ[OH\Ü^N^È^Y\XÝ[ÛÛÛ[[ÈØ\LÈÙ]Ù]Ù]KKHQHPÕUHÐÔQSKO]Û\ÜÏHØÜY[YHYPXÝ]TØÜY[]Û\ÜÏHÛYKZXY\XÝ]HYOÚ]ÛÛ\ÜÏHXÛÛXÛÛXÚÏHÚ[ÝËØ[Ù[YJ
+H¸§%OØ]ÛÙ]]Û\ÜÏHX\XÛÛZ[\YHXÝ]SX\Ù]]Û\ÜÏHÛÚÚ[ËXØ\]Û\ÜÏH]\XØ\YH]\Ø\Ù]]Ý[OHX\Ú[XÝÛNÈ]Ý[OHXÚÙÜÝ[\KXË\ÙXÛÛ\JNÈY[ÎM\ÈÜ\\Y]\ÎLÈX\Ú[XÝÛNM\È]Ý[OHÛ\Ú^NLÈÛÛÜ\K]^[YÚ
+NÈX\Ú[XÝÛN
+\ÈUOÙ]]Ý[OHÛ\Ú^NÈÛ]ÙZYÚ
+ÌÈYHYQUHKNKOÙ]]Ý[OHÛ\Ú^NLÈÛÛÜ\K]^[YÚ
+NÈX\Ú[]ÜÈ\Ý[ÙNÜ[YHYQ\Ý[ÙHÜÜ[ÛOÙ]Ù]]Ý[OH\Ü^N^ÈØ\LÈX\Ú[XÝÛNM\È]ÛÛ\ÜÏH\ÙXÛÛ\HÛÛXÚÏHÚ[ÝËØ[]\
+HÝ[OH^NÈ¼'äçØ[Ø]Û]ÛÛ\ÜÏH\ÙXÛÛ\HÛÛXÚÏHÚ[ÝËÚÝÐÚ]
+
+HÝ[OH^NÈ¼'ä«Ú]Ø]Û]ÛÛ\ÜÏH\ÙXÛÛ\HÛÛXÚÏHÚ[ÝËYÙÙ\ÓÔÊ
+HÝ[OH^NÈ¼'á¦ÓÔÏØ]Û]ÛÛ\ÜÏH\ÙXÛÛ\HÛÛXÚÏHÚ[ÝËÚ\U\
+
+HÝ[OH^NÈ¼'äéÚ\OØ]ÛÙ]]YHÚ]ÛÛZ[\Ý[OH\Ü^NÛNÈXÚÙÜÝ[\KXË\ÙXÛÛ\JNÈÜ\\Y]\ÎLÈZYÚÍLÈ^Y\XÝ[ÛÛÛ[[ÈX\Ú[XÝÛNM\È]Û\ÜÏHÚ][Y\ÜØYÙ\ÈYHÚ]Y\ÜØYÙ\ÈÙ]]Ý[OH\Ü^N^ÙØ\ÜY[ÎLÛÝ\ÝË^]]ÎÙ^\Ú[ÎÈ]ÛÛÛXÚÏHÙ[]ZXÚÔ\J	ÒW	ÛHÛÛZ[ÉÊHÝ[OHÚ]K\ÜXÙNÝÜ\ÜY[ÎLØÜ\\ÛÛY\KXÜ\NØÜ\\Y]\ÎØXÚÙÜÝ[\KXËX\ÙJNØÛÛÜ\K]^
+NÙÛ\Ú^NLØÝ\ÛÜÚ[\ÈIÛHÛÛZ[ÏØ]Û]ÛÛÛXÚÏHÙ[]ZXÚÔ\J	ÕØZ]Z[ÉÊHÝ[OHÚ]K\ÜXÙNÝÜ\ÜY[ÎLØÜ\\ÛÛY\KXÜ\NØÜ\\Y]\ÎØXÚÙÜÝ[\KXËX\ÙJNØÛÛÜ\K]^
+NÙÛ\Ú^NLØÝ\ÛÜÚ[\ÈØZ]Z[ÏØ]Û]ÛÛÛXÚÏHÙ[]ZXÚÔ\J	ÒÜX\ÙIÊHÝ[OHÚ]K\ÜXÙNÝÜ\ÜY[ÎLØÜ\\ÛÛY\KXÜ\NØÜ\\Y]\ÎØXÚÙÜÝ[\KXËX\ÙJNØÛÛÜ\K]^
+NÙÛ\Ú^NLØÝ\ÛÜÚ[\ÈÜX\ÙOØ]Û]ÛÛÛXÚÏHÙ[]ZXÚÔ\J	ÐPÈØ[HØ\ÉÊHÝ[OHÚ]K\ÜXÙNÝÜ\ÜY[ÎLØÜ\\ÛÛY\KXÜ\NØÜ\\Y]\ÎØXÚÙÜÝ[\KXËX\ÙJNØÛÛÜ\K]^
+NÙÛ\Ú^NLØÝ\ÛÜÚ[\ÈPÈØ[HØ\ÏØ]Û]ÛÛÛXÚÏHÙ[]ZXÚÔ\J	Õ[È[ÝHIÊHÝ[OHÚ]K\ÜXÙNÝÜ\ÜY[ÎLØÜ\\ÛÛY\KXÜ\NØÜ\\Y]\ÎØXÚÙÜÝ[\KXËX\ÙJNØÛÛÜ\K]^
+NÙÛ\Ú^NLØÝ\ÛÜÚ[\È[È[ÝHOØ]ÛÙ]]Û\ÜÏHÚ]Z[]X\XH[]\OH^YHÚ][]XÙZÛ\HY\ÜØYÙH]\\XK[X[HÚ]Y\ÜØYÙH[]]ÛÛ\ÜÏHÚ]\Ù[ÛÛXÚÏHÚ[ÝËÙ[Y\ÜØYÙJ
+HÙ[Ø]ÛÙ]Ù]Ù]Ù]Ù]KKHÕÓHUQÐUSÓKO]Û\ÜÏHÝÛK[]]Û\ÜÏH]Z][HXÝ]HÛÛXÚÏHÚ[ÝËÝÚ]ÚX	ÚÛYIÊH]Û\ÜÏH]ZXÛÛ¼'ãèÙ]]ÛYOÙ]Ù]]Û\ÜÏH]Z][HÛÛXÚÏHÚ[ÝËÝÚ]ÚX	ÜY\ÉÊH]Û\ÜÏH]ZXÛÛ¼'æ¥ÏÙ]]Y\ÏÙ]Ù]]Û\ÜÏH]Z][HÛÛXÚÏHÚ[ÝËÝÚ]ÚX	ÝØ[]	ÊH]Û\ÜÏH]ZXÛÛ¼'ä¬ÏÙ]]Ø[]Ù]Ù]]Û\ÜÏH]Z][HÛÛXÚÏHÚ[ÝËÝÚ]ÚX	ÜÙ[IÊH]Û\ÜÏH]ZXÛÛ¼'äiÙ]]Ù[OÙ]Ù]Ù]KKHSÑSÈKO]Û\ÜÏH[Ù[[Ý\^HYHØÚY[YY\Ó[Ù[]Û\ÜÏH[Ù[XÛÛ[]Û\ÜÏH[Ù[ZXY\Ü[ØÚY[HYOÜÜ[]ÛÛ\ÜÏHÛÜÙKXÛÛXÚÏHØÝ[Y[Ù][[Y[RY
+	ÜØÚY[YY\Ó[Ù[	ÊKÛ\ÜÓ\Ý[[ÝJ	ØXÝ]IÊNÈ¸§%OØ]ÛÙ]]Û\ÜÏHÜKYÜÝ\X[]OÛX[[]\OH]HYHYQ]HZ[HÙ]]Û\ÜÏHÜKYÜÝ\X[[YOÛX[[]\OH[YHYHYU[YHÙ]]ÛÛ\ÜÏH\[X\HÛÛXÚÏHÚ[ÝËÛÛ\TØÚY[YYJ
+HÝ[OHÚYL	NÈX\Ú[]ÜÈØÚY[HYOØ]ÛÙ]Ù]]Û\ÜÏH[Ù[[Ý\^HYHÜ]\S[Ù[]Û\ÜÏH[Ù[XÛÛ[]Û\ÜÏH[Ù[ZXY\Ü[Ü]\OÜÜ[]ÛÛ\ÜÏHÛÜÙKXÛÛXÚÏHØÝ[Y[Ù][[Y[RY
+	ÜÜ]\S[Ù[	ÊKÛ\ÜÓ\Ý[[ÝJ	ØXÝ]IÊNÈ¸§%OØ]ÛÙ]]Û\ÜÏHÜ]\ÙXÝ[Û]Û\ÜÏHÜ]ZXY\YHÛÜÝ8 ®OÜ[YHÜ]Ý[\HÜÜ[]ÛÛ\ÜÏHÜ]XYXÛÛXÚÏHÚ[ÝËYÜ]\ÛÛ
+HÈYY[Ø]ÛÙ]]YHÜ]\ÛÛÓ\ÝÙ]Ù]]ÛÛ\ÜÏH\[X\HÛÛXÚÏHÚ[ÝËÛÛ\TÜ]\J
+HÝ[OHÚYL	NÈX\Ú[]ÜÈÛÛ\HÜ]Ø]ÛÙ]Ù]]Û\ÜÏH[Ù[[Ý\^HYHÚXÙPÛÚÚ[Ó[Ù[]Û\ÜÏH[Ù[XÛÛ[]Û\ÜÏH[Ù[ZXY\Ü[ÚXÙHÛÚÚ[ÏÜÜ[]ÛÛ\ÜÏHÛÜÙKXÛÛXÚÏHØÝ[Y[Ù][[Y[RY
+	ÝÚXÙPÛÚÚ[Ó[Ù[	ÊKÛ\ÜÓ\Ý[[ÝJ	ØXÝ]IÊNÈ¸§%OØ]ÛÙ]]Ý[OH^X[YÛÙ[\ÈY[Î
+È]Ý[OHÛ\Ú^N
+ÈX\Ú[XÝÛNÈ[[X][Û[ÙHÈ[[]NÈ¼'ã©Ù]YHÚXÙTÝ]\ÈÝ[OHX\Ú[XÝÛNÈÛXÚÈÈÝ\ÜXZÚ[ËÜ]ÛÛ\ÜÏH\[X\HÛÛXÚÏHÚ[ÝËÝ\ÚXÙPÛÚÚ[Ê
+HYHÚXÙTÝ\Ý[OHÚYL	NÈÝ\\Ý[[ÏØ]Û]ÛÛ\ÜÏH\ÙXÛÛ\HÛÛXÚÏHÚ[ÝËØ[Ù[ÚXÙPÛÚÚ[Ê
+HYHÚXÙPØ[Ù[Ý[OHÚYL	NÈX\Ú[]ÜLÈ\Ü^NÛNÈÝÜØ]ÛÙ]Ù]Ù]]Û\ÜÏH[Ù[[Ý\^HYHYXÝ]S[Ù[]Û\ÜÏH[Ù[XÛÛ[]Û\ÜÏH[Ù[ZXY\Ü[]ZXÚÈÝYÙÙ\Ý[ÛÏÜÜ[]ÛÛ\ÜÏHÛÜÙKXÛÛXÚÏHØÝ[Y[Ù][[Y[RY
+	ÜYXÝ]S[Ù[	ÊKÛ\ÜÓ\Ý[[ÝJ	ØXÝ]IÊNÈ¸§%OØ]ÛÙ]]YHYXÝ]S\ÝÙ]Ù]Ù]]Û\ÜÏH[Ù[[Ý\^HYH\SYÛÝX][Û[Ù[]Û\ÜÏH[Ù[XÛÛ[]Û\ÜÏH[Ù[ZXY\Ü[\HYÛÝX][ÛÜÜ[]ÛÛ\ÜÏHÛÜÙKXÛÛXÚÏHØÝ[Y[Ù][[Y[RY
+	Ù\SYÛÝX][Û[Ù[	ÊKÛ\ÜÓ\Ý[[ÝJ	ØXÝ]IÊNÈ¸§%OØ]ÛÙ]]Ý[OHX\Ú[XÝÛNÈ]Ý[OHÛ\Ú^NMÈÛÛÜ\K]^[YÚ
+NÈX\Ú[XÝÛNLÈÝYÙÙ\ÝY\N8 ®OÜ[YHÝYÙÙ\ÝY\HÜÜ[Ù][]\OH[ÙHYH\TÛY\Z[HLX^HÝ\HL[YOHÝ[OHÚYL	NÈXØÙ[XÛÛÜ\K\[X\JNÈ\XK[X[H\HÙ\ÛY\]Ý[OH\Ü^N^È\ÝYKXÛÛ[ÜXÙKX]ÙY[ÈÛ\Ú^NLÈÛÛÜ\K]^[YÚ
+NÈX\Ú[]Ü
+\ÈÜ[¸ ®MLÜÜ[Ü[[Ý\Ù\8 ®OÜ[YHÙ\[[Ý[ÜÜ[ÜÜ[Ü[¸ ®LÜÜ[Ù]]YH\PXØÙ\Ú[ÙHÝ[OHX\Ú[]ÜLÈY[ÎLÈÜ\\Y]\ÎÈÛ\Ú^NLÜÈÛ]ÙZYÚ
+È^X[YÛÙ[\ÈXÚÙÜÝ[ØJÎKMÍMJNÈÛÛÜ\K\ÝXØÙ\ÜÊNÈ
+IHÚ[ÙH]\XØÙ\ÂÙ]Ù]]ÛÛ\ÜÏH\[X\HÛÛXÚÏHÚ[ÝËÝXZ]\SÙ\
+HÝ[OHÚYL	NÈÙ[Ù\Ø]ÛÙ]Ù]]Û\ÜÏH[Ù[[Ý\^HYH][Ó[Ù[]Û\ÜÏH[Ù[XÛÛ[]Û\ÜÏH[Ù[ZXY\Ü[]HYOÜÜ[]ÛÛ\ÜÏHÛÜÙKXÛÛXÚÏHØÝ[Y[Ù][[Y[RY
+	Ü][Ó[Ù[	ÊKÛ\ÜÓ\Ý[[ÝJ	ØXÝ]IÊNÈ¸§%OØ]ÛÙ]]Ý[OH^X[YÛÙ[\ÈX\Ú[XÝÛNÈ]Ý[OHÛ\Ú^N
+ÈX\Ú[XÝÛNM\ÈÝ\ÛÜÚ[\ÈYH][ÔÝ\È¸«d8«d8«d8«d8«dÙ]]Ý[OHÛ\Ú^NMÈÛÛÜ\K]^[YÚ
+NÈ\Ý\ÈÈ]OÙ]Ù]]Û\ÜÏHÜKYÜÝ\X[YYXÚÈ
+Ü[Û[
+OÛX[^\XHYH][ÑYYXÚÈXÙZÛ\H[\ÈXÝ][Ý\^\Y[ÙHÝ[OHY[ÎLÈÜ\\ÛÛY\KXÜ\NÈÜ\\Y]\ÎÈÛY[Z[N	Ò[\ËØ[Ë\Ù\YÈXÚÙÜÝ[\KXË\ÙXÛÛ\JNÈÛÛÜ\K]^
+NÈZ[ZZYÚLÈÝ^\XOÙ]]ÛÛ\ÜÏH\[X\HÛÛXÚÏHÚ[ÝËÝXZ]][Ê
+HÝ[OHÚYL	NÈX\Ú[]ÜÈÝXZ]][ÏØ]ÛÙ]Ù]Ù]ØÜ\ÜÏHÎËÛX\ËÛÛÙÛX\\ËÛÛKÛX\ËØ\KÚÏÚÙ^OPR^TÞQ[UTÍMÎS]QZXÍZ]LØÌIX\Y\Ï\XÙ\ÈÜØÜ\ØÜ\ÜÏHÎËÝÝÝËÜÝ]XËÛÛKÙ\X\ÙZËÌLÙ\X\ÙKX\ÈÜØÜ\ØÜ\ÜÏHÎËÝÝÝËÜÝ]XËÛÛKÙ\X\ÙZËÌLÙ\X\ÙKX]]ÈÜØÜ\ØÜ\ÜÏHÎËØÚXÚÛÝ]^Ü^KÛÛKÝKØÚXÚÛÝ]ÈÜØÜ\ØÜ\ÛÛÝ\X\ÙPÛÛYÈHÂ\RÙ^NR^TÞQÓMVVLÔÌ[Ü[U\ÍÜRPÓÈ]]ÛXZ[ÚXÝLNÙËLXÙM
+KNXË\X\ÙX\ÛÛHÚXÝYÚXÝLNÙËLXÙM
+KNXÈÝÜYÙPXÚÙ]ÚXÝLNÙËLXÙM
+KNXË\ÜÝÛÛHY\ÜØYÚ[ÔÙ[\YL
+ÌÎÎLÌ
+H\YNL
+ÌÎÎLÌ
+NÙXÙMØNYLXÌÙNÂÛÛÝÛÛÙÛSX\Ð\RÙ^HHR^TÞQ[UTÍMÎS]QZXÍZ]LØÌHÂÛÛÝ^Ü^RÙ^HHÛ]WÒSTÝÕTHÂËÈÓÐSÕUBÛÛÝ\HÂ\Ù\[\Ñ\Ó[ÙNØØ[ÝÜYÙKÙ]][J	Ù\Ó[ÙIÊHOOH	ÝYIËÝ\[[ÎØØ[ÝÜYÙKÙ]][J	Û[ÝXYÙIÊH	Ù[ËXÚÝ\[\Ý[][Û[Ø^\Ú[Î×KÙ[XÝYZXÛN	Ø]]ÉË\Ý[X]Y\NXÝ]TYN[Ø[]\ÙQØ]
+ØØ[ÝÜYÙKÙ]][J	ÝØ[]	ÊJH
+LÞX[TÚ[Î\ÙR[
+ØØ[ÝÜYÙKÙ]][J	ÛÞX[TÚ[ÉÊJHÞX[S][ØØ[ÝÜYÙKÙ]][J	ÛÞX[S][	ÊH	ØÛIËYÙ\ÎÓÓ\ÙJØØ[ÝÜYÙKÙ]][J	ØYÙ\ÉÊJH×KÝYXØ][ÛÎÓÓ\ÙJØØ[ÝÜYÙKÙ]][J	ÛÝYXØ][ÛÉÊJH×KYR\ÝÜNÓÓ\ÙJØØ[ÝÜYÙKÙ]][J	ÜYR\ÝÜIÊJH×K\YYÛ[ÜÎÓÓ\ÙJØØ[ÝÜYÙKÙ]][J	Ø\YYÛ[ÜÉÊJH×KÝXØÜXYXÚÜÎÓÓ\ÙJØØ[ÝÜYÙKÙ]][J	ÜÝXØÜXYXÚÜÉÊJH×KÝ[ÓÌØ]Y\ÙQØ]
+ØØ[ÝÜYÙKÙ]][J	ÝÝ[ÓÌØ]Y	ÊJHÝ[Y\Ý[\Ý\Ù[ÛÝ[[Ó[ÙNØØ[ÝÜYÙKÙ]][J	Ü[Ó[ÙIÊHOOH	ÝYIË]ZY]\ØØ[ÝÜYÙKÙ]][J	Ü]ZY]\	ÊHOOH	ÝYIË][ÙNØØ[ÝÜYÙKÙ]][J	Ü][ÙIÊHOOH	ÝYIËXÛÓ[ÙNØØ[ÝÜYÙKÙ]][J	ÙXÛÓ[ÙIÊHOOH	ÝYIËÚXÙPÛÚÚ[ÎØØ[ÝÜYÙKÙ]][J	ÝÚXÙPÛÚÚ[ÉÊHOOH	ÝYIËÙ[S[ÙNØØ[ÝÜYÙKÙ]][J	ÛÙ[S[ÙIÊHOOH	ÝYIË]Ü]SØØ][ÛÎÓÓ\ÙJØØ[ÝÜYÙKÙ]][J	Ù]Ü]SØØ][ÛÉÊJHÂÛYN[ÛÜÎ[Þ[N[KÜ]\T\ÛÛÎ×KÚ]Y\ÜØYÙ\Î×K]\Ù[N[\ÝØÛÜNÝ\ÙTXÚ[ÎKÝ\ÙTX\ÛÛ	ÉËØÚY[YYN[YXÝ[ÛÎ×KÙ[T]Y]YNÓÓ\ÙJØØ[ÝÜYÙKÙ]][J	ÛÙ[T]Y]YIÊJH×KËÈUÈÕUBÛÜÐÛÝ[ÝÛXÝ]N[ÙKÛÜÒ[\[[XÙSØÚÙY[ÙKXÙSØÚÕ[Y\[XÙSØÚÔÙXÛÛÎ[XÔSØØ[ÝÜYÙKÙ]][J	Ü[XÔSÊH	ÉË[Z[PÛÛXÝÎÓÓ\ÙJØØ[ÝÜYÙKÙ]][J	Ù[Z[PÛÛXÝÉÊJH×K\ÐYÙØYÙN[ÙKÙX]\ÛÛ][Û	ØÛX\ËËÈÛX\Z[ÙËX]ÛÛ^[ÙN	Ù^IÈËÈ^KYÚNÂËÈSUPSVUSÓÚ[ÝËY][\Ý[\	ÛØY	Ë[Ý[Û
+HÂ[]X[^Q\Ó[ÙJ
+NÂÙ]\][\Ý[\Ê
+NÂ[]X[^SX\
+
+NÂ[\Ù\XÙ\Ê
+NÂÙ][Y[Ý]
+
+
+HOÂÚÝÔØÜY[	Ø]]ØÜY[ÊNÂK
+NÂËÈÚZÙHÈÓÔÂYÚ[ÝË]XÙS[Ý[Û][
+HÂÚ[ÝËY][\Ý[\	Ù]XÙ[[Ý[ÛË[TÚZÙJNÂBËÈÙ[H]XÝ[ÛÚ[ÝËY][\Ý[\	ÛÙ[IË
+
+HOÂ\Ù[S[ÙHHYNÂÚÝÕØ\Ý
+	ÓÙ[H[ÙNÛÚÚ[ÜÈ]Y]YY	Ë	Ú[ÉÊNÂJNÂÚ[ÝËY][\Ý[\	ÛÛ[IË
+
+HOÂÚÝÕØ\Ý
+	ÐXÚÈÛ[HIË	ÜÝXØÙ\ÜÉÊNÂ\Ù[S[ÙHH[ÙNÂJNÂJNÂËÈTÈSÑB[Ý[Û[]X[^Q\Ó[ÙJ
+HÂY\\Ñ\Ó[ÙJHÂØÝ[Y[ÙKÛ\ÜÓ\ÝY
+	Ù\Ë[[ÙIÊNÂØÝ[Y[Ù][[Y[RY
+	Ù\Ó[ÙRXÛÛÊK^ÛÛ[H	ø¦ ;î#ÉÎÂBBÚ[ÝËÙÙÛQ\Ó[ÙHH[Ý[Û
+HÂ\\Ñ\Ó[ÙHHX\\Ñ\Ó[ÙNÂØÝ[Y[ÙKÛ\ÜÓ\ÝÙÙÛJ	Ù\Ë[[ÙIÊNÂØØ[ÝÜYÙKÙ]][J	Ù\Ó[ÙIË\\Ñ\Ó[ÙJNÂØÝ[Y[Ù][[Y[RY
+	Ù\Ó[ÙRXÛÛÊK^ÛÛ[H\\Ñ\Ó[ÙHÈ	ø¦ ;î#ÉÈ	ü'ã&IÎÂØÝ[Y[Ù][[Y[RY
+	Ù\Ó[ÙTÙ][ÉÊKÛ\ÜÓ\ÝÙÙÛJ	ØXÝ]IÊNÂNÂÚ[ÝËÙÙÛQ\Ó[ÙTÙ][ÈH[Ý[ÛJHÂKÝÜÜYØ][Û
+NÂÚ[ÝËÙÙÛQ\Ó[ÙJ
+NÂNÂËÈÐÔQSUQÐUSÓ[Ý[ÛÚÝÔØÜY[ØÜY[Y
+HÂØÝ[Y[]Y\TÙ[XÝÜ[
+	ËØÜY[ÊKÜXXÚ
+ÈOËÛ\ÜÓ\Ý[[ÝJ	ØXÝ]IÊJNÂØÝ[Y[Ù][[Y[RY
+ØÜY[Y
+KÛ\ÜÓ\ÝY
+	ØXÝ]IÊNÂBÚ[ÝËÚÝÔØÜY[HÚÝÔØÜY[ÂÚ[ÝËÝÚ]ÚXH[Ý[ÛXHÂØÝ[Y[]Y\TÙ[XÝÜ[
+	Ë]Z][IÊKÜXXÚ
+][HO][KÛ\ÜÓ\Ý[[ÝJ	ØXÝ]IÊJNÂ][\Ù]ÛÜÙ\Ý
+	Ë]Z][IÊKÛ\ÜÓ\ÝY
+	ØXÝ]IÊNÂÛÛÝØÜY[X\HÂÛYN	ÚÛYTØÜY[ËY\Î	ÜY\ÔØÜY[ËØ[]	ÝØ[]ØÜY[ËÙ[N	ÜÙ[TØÜY[ÂNÂÚÝÔØÜY[ØÜY[X\ÝXJNÂNÂËÈPTÈ	ÐÐUSÓÂ]X\XÙ\ÔÙ\XÙK\Ù\ØØ][ÛÂ[Ý[Û[]X[^SX\
+
+HÂÛÛÝY][ØØ][ÛHÈ]Ì
+KÎ
+ÍËLHNÂX\H]ÈÛÛÙÛKX\ËX\
+ØÝ[Y[Ù][[Y[RY
+	ÛX\	ÊKÂÛÛNMÙ[\Y][ØØ][Û\ØXQY][RNYBJNÂXÙ\ÔÙ\XÙHH]ÈÛÛÙÛKX\ËXÙ\ËXÙ\ÔÙ\XÙJX\
+NÂBÚ[ÝËÙ]Ý\[ØØ][ÛH[Ý[Û
+HÂY]YØ]ÜÙ[ÛØØ][ÛHÂ]YØ]ÜÙ[ÛØØ][ÛÙ]Ý\[ÜÚ][ÛÜÈOÂ\Ù\ØØ][ÛHÈ]ÜËÛÛÜË]]YKÎÜËÛÛÜËÛÚ]YHNÂØÝ[Y[Ù][[Y[RY
+	ÜXÚÝ\[]	ÊK[YHH	ÐÝ\[ØØ][ÛÎÂ\XÚÝ\H\Ù\ØØ][ÛÂX\Ù]Ù[\\Ù\ØØ][ÛNÂ\]PÛÚÔYP]Û
+NÂJNÂBNÂÚ[ÝËÙ[XÝØØ][ÛH[Ý[Û\JHÂÛÛÝ[YHHÛ\
+[\	Ý\_HØØ][Û
+NÂY[YJHÂY\HOOH	ÜXÚÝ\	ÊHÂØÝ[Y[Ù][[Y[RY
+	ÜXÚÝ\[]	ÊK[YHH[YNÂ\XÚÝ\H[YNÂH[ÙHÂØÝ[Y[Ù][[Y[RY
+	Ù\Ý[][Û[]	ÊK[YHH[YNÂ\\Ý[][ÛH[YNÂBØ[Ý[]Q\J
+NÂ\]PÛÚÔYP]Û
+NÂBNÂÚ[ÝË]ZXÚÔÙ[XÝH[Ý[ÛXÙJHÂÛÛÝØØ][ÛÈHÂ	ÒÛYIÎ	ÌLÈÛYHÝY]]È[IË	ÕÛÜÉÎ	Í
+MÙXÙH][YK]È[IË	ÑÞ[IÎ	ÍÎH]\ÜÈ^K]È[IÂNÂØÝ[Y[Ù][[Y[RY
+	Ù\Ý[][Û[]	ÊK[YHHØØ][ÛÖÜXÙWNÂ\\Ý[][ÛHØØ][ÛÖÜXÙWNÂ\]Ü]SØØ][ÛÖÜXÙKÓÝÙ\Ø\ÙJ
+WHHØØ][ÛÖÜXÙWNÂØ[Ý[]Q\J
+NÂ\]PÛÚÔYP]Û
+NÂNÂËÈRPÓTÂÛÛÝZXÛ\ÈHÂÈY	Ø]]ÉË[YN	Ð]]ÉË[[ÚN	ü'æ¦IË\ÙQ\N
+LXÙT\ÛNKÈY	ÛZ[IË[YN	ÓZ[IË[[ÚN	ü'æ¥ÉË\ÙQ\N
+XÙT\ÛNLKÈY	ÜÙY[Ë[YN	ÔÙY[Ë[[ÚN	ü'æ¦IË\ÙQ\NLXÙT\ÛNMHKÈY	ÜÝ]Ë[YN	ÔÕUË[[ÚN	ü'æ¤	Ë\ÙQ\NMLXÙT\ÛNKÈY	ØZÙIË[YN	ÐZÙIË[[ÚN	ü'ãã{î#ÉË\ÙQ\NÌXÙT\ÛN
+KÈY	ÝXÚÉË[YN	ÕXÚÉË[[ÚN	ü'æ¦ÉË\ÙQ\NXÙT\ÛNHBNÂ[Ý[Û[\Ù\XÙ\Ê
+HÂÛÛÝÙ[XÝÜHØÝ[Y[Ù][[Y[RY
+	ÝZXÛTÙ[XÝÜÊNÂÙ[XÝÜ[\SHZXÛ\ËX\
+O]Û\ÜÏHZXÛK[Ü[Û	ÝYOOH	Ø]]ÉÈÈ	ÜÙ[XÝY	È	ÉßHÛÛXÚÏHÚ[ÝËÙ[XÝZXÛJ	ÉÝYIÊH]Û\ÜÏHZXÛKZXÛÛÝ[[Ú_OÙ]]Û\ÜÏHZXÛK[[YHÝ[Y_OÙ]]Û\ÜÏHZXÛK\XÙH¸ ®IÝ\ÙQ\_OÙ]Ù]
+KÚ[	ÉÊNÂBÚ[ÝËÙ[XÝZXÛHH[Ý[ÛZXÛRY
+HÂ\Ù[XÝYZXÛHHZXÛRYÂØÝ[Y[]Y\TÙ[XÝÜ[
+	ËZXÛK[Ü[ÛÊKÜXXÚ
+OÛ\ÜÓ\Ý[[ÝJ	ÜÙ[XÝY	ÊJNÂ][\Ù]ÛÜÙ\Ý
+	ËZXÛK[Ü[ÛÊKÛ\ÜÓ\ÝY
+	ÜÙ[XÝY	ÊNÂØ[Ý[]Q\J
+NÂNÂËÈTHÐSÕSUSÓ[Ý[ÛØ[Ý[]Q\J
+HÂYX\XÚÝ\X\\Ý[][ÛHÂØÝ[Y[Ù][[Y[RY
+	Ù\Ý[X]Y\IÊK^ÛÛ[H	Ì	ÎÂ]\ÂBÛÛÝ\Ý[ÙHHX][ÛJ
+H
+
+ÈÂÛÛÝZXÛHHZXÛ\Ë[
+OYOOH\Ù[XÝYZXÛJNÂ]\HHZXÛK\ÙQ\H
+È
+\Ý[ÙH
+ZXÛKXÙT\ÛJNÂËÈ\HÝ\ÙHXÚ[Â\H
+H\Ý\ÙTXÚ[ÎÂËÈ\HXÛÈ[ÙH\ØÛÝ[Y\XÛÓ[ÙJHÂ\H
+HNÂØÝ[Y[Ù][[Y[RY
+	ÙXÛÔØ][ÜÉÊKÝ[K\Ü^HH	ØØÚÉÎÂØÝ[Y[Ù][[Y[RY
+	ÙXÛÔØ][ÜÉÊK^ÛÛ[HØ]H8 ®IÓX]Ý[
+\H
+J_XÂH[ÙHÂØÝ[Y[Ù][[Y[RY
+	ÙXÛÔØ][ÜÉÊKÝ[K\Ü^HH	ÛÛIÎÂBËÈ\HÛ[ÈÛÙ\Â\\YYÛ[ÜËÜXXÚ
+Û[ÈOÂYÛ[Ë\ØÛÝ[
+HÂ\H
+H
+HHÛ[Ë\ØÛÝ[ÈL
+NÂBJNÂ\\Ý[X]Y\HHX]Ý[
+\JNÂØÝ[Y[Ù][[Y[RY
+	Ù\Ý[X]Y\IÊK^ÛÛ[H\\Ý[X]Y\NÂ]\\Ý[ÙNÂB[Ý[Û\]PÛÚÔYP]Û
+HÂÛÛÝHØÝ[Y[Ù][[Y[RY
+	ØÛÚÔYPÊNÂY\XÚÝ\	\\Ý[][ÛHÂ\ØXYH[ÙNÂH[ÙHÂ\ØXYHYNÂBBËÈÕTÑHPÒSÂ[Ý[Û\]TÝ\ÙTXÚ[Ê
+HÂÛÛÝÝ\H]È]J
+KÙ]Ý\Ê
+NÂÛÛÝ^HH]È]J
+KÙ]^J
+NÂ]Ý\ÙHHKÂ]X\ÛÛH	ÉÎÂYÝ\H	Ý\HL
+HÂÝ\ÙHHKNÂX\ÛÛH	Ó[Ü[È\Ú	ÎÂH[ÙHYÝ\HMÈ	Ý\HNJHÂÝ\ÙHHKÂX\ÛÛH	Ñ][[È\Ú	ÎÂH[ÙHYÝ\HÝ\H
+JHÂÝ\ÙHHKÎÂX\ÛÛH	Ó]HYÚ	ÎÂBËÈÚ[][]HÙX]\Ù][ÂYX][ÛJ
+HÊHÂÝ\ÙH
+HKÂX\ÛÛHX\ÛÛÈX\ÛÛ
+È	È
+ÈX]HZ[È	ÒX]HZ[ÎÂB\Ý\ÙTXÚ[ÈHÝ\ÙNÂ\Ý\ÙTX\ÛÛHX\ÛÛÂÛÛÝÝ\ÙR[ÈHØÝ[Y[Ù][[Y[RY
+	ÜÝ\ÙR[ÉÊNÂYÝ\ÙHJHÂÝ\ÙR[Ë^ÛÛ[H	ÜX\ÛÛN	Ê
+Ý\ÙHHJH
+L
+KÑ^Y
+
+_IHÝ\ÙXÂH[ÙHÂÝ\ÙR[Ë^ÛÛ[H	ÓÜX[XÚ[ÉÎÂBBËÈQHÓÒÒSÂÚ[ÝËÛÚÔYHH[Ý[Û
+HÂYX\XÚÝ\X\\Ý[][ÛHÂÚÝÕØ\Ý
+	ÔÙ[XÝXÚÝ\[\Ý[][ÛË	Ù\ÜÊNÂ]\ÂBY\Ø[]\\Ý[X]Y\JHÂÚÝÕØ\Ý
+	Ò[ÝYXÚY[Ø[][[ÙIË	Ù\ÜÊNÂ]\ÂBËÈÜX]HYBÛÛÝYRYH	ÔQIÈ
+È]KÝÊ
+NÂ\XÝ]TYHHÂYYRYXÚÝ\\XÚÝ\\Ý[][Û\\Ý[][ÛZXÛN\Ù[XÝYZXÛK\N\\Ý[X]Y\KÝ]\Î	ÜÙX\Ú[ÉËÜX]Y]]È]J
+KØ^\Ú[Î\Ø^\Ú[ËÜ]\N\Ü]\T\ÛÛË[Ý[Ó[ÙN\[Ó[ÙK]ZY]\\]ZY]\]Y[N\][ÙKXÛÑY[N\XÛÓ[ÙBNÂ\YR\ÝÜK\Ú
+\XÝ]TYJNÂØØ[ÝÜYÙKÙ]][J	ÜYR\ÝÜIËÓÓÝ[ÚYJ\YR\ÝÜJJNÂËÈÚ[][]H]\X]Ú[ÂÚ[][]TYTÙX\Ú
+
+NÂÚÝÔØÜY[	ÜYPXÝ]TØÜY[ÊNÂÚÝÕØ\Ý
+	ÔÙX\Ú[ÈÜ]\Ë	Ú[ÉÊNÂNÂ[Ý[ÛÚ[][]TYTÙX\Ú
+
+HÂ]ÙX\ÚÙÜ\ÜÈHÂÛÛÝ[\[HÙ][\[
+
+
+HOÂÙX\ÚÙÜ\ÜÈ
+ÏHX][ÛJ
+H
+ÌÂYÙX\ÚÙÜ\ÜÈHL
+HÂÛX\[\[
+[\[
+NÂÛÛ\Q]\
+NÂBKL
+NÂB[Ý[ÛÛÛ\Q]\
+HÂ\XÝ]TYKÝ]\ÈH	ØÛÛ\YY	ÎÂ\]\Ù[HHÂ[YNÉÔZÝ[X\Ë	Ô^XHÚ\XIË	Ð\[Ú[Ú	×VÓX]ÛÜX][ÛJ
+H
+ÊWK][Î
+
+
+ÈX][ÛJ
+JKÑ^Y
+JK]Y]ÜÎX]ÛÜX][ÛJ
+H
+
+L
+H
+ÈLZXÛNZXÛ\Ë[
+OYOOH\Ù[XÝYZXÛJKÝÎ	ü'äj8 #|'ä¯	ËYÙ\ÎÉÑ^\]YØ]ÜË	ÔØYH]\Ë	ÑY[I×K\ÝØÛÜNX]ÛÜX][ÛJ
+H
+Ì
+H
+È
+ÌNÂ\]Q]\Ø\
+
+NÂÝ\YUXÚÚ[Ê
+NÂÚÝÕØ\Ý
+	Ñ]\ÛÛ\YYH	È
+È\]\Ù[K[YK	ÜÝXØÙ\ÜÉÊNÂB[Ý[Û\]Q]\Ø\
+
+HÂÛÛÝØ\HØÝ[Y[Ù][[Y[RY
+	Ù]\Ø\	ÊNÂØ\[\SH]Û\ÜÏH]\ZXY\]Û\ÜÏH]\X]]\Ø\]\Ù[KÝßOÙ]]Û\ÜÏH]\Z[È]Û\ÜÏH]\[[YHØ\]\Ù[K[Y_OÙ]]Û\ÜÏH]\\][È¸«d	Ø\]\Ù[K][ßH
+	Ø\]\Ù[K]Y]ÜßHY\ÊOÙ]Ù]Ù]]Û\ÜÏH]\XYÙ\È	Ø\]\Ù[KYÙ\ËX\
+O]Û\ÜÏH]\XYÙHØOÙ]
+KÚ[	ÉÊ_BÙ]]Û\ÜÏH\Ý\ØÛÜHÜ[\ÝØÛÜOÜÜ[Ü[Û\ÜÏH\Ý\ØÛÜK][YHØ\]\Ù[K\ÝØÛÜ_KÌLÜÜ[Ù]ÂB[Ý[ÛÝ\YUXÚÚ[Ê
+HÂ]]HHNÂÛÛÝ]R[\[HÙ][\[
+
+
+HOÂ]KKNÂØÝ[Y[Ù][[Y[RY
+	ÜYQUIÊK^ÛÛ[H	ÓX]ÛÜ]HÈ
+
+_NÔÝ[Ê]H	H
+
+KYÝ\
+	Ì	Ê_XÂY]HH
+HÂÛX\[\[
+]R[\[
+NÂÛÛ\]TYJ
+NÂBKL
+NÂËÈÚ[][]H\Ý[ÙB]\Ý[ÙHHMNÂÛÛÝ\Ý[ÙR[\[HÙ][\[
+
+
+HOÂ\Ý[ÙHOHÂØÝ[Y[Ù][[Y[RY
+	ÜYQ\Ý[ÙIÊK^ÛÛ[H\Ý[ÙKÑ^Y
+JNÂY\Ý[ÙHH
+HÂÛX\[\[
+\Ý[ÙR[\[
+NÂBKL
+NÂB[Ý[ÛÛÛ\]TYJ
+HÂ\XÝ]TYKÝ]\ÈH	ØÛÛ\]Y	ÎÂËÈ\]HØ[]\Ø[]OH\\Ý[X]Y\NÂØØ[ÝÜYÙKÙ]][J	ÝØ[]	Ë\Ø[]
+NÂ\]UØ[][[ÙJ
+NÂËÈYÞX[HÚ[ÂÛÛÝÚ[ÈHX]ÛÜ\\Ý[X]Y\HÈL
+NÂYÞX[TÚ[ÊÚ[ÊNÂËÈYÓÌØ][ÜÂÛÛÝÛÌHX][ÛJ
+H
+
+H
+ÈÂ\Ý[ÓÌØ]Y
+ÏHÛÌÂØØ[ÝÜYÙKÙ]][J	ÝÝ[ÓÌØ]Y	Ë\Ý[ÓÌØ]Y
+NÂÚÝÕØ\Ý
+	ÔYHÛÛ\]YH]H[Ý\^\Y[ÙIË	ÜÝXØÙ\ÜÉÊNÂÙ][Y[Ý]
+
+
+HOÂØÝ[Y[Ù][[Y[RY
+	Ü][Ó[Ù[	ÊKÛ\ÜÓ\ÝY
+	ØXÝ]IÊNÂKL
+NÂBÚ[ÝËØ[Ù[YHH[Ý[Û
+HÂY\XÝ]TYH	\XÝ]TYKÝ]\ÈOOH	ØÛÛ\]Y	ÊHÂÚÝÕØ\Ý
+	ÔYHØ[Ù[Y	Ë	Ú[ÉÊNÂ\XÝ]TYKÝ]\ÈH	ØØ[Ù[Y	ÎÂÚÝÔØÜY[	ÚÛYTØÜY[ÊNÂBNÂÚ[ÝËØ[]\H[Ý[Û
+HÂÚÝÕØ\Ý
+	ÐØ[[È	È
+È\]\Ù[K[YH
+È	ËË	Ú[ÉÊNÂNÂÚ[ÝËÚÝÐÚ]H[Ý[Û
+HÂØÝ[Y[Ù][[Y[RY
+	ØÚ]ÛÛZ[\ÊKÝ[K\Ü^HH	Ù^	ÎÂ[]X[^PÚ]
+
+NÂNÂ[Ý[Û[]X[^PÚ]
+
+HÂ\Ú]Y\ÜØYÙ\ÈHÂÈ\N	Ù]\Ë^	ÒHHW	ÛHÛ^HØ^KUH
+HZ[]\ËÈKÈ\N	Ù]\Ë^	ÒW	ÛH][ÈHÚ]HÙY[ÈBNÂ[\Ú]
+
+NÂB[Ý[Û[\Ú]
+
+HÂÛÛÝY\ÜØYÙ\Ñ]HØÝ[Y[Ù][[Y[RY
+	ØÚ]Y\ÜØYÙ\ÉÊNÂY\ÜØYÙ\Ñ][\SH\Ú]Y\ÜØYÙ\ËX\
+\ÙÈO]Û\ÜÏHY\ÜØYÙH	Û\ÙË\_H]Û\ÜÏHY\ÜØYÙKXXHÛ\ÙË^OÙ]Ù]
+KÚ[	ÉÊNÂY\ÜØYÙ\Ñ]ØÜÛÜHY\ÜØYÙ\Ñ]ØÜÛZYÚÂBÚ[ÝËÙ[Y\ÜØYÙHH[Ý[Û]ZXÚÓ\ÙÊHÂÛÛÝ[]HØÝ[Y[Ù][[Y[RY
+	ØÚ][]	ÊNÂÛÛÝ^H]ZXÚÓ\ÙÈ[][YK[J
+NÂY^
+HÂ\Ú]Y\ÜØYÙ\Ë\Ú
+È\N	ÜY\Ë^JNÂ[\Ú]
+
+NÂY\]ZXÚÓ\ÙÊH[][YHH	ÉÎÂËÈÚ[][]H]\\ÜÛÙBÙ][Y[Ý]
+
+
+HOÂÛÛÝ\ÜÛÙ\ÈHÉÔÝ\HHÙYH[ÝHÛÛÛË	ÓÈØ[HIË	Õ[ÜÈÜH[ÈIË	Ð\][ÈÝÈIË	ÓÒËÛÝ]IË	ÓÛ^HØ^HI×NÂ\Ú]Y\ÜØYÙ\Ë\Ú
+È\N	Ù]\Ë^\ÜÛÙ\ÖÓX]ÛÜX][ÛJ
+H
+\ÜÛÙ\Ë[Ý
+WHJNÂ[\Ú]
+
+NÂKL
+NÂBNÂÚ[ÝËÙ[]ZXÚÔ\HH[Ý[Û\ÙÊHÈÚ[ÝËÙ[Y\ÜØYÙJ\ÙÊNÈNÂÚ[ÝËÚ\U\H[Ý[Û
+HÂY\[Z[PÛÛXÝË[Ý
+HÂÚ[ÝËÚ\U\Ú][Z[J
+NÂH[ÙHÂÚÝÕØ\Ý
+	Õ\Ú\YÚ][Y\Ù[ÞHÛÛXÝÉË	ÜÝXØÙ\ÜÉÊNÂY]YØ]ÜÚ\JHÂ]YØ]ÜÚ\JÈ]N	ÒQHY\ÈHXÚÈ^H\	Ë^IÛHÛHYHÚ]QK]\	Ø\]\Ù[OË[YH	ÓÐIßXJKØ]Ú
+
+
+OOßJNÂBBNÂÚ[ÝËYÙÙ\ÓÔÈH[Ý[Û
+HÂY\ÛÜÐÛÝ[ÝÛXÝ]JH]\Â\ÛÜÐÛÝ[ÝÛXÝ]HHYNÂ]ÛÝ[HÎÂÛÛÝÛÜÓÝ\^HHØÝ[Y[ÜX]Q[[Y[
+	Ù]ÊNÂÛÜÓÝ\^KYH	ÜÛÜÐÛÝ[ÝÛÝ\^IÎÂÛÜÓÝ\^KÝ[KÜÜÕ^H	ÜÜÚ][Û^YÝÜÛYÝÚYL	NÚZYÚL	NØXÚÙÜÝ[ØJÌK
+Í
+MJNÞZ[^NNNNÙ\Ü^N^Ù^Y\XÝ[ÛÛÛ[[Ø[YÛZ][\ÎÙ[\Ú\ÝYKXÛÛ[Ù[\ØÛÛÜÚ]NÉÎÂÛÜÓÝ\^K[\SH]Ý[OHÛ\Ú^NÙÛ]ÙZYÚÌÈYHÛÜÐÛÝ[[HØÛÝ[OÙ]]Ý[OHÛ\Ú^NNÛX\Ú[ÈÓÔÈXÝ]][È[Ù]]ÛÛÛXÚÏHÚ[ÝËØ[Ù[ÓÔÊ
+HÝ[OHY[ÎM
+ØXÚÙÜÝ[Ú]NØÛÛÜÙMÍÌØÎØÜ\ÛNØÜ\\Y]\ÎÙÛ\Ú^NMÙÛ]ÙZYÚÌØÝ\ÛÜÚ[\ÈÐSÑSØ]ÛÂØÝ[Y[ÙK\[Ú[
+ÛÜÓÝ\^JNÂX]J
+NÂ\ÛÜÒ[\[HÙ][\[
+
+
+HOÂÛÝ[KNÂYÛÝ[H
+HÂÛX\[\[
+\ÛÜÒ[\[
+NÂÛÜÓÝ\^K[[ÝJ
+NÂ\ÛÜÐÛÝ[ÝÛXÝ]HH[ÙNÂÚÝÕØ\Ý
+	ü'á¦[Y\Ù[ÞH[\Ù[HÛÛXÝÈÝYYYË	Ù[Ù\ÊNÂX]JÌLLJNÂY]YØ]ÜÚ\JH]YØ]ÜÚ\JÝ]NÔÓÔÈHQHY\ÉË^Ñ[Y\Ù[ÞHHXÚÈ^HØØ][ÛßJKØ]Ú
+
+
+OOßJNÂH[ÙHÂØÝ[Y[Ù][[Y[RY
+	ÜÛÜÐÛÝ[[IÊK^ÛÛ[HÛÝ[ÂX]J
+NÂBKL
+NÂNÂÚ[ÝËØ[Ù[ÓÔÈH[Ý[Û
+HÂÛX\[\[
+\ÛÜÒ[\[
+NÂ\ÛÜÐÛÝ[ÝÛXÝ]HH[ÙNÂÛÛÝÝ\^HHØÝ[Y[Ù][[Y[RY
+	ÜÛÜÐÛÝ[ÝÛÝ\^IÊNÂYÝ\^JHÝ\^K[[ÝJ
+NÂÚÝÕØ\Ý
+	ÔÓÔÈØ[Ù[Y	Ë	Ú[ÉÊNÂNÂËÈUSÔÂÚ[ÝËÝXZ]][ÈH[Ý[Û
+HÂÛÛÝ][ÈH\XÝ]TYK][È
+NÂÛÛÝYYXÚÈHØÝ[Y[Ù][[Y[RY
+	Ü][ÑYYXÚÉÊK[YNÂ\XÝ]TYK][ÈH][ÎÂ\XÝ]TYKYYXÚÈHYYXÚÎÂØØ[ÝÜYÙKÙ]][J	ÜYR\ÝÜIËÓÓÝ[ÚYJ\YR\ÝÜJJNÂØÝ[Y[Ù][[Y[RY
+	Ü][Ó[Ù[	ÊKÛ\ÜÓ\Ý[[ÝJ	ØXÝ]IÊNÂÚÝÕØ\Ý
+	Õ[ÜÈÜ[Ý\][ÈIË	ÜÝXØÙ\ÜÉÊNÂÚÝÔØÜY[	ÚÛYTØÜY[ÊNÂNÂËÈÐSU	VSQS[Ý[Û\]UØ[][[ÙJ
+HÂØÝ[Y[Ù][[Y[RY
+	ÝØ[][[ÙIÊK^ÛÛ[HX]Ý[
+\Ø[]
+NÂBÚ[ÝËY[Û^HH[Ý[Û[[Ý[
+HÂ\Ø[]
+ÏH[[Ý[ÂØØ[ÝÜYÙKÙ]][J	ÝØ[]	Ë\Ø[]
+NÂ\]UØ[][[ÙJ
+NÂÚÝÕØ\Ý
+8 ®IØ[[Ý[HYYX	ÜÝXØÙ\ÜÉÊNÂNÂÚ[ÝËÜ[^Ü^HH[Ý[Û
+HÂÛÛÝ[[Ý[HÛ\
+	Ñ[\[[Ý[ÈY
+8 ®JNÊNÂY[[Ý[
+HÂÛÛÝÜ[ÛÈHÂÙ^N^Ü^RÙ^K[[Ý[[[Ý[
+LÝ\[ÞN	ÒSË\ØÜ\[Û	ÐY[Û^HÈQHYYØHØ[]	Ë[\[Ý[Û\ÜÛÙJHÂ\Ø[]
+ÏH\ÙR[
+[[Ý[
+NÂØØ[ÝÜYÙKÙ]][J	ÝØ[]	Ë\Ø[]
+NÂ\]UØ[][[ÙJ
+NÂÚÝÕØ\Ý
+	Ô^[Y[ÝXØÙ\ÜÙ[HYY8 ®IÈ
+È[[Ý[	ÜÝXØÙ\ÜÉÊNÂKY[Â[XZ[\\Ù\Ë[XZ[	ÉÂBNÂÛÛÝH]È^Ü^JÜ[ÛÊNÂÜ[
+NÂBNÂÚ[ÝË\TÛ[ÈH[Ý[Û
+HÂÛÛÝÛÙHHØÝ[Y[Ù][[Y[RY
+	ÜÛ[Ò[]	ÊK[YKÕ\\Ø\ÙJ
+NÂÛÛÝÛ[ÜÈHÂ	ÑTÕ
+L	ÎÈ\ØÛÝ[
+L\ØÎ	ø ®MLÙÈK	ÕÑSÓÓQIÎÈ\ØÛÝ[L\ØÎ	ø ®LLÙÈK	ÓQQÐL	ÎÈ\ØÛÝ[\ØÎ	Ì	HÙÈBNÂYÛ[ÜÖØÛÙWJHÂÛÛÝÛ[ÈHÛ[ÜÖØÛÙWNÂYX\\YYÛ[ÜË[
+OÛÙHOOHÛÙJJHÂ\\YYÛ[ÜË\Ú
+ÈÛÙKÛ[ÈJNÂØØ[ÝÜYÙKÙ]][J	Ø\YYÛ[ÜÉËÓÓÝ[ÚYJ\\YYÛ[ÜÊJNÂØ[Ý[]Q\J
+NÂØÝ[Y[Ù][[Y[RY
+	ÜÛ[Ò[]	ÊK[YHH	ÉÎÂÚÝÕØ\Ý
+Û[È\YY	ÜÛ[Ë\ØßX	ÜÝXØÙ\ÜÉÊNÂBH[ÙHÂÚÝÕØ\Ý
+	Ò[[YÛ[ÈÛÙIË	Ù\ÜÊNÂBNÂËÈÖPSH	QÑTÂ[Ý[ÛYÞX[TÚ[ÊÚ[ÊHÂ\ÞX[TÚ[È
+ÏHÚ[ÎÂØØ[ÝÜYÙKÙ]][J	ÛÞX[TÚ[ÉË\ÞX[TÚ[ÊNÂ\]SÞX[Q\Ü^J
+NÂËÈÚXÚÈÜ][\ÂY\ÞX[TÚ[ÈHL
+H\ÞX[S][H	ÜÚ[\ÎÂY\ÞX[TÚ[ÈH
+L
+H\ÞX[S][H	ÙÛÛ	ÎÂY\ÞX[TÚ[ÈHL
+H\ÞX[S][H	Ü][[IÎÂØØ[ÝÜYÙKÙ]][J	ÛÞX[S][	Ë\ÞX[S][
+NÂËÈ[ØÚÈYÙ\ÂÚXÚÐYÙ\Ê
+NÂB[Ý[Û\]SÞX[Q\Ü^J
+HÂÛÛÝ][ÈHÈÛNÈ[YN	ÐÛIËÛÛÜ	ÈÐÑ
+ÑÌÈKÚ[\È[YN	ÔÚ[\ËÛÛÜ	ÈÐÌÌÌ	ÈKÛÛÈ[YN	ÑÛÛ	ËÛÛÜ	ÈÑ
+Ì	ÈK][[NÈ[YN	Ô][[IËÛÛÜ	ÈÑMQMLÈHNÂØÝ[Y[Ù][[Y[RY
+	ÛÞX[S][	ÊK^ÛÛ[H][ÖØ\ÞX[S][K[YH
+È	ÈY[X\ÎÂØÝ[Y[Ù][[Y[RY
+	ÛÞX[TÚ[ÉÊK^ÛÛ[H\ÞX[TÚ[È
+È	È	ÎÂÛÛÝX^Ú[ÈH\ÞX[S][OOH	Ü][[IÈÈL
+\ÞX[S][OOH	ÙÛÛ	ÈÈ
+L
+\ÞX[S][OOH	ÜÚ[\ÈÈL
+L
+JNÂÛÛÝÝ\[][Ú[ÈHX]Z[\ÞX[TÚ[ËX^Ú[ÊNÂØÝ[Y[Ù][[Y[RY
+	ÛÞX[P\ÊKÝ[KÚYH
+Ý\[][Ú[ÈÈX^Ú[ÊH
+L
+È	ÉIÎÂB[Ý[ÛÚXÚÐYÙ\Ê
+HÂÛÛÝ]Z[XPYÙ\ÈHÂÈY	Ù\ÝÜYIË[YN	Ñ\ÝYIË[[ÚN	ü'ã¢IËÛÛ][Û
+
+HO\YR\ÝÜK[ÝHHKÈY	Ý[ÜY\ÉË[YN	ÌLY\ÉË[[ÚN	ü'æ 	ËÛÛ][Û
+
+HO\YR\ÝÜK[ÝHLKÈY	ÛYÚÛÝÛ	Ë[YN	ÓYÚÝÛ	Ë[[ÚN	ü'ã&IËÛÛ][Û
+
+HO\YR\ÝÜKÛÛYJO]È]JÜX]Y]
+KÙ]Ý\Ê
+HHKÈY	ÙXÛ×ÝØ\[ÜË[YN	ÑXÛÈØ\[ÜË[[ÚN	ü'ã/ÉËÛÛ][Û
+
+HO\YR\ÝÜK[\OXÛÑY[JK[ÝH
+HKÈY	ÜØY]WÙ\Ý	Ë[YN	ÔØY]H\Ý	Ë[[ÚN	ü'æè{î#ÉËÛÛ][Û
+
+HO\YR\ÝÜK[\O[Ó[ÙJK[ÝHÈBNÂ]Z[XPYÙ\ËÜXXÚ
+YÙHOÂYX\YÙ\Ë[ÛY\ÊYÙKY
+H	YÙKÛÛ][Û
+JHÂ\YÙ\Ë\Ú
+YÙKY
+NÂØØ[ÝÜYÙKÙ]][J	ØYÙ\ÉËÓÓÝ[ÚYJ\YÙ\ÊJNÂÚÝÕØ\Ý
+YÙH[ØÚÙY	ØYÙK[Y_H	ØYÙK[[Ú_X	ÜÝXØÙ\ÜÉÊNÂBJNÂ[\YÙ\Ê
+NÂB[Ý[Û[\YÙ\Ê
+HÂÛÛÝYÙQÜYHØÝ[Y[Ù][[Y[RY
+	ØYÙQÜY	ÊNÂÛÛÝ[YÙ\ÈHÂÈY	Ù\ÝÜYIË[YN	Ñ\ÝYIË[[ÚN	ü'ã¢IÈKÈY	Ý[ÜY\ÉË[YN	ÌLY\ÉË[[ÚN	ü'æ 	ÈKÈY	ÛYÚÛÝÛ	Ë[YN	ÓYÚÝÛ	Ë[[ÚN	ü'ã&IÈKÈY	ÙXÛ×ÝØ\[ÜË[YN	ÑXÛÈØ\[ÜË[[ÚN	ü'ã/ÉÈKÈY	ÜØY]WÙ\Ý	Ë[YN	ÔØY]H\Ý	Ë[[ÚN	ü'æè{î#ÉÈBNÂYÙQÜY[\SH[YÙ\ËX\
+YÙHO]Û\ÜÏHYÙKZ][H	Ø\YÙ\Ë[ÛY\ÊYÙKY
+HÈ	ÙX\Y	È	ÛØÚÙY	ßH]Û\ÜÏHYÙKZXÛÛØYÙK[[Ú_OÙ]]Û\ÜÏHYÙK[[YHØYÙK[Y_OÙ]Ù]
+KÚ[	ÉÊNÂBËÈÕPÐÔTSÓPÒÔÂÛÛÝÝXØÜ\[ÛXÚÜÈHÂÈY	ÛÙXÙIË[YN	ÓÙXÙHXÚÉËXÙNNNKY\ÎØ][ÜÎ	ø ®ML	Ë[[ÚN	ü'ä¯	ÈKÈY	ÝÙYZÙ[	Ë[YN	ÕÙYZÙ[XÚÉËXÙN
+NKY\ÎLØ][ÜÎ	ø ®L	Ë[[ÚN	ü'ã¢IÈKÈY	ÛYÚ	Ë[YN	ÓYÚÝÛXÚÉËXÙN
+NNKY\ÎMKØ][ÜÎ	ø ®LÌ	Ë[[ÚN	ü'ã&IÈBNÂ[Ý[Û[\ÝXØÜ\[ÛXÚÜÊ
+HÂÛÛÝXÚÑÜYHØÝ[Y[Ù][[Y[RY
+	ÜXÚÑÜY	ÊNÂXÚÑÜY[\SHÝXØÜ\[ÛXÚÜËX\
+XÚÈO]Û\ÜÏHXÚËXØ\	Ø\ÝXØÜXYXÚÜË[ÛY\ÊXÚËY
+HÈ	ØXÝ]IÈ	ÉßHÛÛXÚÏHÚ[ÝËÝXØÜXTXÚÊ	ÉÜXÚËYIÊH]Û\ÜÏHXÚËZXY\Ü[Û\ÜÏHXÚË[[YHÜXÚË[[Ú_H	ÜXÚË[Y_OÜÜ[Ü[Û\ÜÏHXÚË\XÙH¸ ®IÜXÚËXÙ_KÛ[ÏÜÜ[Ù]]Û\ÜÏHXÚËYX]\\ÈÜXÚËY\ßHY\ËÛ[ÛÙ]]Û\ÜÏHXÚË\Ø][ÜÈØ]H	ÜXÚËØ][ÜßOÙ]Ù]
+KÚ[	ÉÊNÂBÚ[ÝËÝXØÜXTXÚÈH[Ý[ÛXÚÒY
+HÂY\ÝXØÜXYXÚÜË[ÛY\ÊXÚÒY
+JHÂ\ÝXØÜXYXÚÜÈH\ÝXØÜXYXÚÜË[\OOOHXÚÒY
+NÂÚÝÕØ\Ý
+	ÔXÚÈØ[Ù[Y	Ë	Ú[ÉÊNÂH[ÙHÂÛÛÝXÚÈHÝXØÜ\[ÛXÚÜË[
+OYOOHXÚÒY
+NÂY\Ø[]HXÚËXÙJHÂ\ÝXØÜXYXÚÜË\Ú
+XÚÒY
+NÂ\Ø[]OHXÚËXÙNÂ\]UØ[][[ÙJ
+NÂÚÝÕØ\Ý
+ÝXØÜXYÈ	ÜXÚË[Y_HX	ÜÝXØÙ\ÜÉÊNÂH[ÙHÂÚÝÕØ\Ý
+	Ò[ÝYXÚY[[[ÙIË	Ù\ÜÊNÂBBØØ[ÝÜYÙKÙ]][J	ÜÝXØÜXYXÚÜÉËÓÓÝ[ÚYJ\ÝXØÜXYXÚÜÊJNÂ[\ÝXØÜ\[ÛXÚÜÊ
+NÂNÂËÈUÈPUTTÎÓÓQSÐQUKPÓÈSÑKUSÑKURQUTÚ[ÝËÙÙÛT[Ó[ÙHH[Ý[Û
+HÂ\[Ó[ÙHHX\[Ó[ÙNÂØØ[ÝÜYÙKÙ]][J	Ü[Ó[ÙIË\[Ó[ÙJNÂØÝ[Y[Ù][[Y[RY
+	Ü[Ó[ÙPÊKÝ[KÜXÚ]HH\[Ó[ÙHÈ	ÌIÈ	ÌIÎÂY\[Ó[ÙJHÚÝÕØ\Ý
+	Ô[È[ÙHXÝ]]YH\YYY[X[H]\ÈÛIË	ÜÝXØÙ\ÜÉÊNÂNÂÚ[ÝËÙÙÛT[Ó[ÙTÙ][ÈH[Ý[ÛJHÂKÝÜÜYØ][Û
+NÂ\[Ó[ÙHHX\[Ó[ÙNÂØØ[ÝÜYÙKÙ]][J	Ü[Ó[ÙIË\[Ó[ÙJNÂØÝ[Y[Ù][[Y[RY
+	Ü[Ó[ÙTÙ][ÉÊKÛ\ÜÓ\ÝÙÙÛJ	ØXÝ]IÊNÂÚÝÕØ\Ý
+	ÕÛÛY[ØY]H[ÙH	È
+È
+\[Ó[ÙHÈ	Ñ[XY	È	Ñ\ØXY	ÊK	Ú[ÉÊNÂNÂÚ[ÝËÙÙÛQXÛÓ[ÙHH[Ý[Û
+HÂ\XÛÓ[ÙHHX\XÛÓ[ÙNÂØØ[ÝÜYÙKÙ]][J	ÙXÛÓ[ÙIË\XÛÓ[ÙJNÂØÝ[Y[Ù][[Y[RY
+	ÙXÛÓ[ÙPÊKÝ[KÜXÚ]HH\XÛÓ[ÙHÈ	ÌIÈ	ÌIÎÂØ[Ý[]Q\J
+NÂY\XÛÓ[ÙJHÚÝÕØ\Ý
+	ÑXÛÈ[ÙNY\[ÈÜY[ZXÛ\ÉË	ÜÝXØÙ\ÜÉÊNÂNÂÚ[ÝËÙÙÛQXÛÓ[ÙTÙ][ÈH[Ý[ÛJHÂKÝÜÜYØ][Û
+NÂÚ[ÝËÙÙÛQXÛÓ[ÙJ
+NÂNÂÚ[ÝËÙÙÛT][ÙHH[Ý[Û
+HÂ\][ÙHHX\][ÙNÂØØ[ÝÜYÙKÙ]][J	Ü][ÙIË\][ÙJNÂØÝ[Y[Ù][[Y[RY
+	Ü][ÙPÊKÝ[KÜXÚ]HH\][ÙHÈ	ÌIÈ	ÌIÎÂY\][ÙJHÚÝÕØ\Ý
+	Ô]QY[H[ÙN][Ú][Ý\\HY[	Ë	ÜÝXØÙ\ÜÉÊNÂNÂÚ[ÝËÙÙÛT][ÙTÙ][ÈH[Ý[ÛJHÂKÝÜÜYØ][Û
+NÂ\][ÙHHX\][ÙNÂØØ[ÝÜYÙKÙ]][J	Ü][ÙIË\][ÙJNÂØÝ[Y[Ù][[Y[RY
+	Ü][ÙTÙ][ÉÊKÛ\ÜÓ\ÝÙÙÛJ	ØXÝ]IÊNÂNÂÚ[ÝËÙÙÛT]ZY]\H[Ý[Û
+HÂ\]ZY]\HX\]ZY]\ÂØØ[ÝÜYÙKÙ]][J	Ü]ZY]\	Ë\]ZY]\
+NÂØÝ[Y[Ù][[Y[RY
+	Ü]ZY]\ÊKÝ[KÜXÚ]HH\]ZY]\È	ÌIÈ	ÌIÎÂY\]ZY]\
+HÚÝÕØ\Ý
+	Ô]ZY]\ÈÛÛ\Ø][ÛÉË	ÜÝXØÙ\ÜÉÊNÂNÂÚ[ÝËÙÙÛT]ZY]\Ù][ÈH[Ý[ÛJHÂKÝÜÜYØ][Û
+NÂ\]ZY]\HX\]ZY]\ÂØØ[ÝÜYÙKÙ]][J	Ü]ZY]\	Ë\]ZY]\
+NÂØÝ[Y[Ù][[Y[RY
+	Ü]ZY]\Ù][ÉÊKÛ\ÜÓ\ÝÙÙÛJ	ØXÝ]IÊNÂNÂÚ[ÝËÙÙÛUÚXÙPÛÚÚ[ÔÙ][ÈH[Ý[ÛJHÂKÝÜÜYØ][Û
+NÂ\ÚXÙPÛÚÚ[ÈHX\ÚXÙPÛÚÚ[ÎÂØØ[ÝÜYÙKÙ]][J	ÝÚXÙPÛÚÚ[ÉË\ÚXÙPÛÚÚ[ÊNÂØÝ[Y[Ù][[Y[RY
+	ÝÚXÙPÛÚÚ[ÔÙ][ÉÊKÛ\ÜÓ\ÝÙÙÛJ	ØXÝ]IÊNÂÚÝÕØ\Ý
+	ÕÚXÙHÛÚÚ[È	È
+È
+\ÚXÙPÛÚÚ[ÈÈ	Ñ[XY	È	Ñ\ØXY	ÊK	Ú[ÉÊNÂNÂÚ[ÝËÙÙÛSÙ[S[ÙTÙ][ÈH[Ý[ÛJHÂKÝÜÜYØ][Û
+NÂ\Ù[S[ÙHHX\Ù[S[ÙNÂØØ[ÝÜYÙKÙ]][J	ÛÙ[S[ÙIË\Ù[S[ÙJNÂØÝ[Y[Ù][[Y[RY
+	ÛÙ[S[ÙTÙ][ÉÊKÛ\ÜÓ\ÝÙÙÛJ	ØXÝ]IÊNÂÚÝÕØ\Ý
+	ÓÙ[H[ÙH	È
+È
+\Ù[S[ÙHÈ	Ñ[XY	È	Ñ\ØXY	ÊK	Ú[ÉÊNÂNÂÚ[ÝËÙÙÛTÓÔÔÙ][ÈH[Ý[ÛJHÂKÝÜÜYØ][Û
+NÂØÝ[Y[Ù][[Y[RY
+	ÜÛÜÔÙ][ÉÊKÛ\ÜÓ\ÝÙÙÛJ	ØXÝ]IÊNÂNÂËÈÒPÑHÓÒÒSÂ]ÚXÙTXÛÙÛ][ÛÂÚ[ÝËÝ\ÚXÙPÛÚÚ[ÈH[Ý[Û
+HÂYJ	ÝÙXÚ]ÜYXÚXÛÙÛ][ÛÈ[Ú[ÝÊJHÂÚÝÕØ\Ý
+	ÕÚXÙHÛÚÚ[ÈÝÝ\ÜYÛ\È]XÙIË	Ù\ÜÊNÂ]\ÂBÚXÙTXÛÙÛ][ÛH]ÈÙXÚ]ÜYXÚXÛÙÛ][Û
+NÂÚXÙTXÛÙÛ][ÛÛÝ\H
+
+HOÂØÝ[Y[Ù][[Y[RY
+	ÝÚXÙTÝ]\ÉÊK^ÛÛ[H	Ó\Ý[[ËÎÂØÝ[Y[Ù][[Y[RY
+	ÝÚXÙTÝ\ÊKÝ[K\Ü^HH	ÛÛIÎÂØÝ[Y[Ù][[Y[RY
+	ÝÚXÙPØ[Ù[ÊKÝ[K\Ü^HH	ØØÚÉÎÂNÂÚXÙTXÛÙÛ][ÛÛ\Ý[H
+][
+HOÂÛÛÝ[ØÜ\H][\Ý[ÖÌVÌK[ØÜ\ÂØÝ[Y[Ù][[Y[RY
+	ÝÚXÙTÝ]\ÉÊK^ÛÛ[H[ÝHØZYÝ[ØÜ\HÂËÈ\ÙHÚXÙHÛÛ[X[Y[ØÜ\ÓÝÙ\Ø\ÙJ
+K[ÛY\Ê	ÛÙXÙIÊJHÂÚ[ÝË]ZXÚÔÙ[XÝ
+	ÕÛÜÉÊNÂH[ÙHY[ØÜ\ÓÝÙ\Ø\ÙJ
+K[ÛY\Ê	ÚÛYIÊJHÂÚ[ÝË]ZXÚÔÙ[XÝ
+	ÒÛYIÊNÂBNÂÚXÙTXÛÙÛ][ÛÛ\ÜH
+
+HOÂØÝ[Y[Ù][[Y[RY
+	ÝÚXÙTÝ]\ÉÊK^ÛÛ[H	ÕHYØZ[ÎÂÚ[ÝËØ[Ù[ÚXÙPÛÚÚ[Ê
+NÂNÂÚXÙTXÛÙÛ][ÛÝ\
+
+NÂNÂÚ[ÝËØ[Ù[ÚXÙPÛÚÚ[ÈH[Ý[Û
+HÂYÚXÙTXÛÙÛ][ÛHÚXÙTXÛÙÛ][ÛXÜ
+
+NÂØÝ[Y[Ù][[Y[RY
+	ÝÚXÙTÝ\ÊKÝ[K\Ü^HH	ØØÚÉÎÂØÝ[Y[Ù][[Y[RY
+	ÝÚXÙPØ[Ù[ÊKÝ[K\Ü^HH	ÛÛIÎÂØÝ[Y[Ù][[Y[RY
+	ÝÚXÙTÝ]\ÉÊK^ÛÛ[H	ÐÛXÚÈÈÝ\ÜXZÚ[ËÎÂNÂËÈÐVTÒSÈÈUSKTÕÔÚ[ÝËYØ^\Ú[H[Ý[Û
+HÂØÝ[Y[Ù][[Y[RY
+	ÝØ^\Ú[ÐÛÛZ[\ÊKÝ[K\Ü^HH	ØØÚÉÎÂÛÛÝÜHÛ\
+	Ñ[\Ø^\Ú[ØØ][ÛÊNÂYÜ
+HÂ\Ø^\Ú[Ë\Ú
+Ü
+NÂ[\Ø^\Ú[Ê
+NÂBNÂ[Ý[Û[\Ø^\Ú[Ê
+HÂÛÛÝ\ÝHØÝ[Y[Ù][[Y[RY
+	ÝØ^\Ú[\Ý	ÊNÂ\Ý[\SH\Ø^\Ú[ËX\
+
+ÜJHO]Û\ÜÏHØ^\Ú[Z][H[]\OH^Û\ÜÏHØ^\Ú[Z[][YOHÝÜHXYÛO]ÛÛ\ÜÏHØ^\Ú[\[[ÝHÛÛXÚÏHÚ[ÝË[[ÝUØ^\Ú[
+	Ú_JH[[ÝOØ]ÛÙ]
+KÚ[	ÉÊNÂBÚ[ÝË[[ÝUØ^\Ú[H[Ý[ÛY
+HÂ\Ø^\Ú[ËÜXÙJYJNÂ[\Ø^\Ú[Ê
+NÂY\Ø^\Ú[Ë[ÝOOH
+HÂØÝ[Y[Ù][[Y[RY
+	ÝØ^\Ú[ÐÛÛZ[\ÊKÝ[K\Ü^HH	ÛÛIÎÂBNÂËÈÐÒQSQQTÂÚ[ÝËÜ[ØÚY[YY\ÈH[Ý[Û
+HÂÛÛÝÛ[ÜÝÈH]È]J
+NÂÛ[ÜÝËÙ]]JÛ[ÜÝËÙ]]J
+H
+ÈJNÂØÝ[Y[Ù][[Y[RY
+	ÜYQ]IÊKZ[HÛ[ÜÝËÒTÓÔÝ[Ê
+KÜ]
+	Õ	ÊVÌNÂØÝ[Y[Ù][[Y[RY
+	ÜØÚY[YY\Ó[Ù[	ÊKÛ\ÜÓ\ÝY
+	ØXÝ]IÊNÂNÂÚ[ÝËÛÛ\TØÚY[YYHH[Ý[Û
+HÂÛÛÝ]HHØÝ[Y[Ù][[Y[RY
+	ÜYQ]IÊK[YNÂÛÛÝ[YHHØÝ[Y[Ù][[Y[RY
+	ÜYU[YIÊK[YNÂY]H	[YJHÂ\ØÚY[YYHHÈ]K[YHNÂØÝ[Y[Ù][[Y[RY
+	Ù\Ý[][Û[]	ÊK[YH
+ÏH
+ØÚY[Y	Ù]_H	Ý[Y_JXÂØÝ[Y[Ù][[Y[RY
+	ÜØÚY[YY\Ó[Ù[	ÊKÛ\ÜÓ\Ý[[ÝJ	ØXÝ]IÊNÂÚÝÕØ\Ý
+	ÔYHØÚY[YIË	ÜÝXØÙ\ÜÉÊNÂBNÂËÈÔUTBÚ[ÝËYÜ]\ÛÛH[Ý[Û
+HÂÛÛÝ[YHHÛ\
+	Ñ[\Y[	ÜÈ[YNÊNÂY[YJHÂ\Ü]\T\ÛÛË\Ú
+È[YK[[Ý[JNÂ[\Ü]\J
+NÂBNÂ[Ý[Û[\Ü]\J
+HÂÛÛÝ\ÝHØÝ[Y[Ù][[Y[RY
+	ÜÜ]\ÛÛÓ\Ý	ÊNÂÛÛÝXXÚ[[Ý[HX]Ý[
+\\Ý[X]Y\HÈ
+\Ü]\T\ÛÛË[Ý
+ÈJJNÂØÝ[Y[Ù][[Y[RY
+	ÜÜ]Ý[\IÊK^ÛÛ[H\\Ý[X]Y\NÂ\Ý[\SH\Ü]\T\ÛÛËX\
+
+\ÛÛJHO]Û\ÜÏHÜ]\\ÛÛÜ[Ü\ÛÛ[Y_OÜÜ[Ü[Û\ÜÏHÜ]X[[Ý[¸ ®IÙXXÚ[[Ý[OÜÜ[Ù]
+KÚ[	ÉÊH
+È]Û\ÜÏHÜ]\\ÛÛÜ[[ÝOÜÜ[Ü[Û\ÜÏHÜ]X[[Ý[¸ ®IÙXXÚ[[Ý[OÜÜ[Ù]ÂBÚ[ÝËÛÛ\TÜ]\HH[Ý[Û
+HÂY\Ü]\T\ÛÛË[Ý
+HÂÚÝÕØ\Ý
+	ÔÜ]\H\]Y\ÝÈÙ[IË	ÜÝXØÙ\ÜÉÊNÂØÝ[Y[Ù][[Y[RY
+	ÜÜ]\S[Ù[	ÊKÛ\ÜÓ\Ý[[ÝJ	ØXÝ]IÊNÂBNÂËÈÕQPÐUSÓÂÚ[ÝËYÝYXØ][ÛH[Ý[ÛY\ÜØYÙJHÂÛÛÝÝYXØ][ÛHÂY]KÝÊ
+KY\ÜØYÙK[Y\Ý[\]È]J
+KXY[ÙBNÂ\ÝYXØ][ÛË\Ú
+ÝYXØ][ÛNÂØØ[ÝÜYÙKÙ]][J	ÛÝYXØ][ÛÉËÓÓÝ[ÚYJ\ÝYXØ][ÛÊJNÂ\]SÝYXØ][ÛYÙJ
+NÂNÂ[Ý[Û\]SÝYXØ][ÛYÙJ
+HÂÛÛÝ[XYH\ÝYXØ][ÛË[\O[XY
+K[ÝÂÛÛÝYÙHHØÝ[Y[Ù][[Y[RY
+	ÛÝYXØ][ÛYÙIÊNÂY[XY
+HÂYÙK^ÛÛ[H[XYÂYÙKÝ[K\Ü^HH	Ù^	ÎÂH[ÙHÂYÙKÝ[K\Ü^HH	ÛÛIÎÂBBËÈÑSBÚ[ÝË\]TÙ[HH[Ý[Û
+HÂÛÛÝ[YHHÛ\
+	Ñ[\[Ý\[YNË	Õ\Ù\ÊNÂY[YJHÂ\\Ù\H\\Ù\ßNÂ\\Ù\[YHH[YNÂØÝ[Y[Ù][[Y[RY
+	ÜÙ[S[YIÊK^ÛÛ[H[YNÂØØ[ÝÜYÙKÙ]][J	Ý\Ù\ËÓÓÝ[ÚYJ\\Ù\JNÂÚÝÕØ\Ý
+	ÔÙ[H\]YIË	ÜÝXØÙ\ÜÉÊNÂBNÂÚ[ÝËÙ[XÝ[ÝXYÙHH[Ý[Û
+HÂÛÛÝ[ÈHÛ\
+	ÔÙ[XÝ[ÝXYÙN[KKIÊNÂY[È	ÉÙ[Ë	ÚIË	ÝIË	ÝI×K[ÛY\Ê[ÊJHÂ\Ý\[[ÈH[ÎÂØØ[ÝÜYÙKÙ]][J	Û[ÝXYÙIË[ÊNÂØÝ[Y[Ù][[Y[RY
+	ØÝ\[[ÝXYÙIÊK^ÛÛ[H[ËÕ\\Ø\ÙJ
+NÂÚÝÕØ\Ý
+[ÝXYÙHÚ[ÙYÈ	Û[ËÕ\\Ø\ÙJ
+_X	ÜÝXØÙ\ÜÉÊNÂBNÂËÈUUÚ[ÝËÙ[ÕH[Ý[Û
+HÂÛÛÝÛHHØÝ[Y[Ù][[Y[RY
+	ÜÛR[]	ÊK[YNÂYÛK[ÝOOHL
+HÂØÝ[Y[Ù][[Y[RY
+	ÛÝÛÛZ[\ÊKÝ[K\Ü^HH	ØØÚÉÎÂÙ[\]SÕ[]Ê
+NÂ\Ý[Y\Ý[\H]KÝÊ
+NÂÚÝÕØ\Ý
+	ÓÕÙ[È
+ÎLIÈ
+ÈÛK	ÜÝXØÙ\ÜÉÊNÂH[ÙHÂÚÝÕØ\Ý
+	Ñ[\[YLYYÚ][X\Ë	Ù\ÜÊNÂBNÂ[Ý[ÛÙ[\]SÕ[]Ê
+HÂÛÛÝÛÛZ[\HØÝ[Y[Ù][[Y[RY
+	ÛÝ[]ÉÊNÂÛÛZ[\[\SH	ÉÎÂÜ]HHÈH
+ÈJÊÊHÂÛÛÝ[]HØÝ[Y[ÜX]Q[[Y[
+	Ú[]	ÊNÂ[]\HH	Ý^	ÎÂ[]X^[ÝH	ÌIÎÂ[]Û\ÜÓ[YHH	ÛÝZ[]	ÎÂ[][][ÙHH	Û[Y\XÉÎÂ[]ÛÙ^]\H
+JHOÂYKÙ^HOOH	ÐXÚÜÜXÙIÈ	H
+HÂØÝ[Y[]Y\TÙ[XÝÜ[
+	ËÝZ[]	ÊVÚHHWKØÝ\Ê
+NÂH[ÙHYH
+H	K\Ù][YJHÂØÝ[Y[]Y\TÙ[XÝÜ[
+	ËÝZ[]	ÊVÚH
+ÈWKØÝ\Ê
+NÂBNÂÛÛZ[\\[Ú[
+[]
+NÂBBÚ[ÝË\YSÕH[Ý[Û
+HÂÛÛÝÝÈH\^KÛJØÝ[Y[]Y\TÙ[XÝÜ[
+	ËÝZ[]	ÊJKX\
+[O[[YJKÚ[	ÉÊNÂYÝË[ÝOOH
+HÂ\\Ù\HÈÛN	ÊÎLIÈ
+ÈØÝ[Y[Ù][[Y[RY
+	ÜÛR[]	ÊK[YHNÂØØ[ÝÜYÙKÙ]][J	Ý\Ù\ËÓÓÝ[ÚYJ\\Ù\JNÂØÝ[Y[Ù][[Y[RY
+	ÜÙ[TÛIÊK^ÛÛ[H\\Ù\ÛNÂØÝ[Y[Ù][[Y[RY
+	ÜÙ[S[YIÊK^ÛÛ[H	ÑÝY\Ý\Ù\ÎÂÚÝÕØ\Ý
+	Ð]][XØ][ÛÝXØÙ\ÜÙ[IË	ÜÝXØÙ\ÜÉÊNÂÚÝÔØÜY[	ÛÛØ\[ÔØÜY[ÊNÂH[ÙHÂÚÝÕØ\Ý
+	Ñ[\[Y
+YYÚ]Õ	Ë	Ù\ÜÊNÂBNÂÚ[ÝËÛÛ\]SÛØ\[ÈH[Ý[Û
+HÂÚÝÔØÜY[	ÚÛYTØÜY[ÊNÂ[\Ù\XÙ\Ê
+NÂ[\YÙ\Ê
+NÂ[\ÝXØÜ\[ÛXÚÜÊ
+NÂ\]UØ[][[ÙJ
+NÂ\]SÞX[Q\Ü^J
+NÂ\]TÝ\ÙTXÚ[Ê
+NÂNÂÚ[ÝËÙÛÝ]H[Ý[Û
+HÂYÛÛ\J	ÓÙÛÝ]ÛH[Ý\XØÛÝ[ÉÊJHÂØØ[ÝÜYÙKÛX\
+NÂØØ][Û[ØY
+
+NÂBNÂËÈSÈQTÒ
+ÛHY\Ú\ÈYH\ÝÝ[YÙJB]Ý\HHÂÚ[ÝË[ÔY\ÚH[Ý[ÛJHÂYJHK][Y][
+
+NÂÚÝÕØ\Ý
+	ÔY\Ú[ÈY\ËË	Ú[ÉÊNÂÙ][Y[Ý]
+
+
+HOÂ\]R\ÝÜJ
+NÂ\]UØ[][[ÙJ
+NÂ\]SÞX[Q\Ü^J
+NÂÚÝÕØ\Ý
+	ÔY\ÚYIË	ÜÝXØÙ\ÜÉÊNÂK
+NÂNÂ[Ý[Û\]R\ÝÜJ
+HÂÛÛÝ\ÝHØÝ[Y[Ù][[Y[RY
+	ÜY\Ó\Ý	ÊNÂY\YR\ÝÜK[Ý
+HÂ\Ý[\SH\YR\ÝÜKX\
+YHO]Û\ÜÏHYKXØ\]Û\ÜÏHYKZXY\]]Û\ÜÏHYK]]HÜYK\Ý[][ÛOÙ]]Ý[OHÛ\Ú^NLÈÛÛÜ\K]^[YÚ
+NÈÛ]È]JYKÜX]Y]
+KÓØØ[Q]TÝ[Ê
+_OÙ]Ù]]Ý[OH^X[YÛYÚÈ]Ý[OHÛ]ÙZYÚ
+ÌÈ¸ ®IÜYK\_OÙ]Ü[Û\ÜÏHYK\Ý]\È	ÜYKÝ]\ßHÜYKÝ]\ËÕ\\Ø\ÙJ
+_OÜÜ[Ù]Ù]Ù]
+KÚ[	ÉÊNÂBBËÈÒRÑHÈÓÔÂ]\ÝÚZÙU[YHHÂ[Ý[Û[TÚZÙJ][
+HÂÛÛÝXØÙ[\][ÛHX]XÊ][XØÙ[\][Û[ÛY[ÑÜ]]K
+H
+ÂX]XÊ][XØÙ[\][Û[ÛY[ÑÜ]]KJH
+ÂX]XÊ][XØÙ[\][Û[ÛY[ÑÜ]]KNÂYXØÙ[\][Û
+L
+HÂÛÛÝÝÈH]KÝÊ
+NÂYÝÈH\ÝÚZÙU[YH
+L
+HÂ\ÝÚZÙU[YHHÝÎÂY\XÝ]TYJHÂÚ[ÝËYÙÙ\ÓÔÊ
+NÂBBBBËÈTPÈQQPÒÂ[Ý[ÛX]J\][ÛHL
+HÂY]YØ]ÜX]JHÂ]YØ]ÜX]J\][ÛNÂBBËÈÐTÕÕQPÐUSÓÂ[Ý[ÛÚÝÕØ\Ý
+Y\ÜØYÙK\HH	ÜÝXØÙ\ÜÉÊHÂÛÛÝØ\ÝHØÝ[Y[ÜX]Q[[Y[
+	Ù]ÊNÂØ\ÝÛ\ÜÓ[YHHØ\Ý	Ý\_XÂØ\Ý^ÛÛ[HY\ÜØYÙNÂØÝ[Y[ÙK\[Ú[
+Ø\Ý
+NÂX]J
+L
+NÂÙ][Y[Ý]
+
+
+HOØ\Ý[[ÝJ
+KÌ
+NÂBÚ[ÝËÚÝÕØ\ÝHÚÝÕØ\ÝÂËÈQPÕUHÓÒÒSÂ[Ý[ÛÙ[\]TYXÝ[ÛÊ
+HÂÛÛÝÝ\H]È]J
+KÙ]Ý\Ê
+NÂ\YXÝ[ÛÈH×NÂYÝ\H	Ý\HL
+HÂ\YXÝ[ÛË\Ú
+È\Ý[][Û	ÓÙXÙIË[[ÚN	ü'ä¯	ÈJNÂH[ÙHYÝ\HMÈ	Ý\HNJHÂ\YXÝ[ÛË\Ú
+È\Ý[][Û	ÒÛYIË[[ÚN	ü'ãè	ÈJNÂH[ÙHYÝ\HNH	Ý\HJHÂ\YXÝ[ÛË\Ú
+È\Ý[][Û	ÑÞ[IË[[ÚN	ü'äªÈJNÂBBËÈTHQÓÕPUSÓÚ[ÝËÜ[\SYÛÝX][ÛH[Ý[Û
+HÂÛÛÝ\HH\\Ý[X]Y\HÂØÝ[Y[Ù][[Y[RY
+	ÜÝYÙÙ\ÝY\IÊK^ÛÛ[H\NÂØÝ[Y[Ù][[Y[RY
+	Ù\TÛY\ÊK[YHH\NÂØÝ[Y[Ù][[Y[RY
+	Ù\TÛY\ÊKZ[HX]ÛÜ\H
+JNÂØÝ[Y[Ù][[Y[RY
+	Ù\TÛY\ÊKX^HX]ÛÜ\H
+JNÂØÝ[Y[Ù][[Y[RY
+	ÛÙ\[[Ý[	ÊK^ÛÛ[H\NÂØÝ[Y[Ù][[Y[RY
+	Ù\SYÛÝX][Û[Ù[	ÊKÛ\ÜÓ\ÝY
+	ØXÝ]IÊNÂ\]Q\PXØÙ\Ú[ÙJ\K\JNÂØÝ[Y[Ù][[Y[RY
+	Ù\TÛY\ÊKÛ[]H[Ý[Û
+HÂØÝ[Y[Ù][[Y[RY
+	ÛÙ\[[Ý[	ÊK^ÛÛ[H\Ë[YNÂ\]Q\PXØÙ\Ú[ÙJ\ÙR[
+\Ë[YJK\JNÂNÂNÂ[Ý[Û\]Q\PXØÙ\Ú[ÙJÙ\ÝYÙÙ\ÝY
+HÂÛÛÝ][ÈHÙ\ÈÝYÙÙ\ÝYÂÛÛÝ[HØÝ[Y[Ù][[Y[RY
+	Ù\PXØÙ\Ú[ÙIÊNÂY
+][ÈHK
+HÈ[^ÛÛ[H	ßMIHÚ[ÙH]\XØÙ\ÉÎÈ[Ý[KÛÛÜH	Ý\K\ÝXØÙ\ÜÊIÎÈ[Ý[KXÚÙÜÝ[H	ÜØJÎKMÍMJIÎÈB[ÙHY
+][ÈH
+JHÈ[^ÛÛ[H	ß	HÚ[ÙH]\XØÙ\ÉÎÈ[Ý[KÛÛÜH	Ý\K\ÝXØÙ\ÜÊIÎÈ[Ý[KXÚÙÜÝ[H	ÜØJÎKMÍMJIÎÈB[ÙHY
+][ÈHÊHÈ[^ÛÛ[H	ßL	HÚ[ÙH8 %ZYÚZÙHÛÙ\ÎÈ[Ý[KÛÛÜH	Ý\K]Ø\[ÊIÎÈ[Ý[KXÚÙÜÝ[H	ÜØJËMMNJIÎÈB[ÙHÈ[^ÛÛ[H	ÕÛÈÝÈÜ\È\XH8 %ZÙ[HZXÝY	ÎÈ[Ý[KÛÛÜH	Ý\KY[Ù\IÎÈ[Ý[KXÚÙÜÝ[H	ÜØJÌK
+Í
+JIÎÈBBÚ[ÝËÝXZ]\SÙ\H[Ý[Û
+HÂÛÛÝÙ\H\ÙR[
+ØÝ[Y[Ù][[Y[RY
+	Ù\TÛY\ÊK[YJNÂÚÝÕØ\Ý
+\HÙ\8 ®IÛÙ\HÙ[È]\	Ú[ÉÊNÂØÝ[Y[Ù][[Y[RY
+	Ù\SYÛÝX][Û[Ù[	ÊKÛ\ÜÓ\Ý[[ÝJ	ØXÝ]IÊNÂNÂËÈÑUTUSTÕSTÂ[Ý[ÛÙ]\][\Ý[\Ê
+HÂØÝ[Y[Ù][[Y[RY
+	ÜXÚÝ\[]	ÊKY][\Ý[\	ØÛXÚÉË
+
+HOÚ[ÝËÙ[XÝØØ][Û	ÜXÚÝ\	ÊJNÂØÝ[Y[Ù][[Y[RY
+	Ù\Ý[][Û[]	ÊKY][\Ý[\	ØÛXÚÉË
+
+HOÚ[ÝËÙ[XÝØØ][Û	Ù\Ý[][ÛÊJNÂBËÈSUPSVHÓÐQÙ][Y[Ý]
+
+
+HOÂ\]UØ[][[ÙJ
+NÂ\]SÞX[Q\Ü^J
+NÂ\]TÝ\ÙTXÚ[Ê
+NÂ[\YÙ\Ê
+NÂ[\ÝXØÜ\[ÛXÚÜÊ
+NÂ\]R\ÝÜJ
+NÂK
+L
+NÂËÈ\[ÙXØ[H\]HÝ\ÙHXÚ[ÂÙ][\[
+\]TÝ\ÙTXÚ[Ë
+
+NÂËÈOOOOHUÈPUTTÈOOOOBËÈKSTÕQQPÕUHÓÒÒSÈH]\X\ÙY[Ý[ÛÙ[\]TÛX\YXÝ[ÛÊ
+HÂÛÛÝÝ\H]È]J
+KÙ]Ý\Ê
+NÂÛÛÝ^HH]È]J
+KÙ]^J
+NÂÛÛÝ\ÕÙYZÙ^HH^HHH	^HH
+NÂ\YXÝ[ÛÈH×NÂY\ÕÙYZÙ^H	Ý\H
+È	Ý\HL
+HÂ\YXÝ[ÛË\Ú
+È\Ý[][Û	ÓÙXÙIË[[ÚN	ü'ä¯	Ë[	Ö[ÝH\ÝX[HÛÈÈÛÜÈÝÉÈJNÂH[ÙHYÝ\HMÈ	Ý\HNJHÂ\YXÝ[ÛË\Ú
+È\Ý[][Û	ÒÛYIË[[ÚN	ü'ãè	Ë[	Õ[YHÈXYÛYOÉÈJNÂH[ÙHYÝ\HNH	Ý\HJHÂ\YXÝ[ÛË\Ú
+È\Ý[][Û	ÑÞ[IË[[ÚN	ü'äªË[	ÑÞ[H[YHIÈJNÂH[ÙHYZ\ÕÙYZÙ^H	Ý\HL	Ý\HM
+HÂ\YXÝ[ÛË\Ú
+È\Ý[][Û	ÓX[	Ë[[ÚN	ü'æäË[	ÕÙYZÙ[ÚÜ[ÏÉÈJNÂBËÈÚÝÈYXÝ[Û[\ÛÛYHØÜY[ÛÛÝ[\HØÝ[Y[Ù][[Y[RY
+	ÜYXÝ[Û[\ÊNÂY[\	\YXÝ[ÛË[Ý
+HÂÛÛÝH\YXÝ[ÛÖÌNÂ[\[\SH]Ý[OHXÚÙÜÝ[ØJMKL
+ËJNÜY[ÎLØÜ\\Y]\ÎLÙ\Ü^N^Ø[YÛZ][\ÎÙ[\ÙØ\LÛX\Ú[XÝÛNM\ØÝ\ÛÜÚ[\ÈÛÛXÚÏHÚ[ÝË]ZXÚÔÙ[XÝ
+	ÉÜ\Ý[][ÛIÊHÜ[Ý[OHÛ\Ú^NÈÜ[[Ú_OÜÜ[]]Ý[OHÛ]ÙZYÚÙÛ\Ú^NMÈÛÈÈ	Ü\Ý[][ÛOÏÙ]]Ý[OHÛ\Ú^NLØÛÛÜ\K]^[YÚ
+NÈÜ[OÙ]Ù]Ü[Ý[OHX\Ú[[Y]]ÎØÛÛÜ\K\[X\JNÙÛ]ÙZYÚÌÈÛÚÈ8¡¤ÜÜ[Ù]Â[\Ý[K\Ü^HH	ØØÚÉÎÂBBËÈÝ\YHÛYXÝ[Û[Ý[ÛÙ[\]TYXÝ[ÛÈHÙ[\]TÛX\YXÝ[ÛÎÂËÈQHPÑHÐÒÈ
+Z[ÛÝ[ÝÛBÚ[ÝËØÚÔXÙHH[Ý[Û
+HÂY\XÙSØÚÙY
+H]\Â\XÙSØÚÙYHYNÂ\XÙSØÚÔÙXÛÛÈHLÂÛÛÝØÚÐHØÝ[Y[Ù][[Y[RY
+	ÜXÙSØÚÐÊNÂYØÚÐHÂØÚÐ^ÛÛ[H	ü'å$ØÚÙY	ÎÂØÚÐÝ[KXÚÙÜÝ[H	Ý\K\ÝXØÙ\ÜÊIÎÂØÚÐÝ[KÛÛÜH	ÝÚ]IÎÂBÚÝÕØ\Ý
+	ÔXÙHØÚÙYÜZ[]\ÈIË	ÜÝXØÙ\ÜÉÊNÂX]J
+L
+NÂ\XÙSØÚÕ[Y\HÙ][\[
+
+
+HOÂ\XÙSØÚÔÙXÛÛËKNÂÛÛÝZ[ÈHX]ÛÜ\XÙSØÚÔÙXÛÛÈÈ
+
+NÂÛÛÝÙXÜÈHÝ[Ê\XÙSØÚÔÙXÛÛÈ	H
+
+KYÝ\
+	Ì	ÊNÂYØÚÐHØÚÐ^ÛÛ[H<'å$ØÚÙY	ÛZ[ßNÜÙXÜßXÂY\XÙSØÚÔÙXÛÛÈH
+HÂÛX\[\[
+\XÙSØÚÕ[Y\NÂ\XÙSØÚÙYH[ÙNÂYØÚÐHÈØÚÐ^ÛÛ[H	ü'å$ÈØÚÈXÙIÎÈØÚÐÝ[KXÚÙÜÝ[H	ÉÎÈØÚÐÝ[KÛÛÜH	ÉÎÈBÚÝÕØ\Ý
+	ÔXÙHØÚÈ^\Y	Ë	Ú[ÉÊNÂBKL
+NÂNÂËÈËÓÓVPUÐTHRH
+YÚÝÙX]\B[Ý[Û\]PÛÛ^[ÙJ
+HÂÛÛÝÝ\H]È]J
+KÙ]Ý\Ê
+NÂ\ÛÛ^[ÙHH
+Ý\HHÝ\H
+JHÈ	ÛYÚ	È	Ù^IÎÂËÈYÚ[ÙNYÚYÚØY]HX]\\ÂÛÛÝØY]P[\HØÝ[Y[Ù][[Y[RY
+	ÛYÚØY]P[\ÊNÂYØY]P[\HÂY\ÛÛ^[ÙHOOH	ÛYÚ	ÊHÂØY]P[\[\SH	Ï]Ý[OHXÚÙÜÝ[ØJMKM
+ËJNÜY[ÎLM\ØÜ\\Y]\ÎÙ\Ü^N^Ø[YÛZ][\ÎÙ[\ÙØ\ÛX\Ú[XÝÛNLÈÜ[¼'ã&OÜÜ[Ü[Ý[OHÛ\Ú^NLÜÈ]HYÚYH8 %[È[ÙOØ	ÓÔÏØXÛÛ[Y[YÜÜ[Ù]ÎÂØY]P[\Ý[K\Ü^HH	ØØÚÉÎÂH[ÙHÂØY]P[\Ý[K\Ü^HH	ÛÛIÎÂBBËÈÙX]\X]Ø\HÝ\ÙH\Ü^B\]UÙX]\Ý\ÙJ
+NÂB[Ý[Û\]UÙX]\Ý\ÙJ
+HÂÛÛÝÛÛ][ÛÈHÉØÛX\Ë	ØÛX\Ë	ØÛX\Ë	ÜZ[Ë	ÙÙÉË	ØÛX\Ë	ÚX]	×NÂ\ÙX]\ÛÛ][ÛHÛÛ][ÛÖÓX]ÛÜX][ÛJ
+H
+ÛÛ][ÛË[Ý
+WNÂÛÛÝÙX]\XÛÛÈHÈÛX\	ø¦ ;î#ÉËZ[	ü'ã)ûî#ÉËÙÎ	ü'ã*ûî#ÉËX]	ü'å)IÈNÂÛÛÝÙX]\[HØÝ[Y[Ù][[Y[RY
+	ÝÙX]\Ý\ÙRXÛÛÊNÂYÙX]\[
+HÂÙX]\[^ÛÛ[HÙX]\XÛÛÖØ\ÙX]\ÛÛ][ÛH	ø¦ ;î#ÉÎÂÙX]\[]HH\ÙX]\ÛÛ][ÛOOH	ÜZ[ÈÈ	ÔZ[Ø]\Ú[ÈÝ\ÙIÈ\ÙX]\ÛÛ][ÛOOH	ÙÙÉÈÈ	ÓÝÈ\ÚX[]IÈ	ÉÎÂBBËÈ
+QÑÐQÑHSTÚ[ÝËÙÙÛPYÙØYÙS[ÙHH[Ý[Û
+HÂ\\ÐYÙØYÙHHX\\ÐYÙØYÙNÂÛÛÝHØÝ[Y[Ù][[Y[RY
+	ØYÙØYÙPÊNÂYHÝ[KÜXÚ]HH\\ÐYÙØYÙHÈ	ÌIÈ	ÌIÎÂY\\ÐYÙØYÙJHÂÚÝÕØ\Ý
+	ÐYÙØYÙH[ÙNÚÝÚ[ÈÕU	ÙY[ÛIË	Ú[ÉÊNÂËÈ[\ZXÛHÜ[ÛÂØÝ[Y[]Y\TÙ[XÝÜ[
+	ËZXÛK[Ü[ÛÊKÜXXÚ
+ÜOÂÛÛÝ[YHHÜ]Y\TÙ[XÝÜ	ËZXÛK[[YIÊOË^ÛÛ[ËÓÝÙ\Ø\ÙJ
+H	ÉÎÂY[YK[ÛY\Ê	ØZÙIÊH[YK[ÛY\Ê	Ø]]ÉÊJHÂÜÝ[KÜXÚ]HH	ÌÉÎÂÜÝ[KÚ[\][ÈH	ÛÛIÎÂBJNÂH[ÙHÂØÝ[Y[]Y\TÙ[XÝÜ[
+	ËZXÛK[Ü[ÛÊKÜXXÚ
+ÜOÂÜÝ[KÜXÚ]HH	ÌIÎÂÜÝ[KÚ[\][ÈH	Ø]]ÉÎÂJNÂBNÂËÈ
+KÒSSSPÈSÚ[ÝËÙ][XÔSH[Ý[Û
+HÂÛÛÝ[HÛ\
+	ÔÙ]H
+YYÚ][XÈS
+[\[È\È\ÈÕYÙÙ\ÈÚ[[ÓÔÊNÊNÂY[	[[ÝOOH
+	×
+ÉË\Ý
+[JHÂ\[XÔSH[ÂØØ[ÝÜYÙKÙ]][J	Ü[XÔSË[NÂÚÝÕØ\Ý
+	Ô[XÈSÙ]H[\]\ÈÕÈYÙÙ\Ú[[ÓÔËË	ÜÝXØÙ\ÜÉÊNÂH[ÙHY[OOH[
+HÂÚÝÕØ\Ý
+	ÔS]\ÝH^XÝH
+YÚ]ÉË	Ù\ÜÊNÂBNÂËÈ
+SRSHÐQUHÒTÓBÚ[ÝËY[Z[PÛÛXÝH[Ý[Û
+HÂÛÛÝ[YHHÛ\
+	Ñ[Z[HY[X\[YNÊNÂÛÛÝÛHHÛ\
+	ÔÛH[X\ÊNÂY[YH	ÛJHÂ\[Z[PÛÛXÝË\Ú
+È[YKÛHJNÂØØ[ÝÜYÙKÙ]][J	Ù[Z[PÛÛXÝÉËÓÓÝ[ÚYJ\[Z[PÛÛXÝÊJNÂÚÝÕØ\Ý
+	Û[Y_HYYÈØY]HÚ\ÛX	ÜÝXØÙ\ÜÉÊNÂ[\[Z[PÛÛXÝÊ
+NÂBNÂ[Ý[Û[\[Z[PÛÛXÝÊ
+HÂÛÛÝ[HØÝ[Y[Ù][[Y[RY
+	Ù[Z[PÛÛXÝÓ\Ý	ÊNÂYY[
+H]\Â[[\SH\[Z[PÛÛXÝËX\
+
+ËJHO]Ý[OH\Ü^N^Ú\ÝYKXÛÛ[ÜXÙKX]ÙY[Ø[YÛZ][\ÎÙ[\ÜY[ÎLØÜ\XÝÛN\ÛÛY\KXÜ\NÈ]]Ý[OHÛ]ÙZYÚÈØË[Y_OÙ]]Ý[OHÛ\Ú^NLØÛÛÜ\K]^[YÚ
+NÈØËÛ_OÙ]Ù]]ÛÛÛXÚÏH[[ÝQ[Z[PÛÛXÝ
+	Ú_JHÝ[OHXÚÙÜÝ[\KY[Ù\NØÛÛÜÚ]NØÜ\ÛNÜY[ÎLØÜ\\Y]\ÎÙÛ\Ú^NLØÝ\ÛÜÚ[\È[[ÝOØ]ÛÙ]
+KÚ[	ÉÊNÂBÚ[ÝË[[ÝQ[Z[PÛÛXÝH[Ý[ÛY
+HÂ\[Z[PÛÛXÝËÜXÙJYJNÂØØ[ÝÜYÙKÙ]][J	Ù[Z[PÛÛXÝÉËÓÓÝ[ÚYJ\[Z[PÛÛXÝÊJNÂ[\[Z[PÛÛXÝÊ
+NÂNÂÚ[ÝËÚ\U\Ú][Z[HH[Ý[Û
+HÂY\[Z[PÛÛXÝË[ÝOOH
+HÂÚÝÕØ\Ý
+	ÐY[Z[HÛÛXÝÈ\Ý[Ù[HÙ][ÜÉË	Ú[ÉÊNÂ]\ÂBÛÛÝ[Y\ÈH\[Z[PÛÛXÝËX\
+ÈOË[YJKÚ[	Ë	ÊNÂÚÝÕØ\Ý
+\Ú\YÚ]	Û[Y\ßX	ÜÝXØÙ\ÜÉÊNÂY]YØ]ÜÚ\JHÂ]YØ]ÜÚ\JÈ]N	ÒQHY\ÈH]H\	Ë^XÚÈ^HYHÛQHY\Ë]\	Ø\]\Ù[OË[YH	ÔÙX\Ú[ËßXJKØ]Ú
+
+
+OOßJNÂBNÂËÈ
+ËÕPÒTÒQSÂÚ[ÝËÚYYHH[Ý[Û
+HÂÛÛÝÛHHÛ\
+	Ñ[\XÚ\Y[ÛH[X\ÊNÂÛÛÝ[[Ý[HÛ\
+	ÔYHÜY][[Ý[
+8 ®JNÊNÂYÛH	[[Ý[	\ÙR[
+[[Ý[
+H
+HÂÛÛÝ[]H\ÙR[
+[[Ý[
+NÂY\Ø[]H[]
+HÂ\Ø[]OH[]ÂØØ[ÝÜYÙKÙ]][J	ÝØ[]	Ë\Ø[]
+NÂ\]UØ[][[ÙJ
+NÂÚÝÕØ\Ý
+8 ®IØ[]HYHÝXÚ\Ù[È
+ÎLIÜÛ_HX	ÜÝXØÙ\ÜÉÊNÂH[ÙHÂÚÝÕØ\Ý
+	Ò[ÝYXÚY[Ø[][[ÙIË	Ù\ÜÊNÂBBNÂËÈÓPTPÒÕTÕQÑÑTÕSÓ[Ý[ÛÚÝÔÛX\XÚÝ\
+
+HÂÛÛÝÝYÙÙ\Ý[ÛÈHÂ	Ó[ÝH
+LHÈXZ[ØYÜ\Ý\XÚÝ\	Ë	ÓX\H\ÈÝÜÜX\ÚY\XØÙ\ÜÉË	ÓY]ÈÝ][ÛØ]H\ÈÛÜÙ\Ý	Ë	Ó[ÝHÈH\Ú[ÈÝ[[ÙIÂNÂÛÛÝ[HØÝ[Y[Ù][[Y[RY
+	ÜÛX\XÚÝ\[	ÊNÂY[
+HÂ[[\SH]Ý[OHXÚÙÜÝ[ØJLLÍJNÜY[ÎLØÜ\\Y]\ÎÙÛ\Ú^NLÙ\Ü^N^Ø[YÛZ][\ÎÙ[\ÙØ\ÛX\Ú[XÝÛNLÈÜ[¼'äãOÜÜ[Ü[ÜÝYÙÙ\Ý[ÛÖÓX]ÛÜX][ÛJ
+H
+ÝYÙÙ\Ý[ÛË[Ý
+W_OÜÜ[Ù]ÂBBËÈKTÔÈHXZÙHÞX[HYX[[Ù[[Ý[ÛÙ]ÞX[T\ÜÊ
+HÂÛÛÝ\ÜÈHÂÛNÉÐ\ÚXÈ]Ø\ÉË	Ì^X\[É×KÚ[\ÉÍIHÙÝ\ÙIË	ÌK^X\[ÉË	Ô[Ü]HÝ\Ü	×KÛÛÉÌL	HÙÝ\ÙIË	ÌX\[ÉË	Ô[Ü]HÛÚÚ[ÉË	ÑYHØ[Ù[][Û×K][[NÉÌMIHÙÝ\ÙIË	ÌÞX\[ÉË	ÕT]\ÉË	ÑYHØ[Ù[][ÛË	Ñ^Û\Ú]H][É×BNÂ]\\ÜÖØ\ÞX[S][H\ÜËÛNÂBËÈLÕUHSRUSÂÚ[ÝËÛÜYÚ[[Ù[ÕHÚ[ÝËÙ[ÕÂÚ[ÝËÙ[ÕH[Ý[Û
+HÂÛÛÝÝÈH]KÝÊ
+NÂÛÛÝÛÛÛÝÛHÌÈËÈÌÙXÛÛÂY\Ý[Y\Ý[\	
+ÝÈH\Ý[Y\Ý[\
+HÛÛÛÝÛHÂÛÛÝ[XZ[[ÈHX]ÙZ[
+
+ÛÛÛÝÛH
+ÝÈH\Ý[Y\Ý[\
+JHÈL
+NÂÚÝÕØ\Ý
+ØZ]	Ü[XZ[[ß\ÈYÜH\Ù[[ÈÕ	Ú[ÉÊNÂ]\ÂB\Ý[Y\Ý[\HÝÎÂËÈÝ\ÛÝ[ÝÛ\Ü^BÛÛÝÝHØÝ[Y[]Y\TÙ[XÝÜ	ÖÛÛÛXÚÊHÙ[ÕIÊNÂYÝHÂ]ÙXÜÈHÌÂÝ\ØXYHYNÂÝ^ÛÛ[H\Ù[[	ÜÙXÜß\ØÂÛÛÝ[Y\HÙ][\[
+
+
+HOÂÙXÜËKNÂÝ^ÛÛ[H\Ù[[	ÜÙXÜß\ØÂYÙXÜÈH
+HÂÛX\[\[
+[Y\NÂÝ\ØXYH[ÙNÂÝ^ÛÛ[H	ÔÙ[Õ	ÎÂBKL
+NÂBÚ[ÝËÛÜYÚ[[Ù[Õ
+
+NÂNÂËÈPÕSÑHUSUB[Ý[ÛXÝ[ÙJ[^HHÌ
+HÂ][Y\Â]\[Ý[Û\ÜÊHÈÛX\[Y[Ý]
+[Y\NÈ[Y\HÙ][Y[Ý]
+
+
+HO\J\Ë\ÜÊK[^JNÈNÂBËÈ\HXÝ[ÙHÈXÚÝ\Ù\Ý[][Û[]ÂÉÜXÚÝ\[]	Ë	Ù\Ý[][Û[]	×KÜXXÚ
+YOÂÛÛÝ[HØÝ[Y[Ù][[Y[RY
+Y
+NÂY[
+HÂÛÛÝÜYÚ[[H[Û[]Â[Û[]HXÝ[ÙJ[Ý[ÛJHÂYÜYÚ[[
+HÜYÚ[[Ø[
+\ËJNÂKÌ
+NÂBJNÂËÈÒPÑHÓÒÒSÈTÕPSQQPÒÈ
+[ÙH[[X][ÛBÛÛÝÚXÙTÝ[HHØÝ[Y[ÜX]Q[[Y[
+	ÜÝ[IÊNÂÚXÙTÝ[K^ÛÛ[HÙ^Y[Y\ÈZXÔ[ÙHÈ	KL	HÈÞ\ÚYÝÎØJMKL
+Ë
+NÈH
+L	HÈÞ\ÚYÝÎM\ØJMKL
+Ë
+NÈHBZXËXXÝ]HÈ[[X][ÛZXÔ[ÙHK\ÈX\ÙKZ[[Ý][[]NÈXÚÙÜÝ[\K\[X\JHZ[\Ü[ÈÛÛÜÚ]HZ[\Ü[ÈBÚÙ[]ÛXØ\ÈZYÚÈX\Ú[XÝÛNLÈÜ\\Y]\ÎLÈBÂØÝ[Y[XY\[Ú[
+ÚXÙTÝ[JNÂËÈÝ\YHÚXÙHÛÚÚ[ÈÈY\ÝX[YYXÚÂÛÛÝÜYÔÝ\ÚXÙHHÚ[ÝËÝ\ÚXÙPÛÚÚ[ÎÂÚ[ÝËÝ\ÚXÙPÛÚÚ[ÈH[Ý[Û
+HÂÛÛÝHØÝ[Y[Ù][[Y[RY
+	ÝÚXÙTÝ\ÊNÂYHÛ\ÜÓ\ÝY
+	ÛZXËXXÝ]IÊNÂYÜYÔÝ\ÚXÙJHÜYÔÝ\ÚXÙJ
+NÂNÂÛÛÝÜYÐØ[Ù[ÚXÙHHÚ[ÝËØ[Ù[ÚXÙPÛÚÚ[ÎÂÚ[ÝËØ[Ù[ÚXÙPÛÚÚ[ÈH[Ý[Û
+HÂÛÛÝHØÝ[Y[Ù][[Y[RY
+	ÝÚXÙTÝ\ÊNÂYHÛ\ÜÓ\Ý[[ÝJ	ÛZXËXXÝ]IÊNÂYÜYÐØ[Ù[ÚXÙJHÜYÐØ[Ù[ÚXÙJ
+NÂNÂËÈÓÓVPUÐTH
+ÈQPÕSÓÈÛØYÙ][Y[Ý]
+
+
+HOÂ\]PÛÛ^[ÙJ
+NÂÙ[\]TÛX\YXÝ[ÛÊ
+NÂÚÝÔÛX\XÚÝ\
+
+NÂ[\[Z[PÛÛXÝÊ
+NÂK
+
+NÂËÈ\]HÛÛ^]\H
+HZ[ÂÙ][\[
+\]PÛÛ^[ÙKÌ
+NÂÜØÜ\ØÜ\ËÈÐHX[Y\ÝY
+	ÜÙ\XÙUÛÜÙ\È[]YØ]ÜHÂ]YØ]ÜÙ\XÙUÛÜÙ\YÚ\Ý\	Ù]N\XØ][ÛÚ]\ØÜ\Ù[Y][\Ý[\[Ý[OOÙ[ÚÚ\ØZ][Ê
+JNÜÙ[Y][\Ý[\XÝ]]HOOKØZ][[
+ÛY[ËÛZ[J
+JJNÉÊKØ]Ú
+
+
+HOßJNÂBÜØÜ\ØÙ
